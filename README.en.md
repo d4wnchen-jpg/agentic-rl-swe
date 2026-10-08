@@ -2,6 +2,13 @@
 
 [中文](README.md) | **English**
 
+[![CI](https://github.com/d4wnchen-jpg/agentic-rl-swe/actions/workflows/ci.yml/badge.svg)](https://github.com/d4wnchen-jpg/agentic-rl-swe/actions/workflows/ci.yml)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![python](https://img.shields.io/badge/python-3.12-3776AB.svg)](https://www.python.org/)
+[![GPU](https://img.shields.io/badge/GPU-1%C3%97%20RTX%20PRO%206000%2096GB-76B900.svg)]()
+[![model](https://img.shields.io/badge/model-Qwen3.5--9B-8A2BE2.svg)]()
+[![method](https://img.shields.io/badge/method-GRPO%20%2B%20LoRA-FF6F00.svg)]()
+
 A working agentic RL loop on one 96GB GPU: multi-turn tool use → sandboxed grading → GRPO training → weight round-trip.
 
 ---

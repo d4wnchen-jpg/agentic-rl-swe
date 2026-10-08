@@ -2,6 +2,13 @@
 
 **中文** | [English](README.en.md)
 
+[![CI](https://github.com/d4wnchen-jpg/agentic-rl-swe/actions/workflows/ci.yml/badge.svg)](https://github.com/d4wnchen-jpg/agentic-rl-swe/actions/workflows/ci.yml)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![python](https://img.shields.io/badge/python-3.12-3776AB.svg)](https://www.python.org/)
+[![GPU](https://img.shields.io/badge/GPU-1%C3%97%20RTX%20PRO%206000%2096GB-76B900.svg)]()
+[![model](https://img.shields.io/badge/model-Qwen3.5--9B-8A2BE2.svg)]()
+[![method](https://img.shields.io/badge/method-GRPO%20%2B%20LoRA-FF6F00.svg)]()
+
 在单张 96GB 显卡上跑通完整的 agentic RL 回路：多轮工具调用 → 沙箱判分 → GRPO 训练 → 权重回灌。
 
 ---

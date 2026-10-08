@@ -1,0 +1,48 @@
+<uploaded_files>
+/testbed
+</uploaded_files>
+I've uploaded a python code repository in the directory /testbed. Consider the following PR description:
+
+<pr_description>
+OriginValidator doesn't work with wildcard (*) in allowed_origins
+
+Description
+
+OriginValidator is not properly handling wildcard (*) in allowed_origins. When a request comes with no origin and the allowed_origins list contains "*", the validator incorrectly rejects the connection.
+
+The validator should allow connections with no origin when "*" is in the allowed_origins list, but currently it's rejecting all requests with no origin regardless of whether wildcard is present in the allowed list.
+
+To reproduce:
+
+```python
+from channels.security.websocket import OriginValidator
+from channels.testing import WebsocketCommunicator
+
+async def app(scope, receive, send):
+    await send({"type": "websocket.accept"})
+
+# Create application with OriginValidator that allows all origins
+application = OriginValidator(app, ["*"])
+
+# Try to connect without an origin header
+communicator = WebsocketCommunicator(application, "/")
+connected, _ = await communicator.connect()
+
+# This should be True but returns False
+print(f"Connected: {connected}")  # Prints: Connected: False
+```
+
+Expected behavior: When "*" is in allowed_origins, connections with no origin should be accepted.
+Current behavior: Connections with no origin are always rejected, even when "*" is in allowed_origins.
+</pr_description>
+
+Can you help me implement the necessary changes to the repository so that the requirements specified in the <pr_description> are met?
+I've already taken care of all changes to any of the test files described in the <pr_description>. This means you DON'T have to modify the testing logic or any of the tests in any way!
+Your task is to make the minimal changes to non-tests files in the /testbed directory to ensure the <pr_description> is satisfied.
+Follow these steps to resolve the issue:
+1. As a first step, it might be a good idea to find and read code relevant to the <pr_description>
+2. Create a script to reproduce the error and execute it with `python <filename.py>` using the bash tool, to confirm the error
+3. Edit the source code of the repo to resolve the issue
+4. Rerun your reproduce script and confirm that the error is fixed!
+5. Think about edgecases and make sure your fix handles them as well
+Your thinking should be thorough and so it's fine if it's very long.

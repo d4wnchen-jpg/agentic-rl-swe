@@ -81,7 +81,7 @@ def init_result_md(cfg, n_train, base):
             "n_rollouts": "from agl", "n_prompts": "单卡适配", "max_turns": "from agl",
             "max_row_tokens": "单卡适配", "lr": "from agl", "clip_low": "from agl",
             "clip_high": "from agl", "temperature": "from agl", "steps": "单卡适配",
-            "gpu_mem_util": "单卡适配", "max_new_tokens": "保留我们的",
+            "gpu_mem_util": "单卡适配", "max_new_tokens": "本项目设置",
             "max_num_seqs": "Qwen3.5 限制",
         }
         for k, v in cfg.items():

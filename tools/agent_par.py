@@ -3,8 +3,8 @@
 
 与 agent.py 的关键区别：
   1. 每个 rollout 独占 /tmp/par/<tag> 工作目录，互不干扰
-  2. 模型命令里写死的 /testbed 会被透明替换成真实目录
-  3. 工具返回里的真实路径再替换回 /testbed，保持模型看到的世界一致
+  2. 模型命令里写死的 /testbed 会被透明替换成实际目录
+  3. 工具返回里的实际路径再替换回 /testbed，保持模型看到的世界一致
   4. 支持批量生成（llm.batch_chat）+ 多线程工具执行
 """
 from __future__ import annotations
@@ -241,7 +241,7 @@ def init_msgs(task):
 # ---------------- 并行驱动 ----------------
 # 历史管理交给 agl_util.elide_old_obs：
 # 保留 system / 题面 / 全部 assistant 消息；最近 N 个 observation 保留原文，
-# 更早的换成显式占位符（agent-lightning 不裁历史，我们因 32k 上下文做了温和省略）
+# 更早的换成显式占位符（agent-lightning 不裁历史；本项目因 32k 上下文做温和省略）
 
 
 def _safe_batch(llm, msgs, stop):

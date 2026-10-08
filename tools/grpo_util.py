@@ -136,7 +136,7 @@ def masked_logprobs(model, input_ids, loss_mask, chunk=512):
     做了 2 之后只留 chunk 的输入（很小）✅
 
     ⚠️ 因果 LM 错位：预测 position i 的 logits 来自 position i-1 的隐藏状态
-    ⚠️ 必须 patch【真正被 forward 调用的】lm_head 的 forward 方法
+    ⚠️ 必须 patch【被 forward 实际调用的】lm_head 的 forward 方法
     """
     import torch
     import torch.nn.functional as F
@@ -185,7 +185,7 @@ def masked_logprobs(model, input_ids, loss_mask, chunk=512):
         if o.dim() == 3 and o.shape[0] == 1:
             o = o[0]                              # [S, V]
         if o.dim() == 2 and o.shape[0] == 1:
-            o = o[0]                              # [N]  <- 我们的分块输出
+            o = o[0]                              # [N]  <- 分块输出
         if o.dim() != 1 or o.shape[0] != head_pos.numel():
             raise RuntimeError(
                 f"lm_head 未被拦截或形状异常！out.logits.shape={tuple(out.logits.shape)}，"

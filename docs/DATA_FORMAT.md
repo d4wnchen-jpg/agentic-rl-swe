@@ -113,7 +113,7 @@ $SWESMITH_RL_HOME/
 
 1. 从 SWE-smith 发布的数据里筛选目标仓库的 parquet
    → `tools/export_more.py`
-2. 验证任务可执行（在我们选定的 conda 环境里能跑起来）
+2. 验证任务可执行（在选定的 conda 环境里能跑起来）
    → `tools/verify_tasks.py`
 3. 难度探测（每题跑 4 次）
    → `tools/probe_par.py`

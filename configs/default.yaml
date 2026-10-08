@@ -1,0 +1,43 @@
+# GRPO 训练超参
+#
+# ⚠️ 单一来源：本文件由 tools/config.py 加载，tools/train_grpo.py 使用。
+#    两者不一致时 `pytest tests/test_config.py` 会失败。
+#
+# 优先级：环境变量（GRPO_LR=2e-4）> 本文件 > tools/config.py 的 DEFAULTS
+#
+# 出处标注：
+#   agl        = 对齐 agent-lightning 的 examples/swe_smith
+#   single-gpu = 因单卡 96GB（而非参照的 4×192GB）而做的缩放
+#   qwen3.5    = Qwen3.5 架构特有的约束
+#   self       = 无参照，自行标定（含标定依据）
+
+# ─────────────── rollout ───────────────
+n_rollouts: 8                 # agl (rollout.n)：每题采样条数 = 组大小 G
+temperature: 1.0              # agl：训练采样温度
+val_temperature: 0.7          # agl (rollout.val_kwargs)：验证温度
+max_turns: 40                 # agl (SMITH_MAX_TURNS)
+max_new_tokens: 16384         # agl (AGL_MAX_TOKENS)：单轮输出上限
+
+# ─────────────── 训练 ───────────────
+n_prompts: 4                  # single-gpu (agl: train_batch_size=16)：每步题数
+steps: 20                     # single-gpu (agl: 1000)
+#   20 步 × 4 题 = 80 次抽取 / 72 道 = 1.11 epoch（按 epoch 遍历，覆盖 100%）
+lr: 1.0e-4                    # self：LoRA 需要比全参(1e-6)高 100 倍，见 IMPLEMENTATION §7.6
+mini_batch_size: 16           # agl (ppo_mini_batch_size)
+max_ppo_update_times: 2       # agl：每批做 2 次更新，否则 clip 恒不生效
+clip_low: 0.2                 # agl
+clip_high: 0.28               # agl (DAPO 非对称)
+max_row_tokens: 32768         # single-gpu (agl: trajectory_max_response_length=65536)
+seed: 0
+
+# ─────────────── LoRA ───────────────
+lora_r: 16                    # single-gpu
+lora_alpha: 32                # single-gpu（scaling = alpha/r = 2）
+
+# ─────────────── 评测 ───────────────
+eval_every: 10                # agl (test_freq=16) 的适配：20 步 -> 评测点 10/20
+eval_n: 115                   # single-gpu (agl: 400)：取全部 held-out（实际跑成 113）
+
+# ─────────────── 显存 ───────────────
+gpu_mem_util: 0.45            # single-gpu (agl: 0.8)
+max_num_seqs: 128             # qwen3.5：Mamba cache 按序列数限制

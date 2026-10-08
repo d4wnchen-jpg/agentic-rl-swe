@@ -1,0 +1,26 @@
+# ── 推理 / 采样 ──
+vllm>=0.30.0
+transformers>=4.56
+safetensors>=0.4
+
+# ── 训练 ──
+torch>=2.9             # 需要 >= 2.9 才支持 sm_120
+peft>=0.13
+accelerate>=1.0
+
+# ── 训练侧 kernel（vLLM 只带推理 kernel）──
+flash-linear-attention
+# causal-conv1d        # 可选，需要编译；缺失时有 PyTorch fallback
+
+# ── 配置 ──
+pyyaml>=6.0            # configs/default.yaml 的加载
+
+# ── 数据 ──
+datasets>=2.18
+pyarrow>=15
+
+# ── 工具 ──
+openai>=1.0            # agent 的 LLM 客户端接口
+
+# ── 测试 ──
+pytest>=7.0

@@ -1,0 +1,27 @@
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# 数据与产物（体积大，不入库）
+out/
+data/
+grpo_adapters/
+*.safetensors
+*.tar.gz
+
+# 日志
+*.log
+log_*.txt
+log_*.jsonl
+
+# 模型
+models/
+
+# 编辑器 / 系统
+.DS_Store
+.idea/
+.vscode/
+*.swp

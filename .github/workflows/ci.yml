@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dev deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pyyaml pyflakes
+
+      # 语法检查（不需要 torch / vllm）
+      - name: Byte-compile
+        run: python -m py_compile tools/*.py tests/*.py
+
+      # 未定义名字 / 重复定义等
+      - name: Pyflakes
+        run: |
+          python -m pyflakes tools/*.py tests/*.py \
+            | grep -iE "undefined|redefinition|syntax|invalid" && exit 1 || true
+
+      # LCP 对齐 + 配置一致性（纯 CPU）
+      - name: Tests
+        run: python -m pytest tests/ -q

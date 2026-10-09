@@ -113,7 +113,7 @@ class VLLMBatch:
         outs = self.llm.chat(
             batch_messages,
             sampling_params=sp,
-            chat_template_kwargs=({} if self.enable_thinking is None
+            chat_template_kwargs=(None if self.enable_thinking is None
                                   else {"enable_thinking": self.enable_thinking}),
         )
         return [o.outputs[0].text if o.outputs else "" for o in outs]

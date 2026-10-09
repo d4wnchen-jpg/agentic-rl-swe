@@ -44,7 +44,7 @@ class GRPOLlm:
 
     def _ct_kwargs(self):
         """chat template 的额外参数；None 表示不传"""
-        return ({} if self.enable_thinking is None
+        return (None if self.enable_thinking is None
                 else {"enable_thinking": self.enable_thinking})
 
     def _sp(self, temperature, stop, want_logprobs=False):

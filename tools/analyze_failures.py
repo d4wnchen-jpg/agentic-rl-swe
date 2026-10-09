@@ -184,15 +184,55 @@ def main():
 
     # ── ③ 轮数分布 ──────────────────────────────────────
     print("\n【③ 轮数分布】\n")
-    for label, sel in (("成功的", [r for r in rows if r["resolved"]]),
-                       ("失败的", [r for r in rows if not r["resolved"]])):
+    ok_rows = [r for r in rows if r["resolved"]]
+    bad_rows = [r for r in rows if not r["resolved"]]
+
+    def q(ts, frac):
+        if not ts:
+            return 0
+        return ts[min(len(ts) - 1, int(len(ts) * frac))]
+
+    for label, sel in (("成功的", ok_rows), ("失败的", bad_rows)):
         if not sel:
             continue
         ts = sorted(r.get("nturns", 0) for r in sel)
         avg = sum(ts) / len(ts)
         hit = sum(1 for t in ts if t >= max_turns)
-        print(f"  {label} {len(sel):4} 条   平均 {avg:5.1f} 轮   "
-              f"中位 {ts[len(ts)//2]:3}   用满 {hit} ({hit/len(ts)*100:.0f}%)")
+        print(f"  {label} {len(sel):4} 条")
+        print(f"    平均 {avg:5.1f}   中位 {q(ts,.5):3}   p75 {q(ts,.75):3}   "
+              f"p90 {q(ts,.9):3}   p99 {q(ts,.99):3}   最大 {ts[-1]:3}")
+        # 直方图（按轮数分 10 桶）
+        buckets = Counter(min(int(t * 10 / max(max_turns, 1)), 9) for t in ts)
+        hist = "".join("▁▂▃▄▅▆▇█"[min(7, int(buckets.get(i, 0) / max(1, max(buckets.values())) * 7))]
+                       for i in range(10))
+        print(f"    分布 {hist}   (0 轮 → {max_turns} 轮)")
+        print(f"    用满上限 {hit} ({hit/len(ts)*100:.0f}%)")
+        print()
+
+    # ⭐ 解读：轮数上限是不是成功的主要约束
+    if ok_rows:
+        ots = sorted(r.get("nturns", 0) for r in ok_rows)
+        p90 = q(ots, .9)
+        print(f"  ⭐ 成功 p90 = {p90} 轮，上限 {max_turns} 轮")
+        if p90 >= max_turns * 0.8:
+            print(f"     -> 相当一部分成功是在【接近上限】时完成的")
+            print(f"        提高 max_turns 很可能救回一批失败")
+        else:
+            print(f"     -> 成功大多在上限的 {p90/max_turns*100:.0f}% 以内完成")
+            print(f"        轮数上限【不是】成功的主要约束，提高它收益有限")
+
+    # ⭐ 轮数耗尽但接近成功的比例 -> 估计提高上限能救回多少
+    exhausted = [r for r in bad_rows if r.get("nturns", 0) >= max_turns]
+    if exhausted:
+        near = [r for r in exhausted
+                if (r.get("n_f2p_bad") is not None and r.get("n_p2p_bad") is not None
+                    and r.get("n_p2p_bad") == 0
+                    and 0 < r.get("n_f2p_bad", 99) < r.get("n_f2p", 0))]
+        print(f"\n  ⭐ 轮数耗尽的 {len(exhausted)} 条里，F2P【部分通过】的 {len(near)} 条 "
+              f"({len(near)/len(exhausted)*100:.0f}%)")
+        print(f"     -> 这些是「快做完了但没轮数了」，提高上限大概能多救回 ~{len(near)} 条")
+        if len(near) == 0 and "n_f2p_bad" not in exhausted[0]:
+            print("     （注：明细里没有 F2P/P2P 分解，是旧格式的数据）")
 
     # ── ④ 按仓库 ────────────────────────────────────────
     print("\n【④ 按仓库】\n")

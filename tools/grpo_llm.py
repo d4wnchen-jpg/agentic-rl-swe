@@ -16,13 +16,17 @@ if os.path.isdir(_CU13):
 class GRPOLlm:
     def __init__(self, model_path, max_model_len=81920, gpu_mem=0.40,
                  max_new_tokens=1024, max_lora_rank=16, max_loras=2,
-                 max_num_seqs=256, enable_thinking=False):
+                 max_num_seqs=256, enable_thinking=None):
         from vllm import LLM, SamplingParams
         from vllm.lora.request import LoRARequest
 
         self.SamplingParams = SamplingParams
         self.LoRARequest = LoRARequest
         self.max_new_tokens = max_new_tokens
+        # ⚠️ None = 不传该参数（推荐）。
+        #    传 False 会让 Qwen3.5 的模板在 prompt 尾部插入完整的空思考块
+        #    <think>\n\n</think>\n\n，模型有概率复读它。
+        #    详见 docs/RESULTS.md 第 8 节。
         self.enable_thinking = enable_thinking
 
         print(f"[GRPOLlm] loading {model_path}  max_model_len={max_model_len}  "
@@ -37,6 +41,11 @@ class GRPOLlm:
             disable_log_stats=True,
         )
         print("[GRPOLlm] ready", flush=True)
+
+    def _ct_kwargs(self):
+        """chat template 的额外参数；None 表示不传"""
+        return ({} if self.enable_thinking is None
+                else {"enable_thinking": self.enable_thinking})
 
     def _sp(self, temperature, stop, want_logprobs=False):
         sp = self.SamplingParams(
@@ -56,7 +65,7 @@ class GRPOLlm:
         outs = self.llm.chat(
             batch_messages, sampling_params=self._sp(temperature, stop),
             lora_request=lora_request,
-            chat_template_kwargs={"enable_thinking": self.enable_thinking})
+            chat_template_kwargs=self._ct_kwargs())
         return [o.outputs[0].text if o.outputs else "" for o in outs]
 
     def batch_chat_ids(self, batch_messages, stop=None, temperature=None,
@@ -70,7 +79,7 @@ class GRPOLlm:
             batch_messages,
             sampling_params=self._sp(temperature, stop, want_logprobs),
             lora_request=lora_request,
-            chat_template_kwargs={"enable_thinking": self.enable_thinking})
+            chat_template_kwargs=self._ct_kwargs())
         res = []
         for o in outs:
             pid = list(o.prompt_token_ids or [])

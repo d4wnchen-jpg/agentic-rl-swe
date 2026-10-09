@@ -2,7 +2,10 @@
 """llm_client.py — 批量生成客户端
 
 HFBatch: 一次 generate 处理整个 batch（左 padding + attention_mask）
-关键点：Qwen3.5 默认会输出  thinking...，用 enable_thinking=False 关掉
+关键点：enable_thinking 默认【不传】。
+        传 False 会让 Qwen3.5 的模板在 prompt 尾部插入完整的空思考块
+        <think>\n\n</think>\n\n，模型有概率复读它
+        （本项目实测：训练后 96% 的 rollout 首轮复读；见 docs/RESULTS.md 第 8 节）
 """
 import os
 import torch
@@ -12,7 +15,7 @@ import sys
 
 class HFBatch:
     def __init__(self, model_path, adapter=None, max_new_tokens=1536,
-                 enable_thinking=False, dtype=torch.bfloat16):
+                 enable_thinking=None, dtype=torch.bfloat16):
         print(f"加载 tokenizer/模型: {model_path}", flush=True)
         self.tok = AutoTokenizer.from_pretrained(model_path)
         self.tok.padding_side = "left"                     # 批量生成必须左 padding
@@ -39,8 +42,8 @@ class HFBatch:
 
     def _render(self, messages):
         kw = dict(add_generation_prompt=True, tokenize=False)
-        if self.tpl_has_thinking:
-            kw["enable_thinking"] = self.enable_thinking      # 关掉思考块
+        if self.tpl_has_thinking and self.enable_thinking is not None:
+            kw["enable_thinking"] = self.enable_thinking
         return self.tok.apply_chat_template(messages, **kw)
 
     def batch_chat(self, batch_messages, temperature=None, stop=None):
@@ -76,7 +79,7 @@ class VLLMBatch:
     CU13 = os.path.join(sys.prefix, "lib", f"python{sys.version_info.major}.{sys.version_info.minor}", "site-packages", "nvidia", "cu13")
 
     def __init__(self, model_path, max_model_len=16384, gpu_mem=0.95,
-                 max_new_tokens=1024, enable_thinking=False):
+                 max_new_tokens=1024, enable_thinking=None):
         import os
         if os.path.isdir(self.CU13):                    # 必须在 import vllm 之前
             os.environ["CUDA_HOME"] = self.CU13
@@ -110,6 +113,7 @@ class VLLMBatch:
         outs = self.llm.chat(
             batch_messages,
             sampling_params=sp,
-            chat_template_kwargs={"enable_thinking": self.enable_thinking},
+            chat_template_kwargs=({} if self.enable_thinking is None
+                                  else {"enable_thinking": self.enable_thinking}),
         )
         return [o.outputs[0].text if o.outputs else "" for o in outs]

@@ -173,7 +173,33 @@ prep_sandbox(task, workdir)
 **必须关闭历史 elide** —— 一旦改写历史，多轮之间就不再构成 token 前缀链，
 训练行只能退回"每轮一行"（成本高约 18 倍）。
 
-### 4.3 动作格式与容错
+### 4.3 chat template：不要传 `enable_thinking=False`
+
+Qwen3.5 的模板在 `enable_thinking=False` 时会在 prompt 尾部插入一个**完整的空思考块**：
+
+```
+<|im_start|>assistant\n<think>\n\n</think>\n\n
+```
+
+| 传参 | prompt 尾部 |
+|---|---|
+| **不传（推荐）** | `<\|im_start\|>assistant\n<think>\n` |
+| `False` | `<\|im_start\|>assistant\n<think>\n\n</think>\n\n` |
+| `True` | 同"不传" |
+
+**传 `False` 时，模型有概率复读这个完整模式。** 本项目实测：训练后 96% 的 rollout
+在首轮复读它（基座 0%）。详见 [RESULTS.md 第 8 节](RESULTS.md#8-生成退化一个需要避开的行为)。
+
+```python
+# 推荐
+chat_template_kwargs = {}
+# 或显式关闭思考（接受复读风险）
+chat_template_kwargs = {"enable_thinking": False}
+```
+
+---
+
+### 4.4 动作格式与容错
 
 - 动作格式：`<function=name><parameter=key>value</parameter></function>`
 - 解析失败 → 追加格式提示、不消耗工具轮次

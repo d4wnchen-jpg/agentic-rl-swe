@@ -63,7 +63,29 @@ Deliverables: a runnable loop, a configuration that lets vLLM and the training m
 
 The loop runs. Within this project's compute budget, the held-out pass rate shows no measurable change.
 
-Detecting a 12 pp effect would need roughly 15× more training (~45 hours continuous). See [RESULTS.md](docs/RESULTS.md).
+Detecting a 12 pp effect would need roughly 15× more training (~140 hours, about 6 days, continuous). See [RESULTS.md](docs/RESULTS.md).
+
+---
+
+## Suggested improvements
+
+Each item is grounded in measurements from this run.
+
+| # | Improvement | Evidence | Cost |
+|---|---|---|---|
+| **1** | **Raise training volume to ≥10,000 rollouts** (currently 640) | Detecting a 12 pp change at this eval size needs roughly 15x more training | ~140 h on one GPU (about 6 days) |
+| **2** | **Grow the eval set to ~150 tasks** (currently 113) | SE drops from 4.3 pp to ~3.7 pp | eval time only |
+| **3** | **Take larger policy steps** (higher lr or more steps) | `clip_frac` stayed at 0.0–0.2% throughout: clipping never fired, so PPO degenerated into REINFORCE | free, needs tuning |
+| **4** | **Make the task pool dynamic** — retire tasks the model reliably solves | Zero-variance groups (all 8 correct or all 8 wrong) give advantage 0 and produce no gradient; the training set still holds 12 all-fail tasks | small |
+| **5** | **Scale the dataset to thousands of tasks** (currently 187) | The reference implementation uses 6,000; the mixed-task ratio (41%) drives GRPO's sample efficiency | data preparation |
+| **6** | **Average k>1 eval samples** | Eval temperature is 0.7, so a single sample is noisy | eval time x k |
+
+**Priority: 1 > 4 > 3 > 2 > 5 > 6**
+
+Item 1 is the only change that can make a *result* possible; the rest improve efficiency or reduce noise.
+Until it is done, the conclusion here stays engineering-level: **the loop runs, the effect is not measurable.**
+
+> Item 4 is the idea behind DAPO's Dynamic Sampling ([arXiv:2503.14476](https://arxiv.org/abs/2503.14476)).
 
 ---
 

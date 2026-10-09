@@ -18,7 +18,7 @@ jobs:
       - name: Install dev deps
         run: |
           python -m pip install --upgrade pip
-          pip install pytest pyyaml pyflakes
+          pip install pytest pyyaml pyflakes jinja2
 
       # 语法检查（不需要 torch / vllm）
       - name: Byte-compile

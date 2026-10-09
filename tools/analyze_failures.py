@@ -29,6 +29,8 @@ BASE = os.environ.get("SWESMITH_RL_HOME", str(Path(__file__).resolve().parents[1
 _CMD_RE = re.compile(
     r"<function=bash>\s*<parameter=command>(.*?)</parameter>", re.S)
 _ACTION_RE = re.compile(r"<function=(\w+)>")
+_EDIT_RE = re.compile(r"<parameter=path>(.*?)</parameter>", re.S)
+_PYTEST_RE = re.compile(r"\bpytest\b")
 
 
 # ═══════════════════════════════════════════════════════════
@@ -57,9 +59,39 @@ def classify(r: dict, max_turns: int) -> str:
         return "轮数耗尽"
     if r.get("n_missing", 0) > 0:
         return "测试跑不起来"
+    # ⭐ 区分「没修好」和「修坏了」
+    fb, pb = r.get("n_f2p_bad"), r.get("n_p2p_bad")
+    if fb is not None and pb is not None:
+        if fb > 0 and pb > 0:
+            return "没修好且弄坏了别的"
+        if pb > 0:
+            return "改坏了其他测试"
+        if fb > 0:
+            return "没修好"
     if r.get("n_fail", 0) > 0:
         return "改了但没改对"
     return "提前结束"
+
+
+def trajectory(r: dict) -> dict:
+    """从 messages 里提取轨迹特征（回答"为什么失败"）"""
+    msgs = r.get("messages", [])
+    edits, bashes, ran_pytest = [], 0, 0
+    for m in msgs:
+        if m.get("role") != "assistant":
+            continue
+        c = str(m.get("content", ""))
+        for mm in _EDIT_RE.finditer(c):
+            edits.append(mm.group(1))
+        bashes += len(_CMD_RE.findall(c))
+        if _PYTEST_RE.search(c):
+            ran_pytest += 1
+    return {
+        "n_edit": len(edits),
+        "n_bash": bashes,
+        "files_edited": len(set(edits)),
+        "ran_pytest": ran_pytest,
+    }
 
 
 def commands_of(r: dict) -> list[str]:
@@ -207,25 +239,62 @@ def main():
                 print(f"     · {a}")
             print()
 
-    # ── ⑦ 结论 ──────────────────────────────────────────
+    # ── ⑦ 轨迹特征（回答"为什么失败"）──────────────────
+    print("\n【⑦ 轨迹特征】（从 messages 里提取，各失败类型对比）\n")
+    print(f"  {'类型':22} {'条数':>5} {'编辑次数':>8} {'改的文件':>8} {'跑过pytest':>10}")
+    print("  " + "-" * 60)
+    buckets = defaultdict(list)
+    for r in rows:
+        buckets[classify(r, max_turns)].append(r)
+    for k in sorted(buckets, key=lambda x: (x == "成功", x)):
+        g = buckets[k]
+        tr = [trajectory(r) for r in g]
+        if not tr:
+            continue
+        avg_e = sum(t["n_edit"] for t in tr) / len(tr)
+        avg_f = sum(t["files_edited"] for t in tr) / len(tr)
+        ran = sum(1 for t in tr if t["ran_pytest"])
+        print(f"  {k:22} {len(g):>5} {avg_e:>8.1f} {avg_f:>8.1f} "
+              f"{ran:>6}/{len(g)} ({ran/len(g)*100:>3.0f}%)")
+
+    # 判读
+    fails = [r for r in rows if not r["resolved"]]
+    if fails:
+        ftr = [trajectory(r) for r in fails]
+        no_edit = sum(1 for t in ftr if t["n_edit"] == 0)
+        no_test = sum(1 for t in ftr if t["ran_pytest"] == 0)
+        print(f"\n  失败的 {len(fails)} 条中：")
+        print(f"    从未编辑过任何文件      {no_edit:>4} ({no_edit/len(fails)*100:.0f}%)")
+        print(f"    从未跑过 pytest 验证    {no_test:>4} ({no_test/len(fails)*100:.0f}%)")
+        if no_test > len(fails) * 0.5:
+            print("\n  -> 多数失败【没有自己验证】：改完就跑，不知道对不对")
+            print("     提示词里应该更强调「改完必须跑测试确认」")
+
+    # ── ⑧ 结论 ──────────────────────────────────────────
     print("=" * 68)
     print("判断")
     print("=" * 68)
-    ex = cls.get("轮数耗尽", 0)
-    miss = cls.get("测试跑不起来", 0)
-    wrong = cls.get("改了但没改对", 0)
+    ex    = cls.get("轮数耗尽", 0)
+    miss  = cls.get("测试跑不起来", 0)
+    wrong = cls.get("改了但没改对", 0) + cls.get("没修好", 0)
     print(f"\n  轮数耗尽 {ex/max(fail_total,1)*100:.0f}%   "
           f"测试跑不起来 {miss/max(fail_total,1)*100:.0f}%   "
           f"改了没对 {wrong/max(fail_total,1)*100:.0f}%\n")
     if ex > fail_total * 0.4:
         print("  -> 多数失败是【轮数不够】：瓶颈在 harness")
         print("     提高 max_turns、精简提示词、给更聚焦的题面，比训练更直接")
+    elif ex > fail_total * 0.2:
+        print(f"  -> {ex} 条【轮数不够】：harness 有优化空间，但不是主要瓶颈")
     if miss > fail_total * 0.2:
         print("  -> 相当一部分是【测试跑不起来】：多为语法/导入错误")
         print("     提示词里强调「改完先确认能 import」，或在工具层加语法检查")
     if wrong > fail_total * 0.3:
         print("  -> 相当一部分是【改了但没改对】：这是模型能力问题")
         print("     这类失败才需要训练来改善")
+    brk = cls.get("改坏了其他测试", 0) + cls.get("没修好且弄坏了别的", 0)
+    if brk > fail_total * 0.15:
+        print(f"  -> {brk} 条【把别的测试弄坏了】：改得太宽")
+        print("     提示词里强调「只改必要的地方」，或加 diff 规模约束")
     print()
     return 0
 

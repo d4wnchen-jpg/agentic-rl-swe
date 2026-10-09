@@ -132,6 +132,7 @@ def run_parallel_ids(tasks, llm, max_turns=40, workers=16, root="/tmp/grpo",
         s["resolved"] = ok
         s["n_fail"] = det.get("n_fail", -1)
         s["n_missing"] = det.get("n_missing", -1)
+        s["judge"] = det            # ⭐ 保留逐测试状态（res），供失败分析用
         return s
 
     list(ex.map(fin, states))

@@ -321,7 +321,7 @@ content = "<think>\n思考内容\n</think>\n\n<function=bash>ls</function>"
 这样三处差异同时消除。参照实现（agent-lightning）就是这么做的；
 本项目提供了一个适配版：[`tools/tpl_chat.jinja`](../tools/tpl_chat.jinja)。
 **但这需要重新训练** —— 换模板等于换格式。详见
-[IMPLEMENTATION.md 4.3](IMPLEMENTATION.md#43-chat-template不要传-enable_thinkingfalse)。
+[IMPLEMENTATION.md 4.3](IMPLEMENTATION.md#43-chat-template原生模板的三个问题与推荐做法)。
 
 ### 状态
 

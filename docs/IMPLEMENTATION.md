@@ -173,7 +173,7 @@ prep_sandbox(task, workdir)
 **必须关闭历史 elide** —— 一旦改写历史，多轮之间就不再构成 token 前缀链，
 训练行只能退回"每轮一行"（成本高约 18 倍）。
 
-### 4.3 chat template：不要传 `enable_thinking=False`
+### 4.3 chat template：原生模板的三个问题与推荐做法
 
 Qwen3.5 的模板在 `enable_thinking=False` 时会在 prompt 尾部插入一个**完整的空思考块**：
 

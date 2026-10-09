@@ -9,7 +9,7 @@
 [![model](https://img.shields.io/badge/model-Qwen3.5--9B-8A2BE2.svg)]()
 [![method](https://img.shields.io/badge/method-GRPO%20%2B%20LoRA-FF6F00.svg)]()
 
-在单张 96GB 显卡上跑通完整的 agentic RL 回路：多轮工具调用 → 沙箱判分 → GRPO 训练 → 权重回灌。
+在单张 96GB 显卡无docker情况下上跑通完整的 agentic RL 回路：多轮工具调用 → 沙箱判分 → GRPO 训练 → 权重回灌。# 确少结果分析，沙箱构建，数据构造？
 
 ---
 

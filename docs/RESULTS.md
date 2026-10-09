@@ -317,6 +317,12 @@ content = "<think>\n思考内容\n</think>\n\n<function=bash>ls</function>"
 | 要发挥修复的作用 | 必须用新配置**重新训练**，让训练与推理一致 |
 | 另一个观察 | 编辑率下降不是复读导致的 —— 去掉复读后编辑率反而更低（22%），因为思考消耗了行动预算 |
 
+**推荐的彻底做法**：使用自定义 chat template，让"生成提示符 = 内容为空的历史渲染"。
+这样三处差异同时消除。参照实现（agent-lightning）就是这么做的；
+本项目提供了一个适配版：[`tools/tpl_chat.jinja`](../tools/tpl_chat.jinja)。
+**但这需要重新训练** —— 换模板等于换格式。详见
+[IMPLEMENTATION.md 4.3](IMPLEMENTATION.md#43-chat-template不要传-enable_thinkingfalse)。
+
 ### 状态
 
 **触发条件已确认**：prompt 里的那个完整空思考块。去掉它，复读从 90.3% 降到 0%。

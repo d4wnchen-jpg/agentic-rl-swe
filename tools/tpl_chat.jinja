@@ -1,0 +1,51 @@
+{#-
+  适配版 chat template
+
+  来源：agent-lightning 的 examples/swe_smith/swe_smith_chat_template.jinja
+        https://github.com/microsoft/agent-lightning  (MIT License)
+  改动：去掉 tools / tool_calls / tool 角色的分支 —— 本项目用 XML 动作
+        (<function=...>) 从文本里解析，不走 JSON tool call。
+
+  为什么需要自定义模板（对照 Qwen3.5 原生模板的三处问题）：
+
+    1. 原生模板在生成点插入完整的空思考块 `<think>\n\n</think>\n\n`
+       → 训练后模型会复读它（本项目实测 90% 的 rollout）
+
+    2. 原生模板的"生成提示符"与"历史渲染"是两套逻辑
+       → 相邻两轮的 prompt 不构成 token 前缀链，靠 LCP 对齐才能拼训练行
+
+    3. 原生模板在渲染历史时会把 assistant 内容里的 `<think>…</think>` 整个删掉
+       → 模型看不到自己上一轮的推理，每轮重新推一遍
+
+  本模板的写法：生成提示符就是"内容为空的历史渲染"，两处共用同一套结构。
+  这样 1/2/3 三个问题都不存在。
+
+  用法：
+      vLLM:  engine_kwargs={"chat_template": "<path>/tools/tpl_chat.jinja"}
+      HF:    tok.apply_chat_template(msgs, chat_template=<本文件内容>, ...)
+
+  ⚠️ 训练与推理必须使用同一个模板。已有权重是用原生模板训练的，
+      换成本模板需要重新训练。
+-#}
+{%- if messages[0].role == 'system' %}
+    {{- '<|im_start|>system\n' + messages[0].content + '<|im_end|>\n' }}
+{%- endif %}
+{%- for message in messages %}
+    {%- if message.content is string %}
+        {%- set content = message.content %}
+    {%- else %}
+        {%- set content = '' %}
+    {%- endif %}
+    {%- if message.role == "system" and loop.first %}
+        {#- 已在上面输出，跳过 -#}
+    {%- elif message.role == "user" or message.role == "system" %}
+        {{- '<|im_start|>' + message.role + '\n' + content + '<|im_end|>\n' }}
+    {%- elif message.role == "assistant" %}
+        {#- 原样保留内容（不插入、也不剥离任何 think 结构）-#}
+        {{- '<|im_start|>' + message.role + '\n' + content + '<|im_end|>\n' }}
+    {%- endif %}
+{%- endfor %}
+{%- if add_generation_prompt %}
+    {#- 与上面的 assistant 分支结构完全一致，只是内容为空 -#}
+    {{- '<|im_start|>assistant\n' }}
+{%- endif %}

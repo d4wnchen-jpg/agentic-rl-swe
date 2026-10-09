@@ -198,6 +198,32 @@ chat_template_kwargs = None
 chat_template_kwargs = {"enable_thinking": False}
 ```
 
+#### 推荐做法：自定义 chat template
+
+上面三个问题的根源是同一个 —— Qwen3.5 原生模板对思考块做了特殊处理。
+
+**参照实现的做法是自己写 chat template**（agent-lightning 的
+[`examples/swe_smith/swe_smith_chat_template.jinja`](https://github.com/microsoft/agent-lightning/blob/main/examples/swe_smith/swe_smith_chat_template.jinja)，
+MIT 许可）。
+
+本项目提供了一个适配版：[`tools/tpl_chat.jinja`](../tools/tpl_chat.jinja)
+（去掉了参照实现里的 tools / tool_calls 分支，因为本项目从文本里解析 XML 动作）。
+
+核心写法只有一条：**生成提示符 = 内容为空的历史渲染**，两处共用同一套结构。
+
+| 问题 | 原生模板 | 自定义模板 |
+|---|---|---|
+| 生成点插入完整空块 | 有（触发复读）| 无 |
+| 生成提示符 = 历史渲染？ | 否（前缀链断裂）| **是** |
+| 历史渲染保留思考内容？ | 否（剥离）| **是** |
+
+**前提与代价：**
+
+- ⚠️ **换模板等于换格式，必须重新训练。** 已有权重是用原生模板训练的，直接换会出现
+  训推不匹配（本项目实测：同题通过率 25.4% → 15.3%）。
+- 切换前建议先用基座模型验证一次（确认模型在新格式下仍能正常输出动作）。
+- 前缀链连续之后，`build_row_lcp` 的 LCP 对齐不再是必需的（保留也无害）。
+
 **⚠️ 训练与推理必须用同一个配置。** 用 A 配置训练的权重，换 B 配置推理会得到明显更差的结果
 （本项目实测：25.4% → 15.3%）。如果要切换配置，需要用新配置重新训练。
 

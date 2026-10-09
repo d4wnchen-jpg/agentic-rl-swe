@@ -192,11 +192,14 @@ rollout 出现复读（基座 0/113），其中 82% 在第一轮。该片段在�
 因此复读不是学到的行为，机制未确定。详见 [RESULTS.md 第 8 节](RESULTS.md#8-生成退化一个观察到的现象)。
 
 ```python
-# 推荐
-chat_template_kwargs = {}
+# 推荐（需要与训练配置一致）
+chat_template_kwargs = None
 # 或显式关闭思考（接受复读风险）
 chat_template_kwargs = {"enable_thinking": False}
 ```
+
+**⚠️ 训练与推理必须用同一个配置。** 用 A 配置训练的权重，换 B 配置推理会得到明显更差的结果
+（本项目实测：25.4% → 15.3%）。如果要切换配置，需要用新配置重新训练。
 
 ---
 

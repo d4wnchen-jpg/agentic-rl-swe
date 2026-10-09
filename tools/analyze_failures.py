@@ -80,7 +80,10 @@ def last_actions(r: dict, n: int = 3) -> list[str]:
     return [" ".join(x.split())[:160] for x in outs[-n:]]
 
 
-def repo_of(iid: str) -> str:
+def repo_of(iid: str, row: dict | None = None) -> str:
+    # 明细里若带 repo 字段，优先用它
+    if row and row.get("repo"):
+        return str(row["repo"]).split("/")[-1].split(".")[0]
     """从 instance_id 里取仓库名
 
     兼容几种已知写法：
@@ -163,7 +166,7 @@ def main():
     print("\n【④ 按仓库】\n")
     by = defaultdict(lambda: [0, 0])
     for r in rows:
-        b = by[repo_of(r["instance_id"])]
+        b = by[repo_of(r["instance_id"], r)]
         b[1] += 1
         b[0] += int(r["resolved"])
     if len(by) > 20:

@@ -21,6 +21,8 @@ def main():
     ap.add_argument("--turns", type=int, default=40)
     ap.add_argument("--tag", default="eval")
     ap.add_argument("--gpu-mem", type=float, default=0.45)
+    ap.add_argument("--dump", default=None,
+                    help="把每条 rollout 的明细写成 jsonl（默认 eval_<tag>_detail.jsonl）")
     a = ap.parse_args()
 
     from grpo_llm import GRPOLlm
@@ -31,13 +33,15 @@ def main():
     req = llm.LoRARequest(a.tag, 777, a.adapter) if a.adapter else None
 
     print(f"[{a.tag}] adapter={a.adapter or '(基座)'}  n={a.n}  k={a.k}", flush=True)
+    dump = a.dump or f"{BASE}/eval_{a.tag}_detail.jsonl"
     rate, n, ok = quick_eval(llm, req, eval_file=a.tasks, n_limit=a.n,
-                             max_turns=a.turns, k=a.k)
+                             max_turns=a.turns, k=a.k, dump=dump)
     print(f"[{a.tag}] {ok}/{n} = {rate*100:.1f}%", flush=True)
     with open(f"{BASE}/eval_{a.tag}.json", "w") as f:
         json.dump({"tag": a.tag, "adapter": a.adapter, "n": n, "ok": ok,
-                   "rate": rate, "k": a.k, "turns": a.turns}, f, ensure_ascii=False, indent=2)
-    print(f"已写 {BASE}/eval_{a.tag}.json", flush=True)
+                   "rate": rate, "k": a.k, "turns": a.turns,
+                   "detail": dump}, f, ensure_ascii=False, indent=2)
+    print(f"已写 {BASE}/eval_{a.tag}.json  和  {dump}", flush=True)
 
 
 if __name__ == "__main__":

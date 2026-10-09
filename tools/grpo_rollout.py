@@ -36,6 +36,7 @@ def run_parallel_ids(tasks, llm, max_turns=40, workers=16, root="/tmp/grpo",
             "done": False, "last_sig": None, "rep": 0, "fmt_err": 0,
             "turns": [],                       # [[prompt_ids, response_ids, logprobs], ...]
             "resolved": False, "n_fail": -1, "n_missing": -1, "nturns": 0,
+            "stop_reason": None,           # ⭐ 为什么结束（turns/ctx/submit/fmt/rep/gen）
         })
     print(f"已准备 {len(states)} 个沙箱", flush=True)
 
@@ -52,6 +53,7 @@ def run_parallel_ids(tasks, llm, max_turns=40, workers=16, root="/tmp/grpo",
             if tot > MAX_CTX_CHARS:
                 print(f"  [warn] 上下文 {tot} 字符超预算，结束该 episode", flush=True)
                 s["done"] = True
+                s["stop_reason"] = "ctx"
         alive = [s for s in states if not s["done"]]
         if not alive:
             break
@@ -79,6 +81,7 @@ def run_parallel_ids(tasks, llm, max_turns=40, workers=16, root="/tmp/grpo",
             pid, rid, text, lps = tup[0], tup[1], tup[2], tup[3]
             if text is None:
                 s["done"] = True
+                s["stop_reason"] = s["stop_reason"] or "gen"
                 continue
             s["nturns"] += 1
             s["messages"].append({"role": "assistant", "content": text})
@@ -91,18 +94,21 @@ def run_parallel_ids(tasks, llm, max_turns=40, workers=16, root="/tmp/grpo",
                 s["fmt_err"] = s.get("fmt_err", 0) + 1
                 if s["fmt_err"] >= MAX_FORMAT_ERR:
                     s["done"] = True
+                    s["stop_reason"] = "fmt"
                     continue
                 s["messages"].append({"role": "user", "content": FORMAT_HINT})
                 continue
             s["fmt_err"] = 0
             if any(n == "submit" for n, _ in acts):
                 s["done"] = True
+                s["stop_reason"] = "submit"
                 continue
             sig = json.dumps(acts, ensure_ascii=False)
             if sig == s["last_sig"]:
                 s["rep"] += 1
                 if s["rep"] >= 3:
                     s["done"] = True
+                    s["stop_reason"] = "rep"
                     continue
             else:
                 s["rep"], s["last_sig"] = 0, sig
@@ -120,6 +126,10 @@ def run_parallel_ids(tasks, llm, max_turns=40, workers=16, root="/tmp/grpo",
         print(f"[turn {turn+1:3}] 活跃 {len(alive):3}  "
               f"完成 {sum(1 for s in states if s['done']):3}  "
               f"{time.time()-t0:6.0f}s", flush=True)
+
+    for s in states:                       # 循环跑满 max_turns 的
+        if s["stop_reason"] is None:
+            s["stop_reason"] = "turns"
 
     def fin(s):
         repo = repo_of(s["task"])

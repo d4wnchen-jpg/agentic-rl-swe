@@ -29,7 +29,10 @@ BASE = os.environ.get("SWESMITH_RL_HOME", str(Path(__file__).resolve().parents[1
 _CMD_RE = re.compile(
     r"<function=bash>\s*<parameter=command>(.*?)</parameter>", re.S)
 _ACTION_RE = re.compile(r"<function=(\w+)>")
-_EDIT_RE = re.compile(r"<parameter=path>(.*?)</parameter>", re.S)
+_EDIT_CALL_RE = re.compile(
+    r"<function=(?:str_replace_editor|edit)>(.*?)</function>", re.S)
+_EDIT_PATH_RE = re.compile(r"<parameter=path>(.*?)</parameter>", re.S)
+_EDIT_CMD_RE = re.compile(r"<parameter=command>(.*?)</parameter>", re.S)
 _PYTEST_RE = re.compile(r"\bpytest\b")
 
 
@@ -81,8 +84,15 @@ def trajectory(r: dict) -> dict:
         if m.get("role") != "assistant":
             continue
         c = str(m.get("content", ""))
-        for mm in _EDIT_RE.finditer(c):
-            edits.append(mm.group(1))
+        for mm in _EDIT_CALL_RE.finditer(c):
+            body = mm.group(1)
+            cmd = (_EDIT_CMD_RE.search(body) or [None, ""])[1] if _EDIT_CMD_RE.search(body) else ""
+            cmd = (_EDIT_CMD_RE.search(body).group(1).strip()
+                   if _EDIT_CMD_RE.search(body) else "")
+            if cmd in ("create", "str_replace", "insert"):
+                pm = _EDIT_PATH_RE.search(body)
+                if pm:
+                    edits.append(pm.group(1).strip())
         bashes += len(_CMD_RE.findall(c))
         if _PYTEST_RE.search(c):
             ran_pytest += 1
@@ -234,6 +244,25 @@ def main():
         if len(near) == 0 and "n_f2p_bad" not in exhausted[0]:
             print("     （注：明细里没有 F2P/P2P 分解，是旧格式的数据）")
 
+    # ── ③b 结束原因（决定"提高轮数有没有用"）────────────
+    sr = Counter(r.get("stop_reason") or "未记录" for r in rows)
+    print("\n【③b 结束原因】\n")
+    REASON_CN = {"turns": "轮数耗尽", "ctx": "上下文超限", "submit": "模型主动提交",
+                 "fmt": "格式错误×3", "rep": "重复动作×3", "gen": "生成失败",
+                 "未记录": "未记录（旧格式数据）"}
+    for k, v in sr.most_common():
+        print(f"  {REASON_CN.get(k, k):16} {v:5}  {v/N*100:5.1f}%  {bar(v, N)}")
+
+    if "ctx" in sr or sr.get("未记录", 0) == N:
+        c = sr.get("ctx", 0)
+        if c > N * 0.15:
+            print(f"\n  ⚠️ 有 {c} 条（{c/N*100:.0f}%）是【上下文超限】结束的")
+            print("     -> 这些 episode 的轮数预算【没用完】，提高 max_turns 帮不上")
+            print("     -> 要先解决上下文（裁剪历史 / 缩小观察 / 更大窗口）")
+    if sr.get("submit", 0) > N * 0.2:
+        print(f"\n  ⚠️ 有 {sr['submit']} 条是【模型自己说做完了】的")
+        print("     -> 不是没时间，是判断问题（以为改好了）")
+
     # ── ④ 按仓库 ────────────────────────────────────────
     print("\n【④ 按仓库】\n")
     by = defaultdict(lambda: [0, 0])
@@ -317,7 +346,11 @@ def main():
     ex    = cls.get("轮数耗尽", 0)
     miss  = cls.get("测试跑不起来", 0)
     wrong = cls.get("改了但没改对", 0) + cls.get("没修好", 0)
-    print(f"\n  轮数耗尽 {ex/max(fail_total,1)*100:.0f}%   "
+    ctx_n = sr.get("ctx", 0)
+    print(f"\n  结束原因：轮数耗尽 {sr.get('turns',0)}  上下文超限 {ctx_n}  "
+          f"主动提交 {sr.get('submit',0)}  格式错误 {sr.get('fmt',0)}  "
+          f"重复动作 {sr.get('rep',0)}")
+    print(f"  轮数耗尽 {ex/max(fail_total,1)*100:.0f}%   "
           f"测试跑不起来 {miss/max(fail_total,1)*100:.0f}%   "
           f"改了没对 {wrong/max(fail_total,1)*100:.0f}%\n")
     if ex > fail_total * 0.4:

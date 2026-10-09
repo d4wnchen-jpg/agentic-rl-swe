@@ -33,14 +33,19 @@ def quick_eval(llm, lora_request, eval_file=None, n_limit=None, max_turns=40, k=
                 res = det.get("res") or {}
                 f2p, p2p = t.get("FAIL_TO_PASS", []), t.get("PASS_TO_PASS", [])
                 # ⭐ 把"没修好"和"弄坏了"分开统计
-                f2p_bad = [n for n in f2p if res.get(n) not in ("PASSED", "XFAIL")]
-                p2p_bad = [n for n in p2p if res.get(n) not in ("PASSED", "XFAIL")]
+                #    只统计【真的跑了】的节点（在 res 里出现）——
+                #    判分时 P2P 被 f2p_only_filter 过滤过，没跑的不算"挂"
+                f2p_bad = [n for n in f2p
+                           if n in res and res[n] not in ("PASSED", "XFAIL")]
+                p2p_bad = [n for n in p2p
+                           if n in res and res[n] not in ("PASSED", "XFAIL")]
                 fh.write(json.dumps({
                     "instance_id": t["instance_id"],
                     "resolved": x["resolved"],
                     "n_fail": x.get("n_fail", -1),
                     "n_missing": x.get("n_missing", -1),
                     "nturns": x.get("nturns", 0),
+                    "stop_reason": x.get("stop_reason"),
                     "repo": t.get("repo", ""),
                     "n_f2p": len(f2p), "n_p2p": len(p2p),
                     "n_f2p_bad": len(f2p_bad), "n_p2p_bad": len(p2p_bad),

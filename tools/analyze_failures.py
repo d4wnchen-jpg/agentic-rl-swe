@@ -34,6 +34,7 @@ _EDIT_CALL_RE = re.compile(
 _EDIT_PATH_RE = re.compile(r"<parameter=path>(.*?)</parameter>", re.S)
 _EDIT_CMD_RE = re.compile(r"<parameter=command>(.*?)</parameter>", re.S)
 _PYTEST_RE = re.compile(r"\bpytest\b")
+_THINK_RE = re.compile(r"<think>\s*</think>")
 
 
 # ═══════════════════════════════════════════════════════════
@@ -120,6 +121,16 @@ def last_actions(r: dict, n: int = 3) -> list[str]:
     outs = [str(m.get("content", ""))
             for m in r.get("messages", []) if m.get("role") == "assistant"]
     return [" ".join(x.split())[:160] for x in outs[-n:]]
+
+
+def empty_think_blocks(r: dict) -> int:
+    """数 rollout 里空思考块 <think></think> 的出现次数
+
+    某些模板在 enable_thinking=False 时会在 prompt 尾部预填空思考块，
+    训练后模型可能复读它（见 docs/RESULTS.md 第 8 节）。
+    """
+    return sum(len(_THINK_RE.findall(str(m.get("content", ""))))
+               for m in r.get("messages", []) if m.get("role") == "assistant")
 
 
 def repo_of(iid: str, row: dict | None = None) -> str:
@@ -295,6 +306,32 @@ def main():
         v = rep_hist[k]
         print(f"  最多重复 {label:6} {v:5}  {v/max(tot_with_cmd,1)*100:5.1f}%  "
               f"{bar(v, max(tot_with_cmd,1))}")
+
+    # ── ⑤b 空思考块复读（生成退化检测）──────────────────
+    deg_count = sum(1 for r in rows if empty_think_blocks(r) >= 3)
+    total_think = sum(empty_think_blocks(r) for r in rows)
+    print("\n【⑤b 空思考块复读】\n")
+    print(f"  出现 ≥3 个 <think></think> 的 rollout   {deg_count:5}  "
+          f"({deg_count/N*100:5.1f}%)")
+    print(f"  <think></think> 总出现次数              {total_think:5}")
+    if deg_count:
+        pos = Counter()
+        for r in rows:
+            idx = 0
+            for m in r.get("messages", []):
+                if m.get("role") != "assistant":
+                    continue
+                if len(_THINK_RE.findall(str(m.get("content", "")))) >= 3:
+                    pos[idx] += 1
+                idx += 1
+        print(f"  出现的轮次（第几条 assistant 消息）: "
+              f"{dict(sorted(pos.items())[:8])}")
+        print()
+        print("  -> 模板在 prompt 尾部预填了空思考块（enable_thinking=False），")
+        print("     训练后模型复读它。参考实现不传该参数，无此现象。")
+        print("     详见 docs/RESULTS.md 第 8 节。")
+    else:
+        print("  ✅ 未检测到复读")
 
     # ── ⑥ 抽样 ──────────────────────────────────────────
     print("\n【⑥ 典型失败抽样】（每类抽 2 条，打印最后 3 个动作）\n")

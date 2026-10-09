@@ -163,55 +163,79 @@ $$200 \times 27\ \text{分钟/步} \times 20\ \text{步} = 200 \times 9\ \text{�
 
 ---
 
-## 8. 生成退化：一个需要避开的行为
+## 8. 生成退化：一个观察到的现象
 
-在 115 道 held-out 上对比基座与 step020 的输出格式（同配置：40 轮，温度 0.7）：
+### 现象
 
-| | 基座 (step000) | step020 |
+对基座（step000）和 step020 各做一次评测（同一配置：115 道 held-out，40 轮，温度 0.7）：
+
+| | 基座 | step020 |
 |---|---|---|
 | 通过率 | 27/113 = 23.9% | 29/113 = 25.7% |
-| **首轮出现复读模式** | **0 / 113** | **108 / 113 (96%)** |
+| **出现复读的 rollout** | **0 / 113** | **108 / 113 (96%)** |
 | 复读总次数 | 0 | 153,796 |
-| 首轮平均长度 | 正常 | 23,474 字符（≈7.7k token）|
 
-复读的内容固定为 `<think>\n\n</think>\n\n`。
+复读内容固定为 `<think>\n\n</think>\n\n`。单条最长 77,824 字符（约 25k token）。
 
-### 原因
+### 复读出现的位置
 
-Qwen3.5 的 chat template 在 `enable_thinking=False` 时，会在 prompt 尾部插入一个
-**完整的空思考块**：
+| 出现在第几条 assistant 消息 | 条数 |
+|---|---|
+| 第 1 条 | 102 |
+| 第 2 ~ 7 条 | 23 |
 
-```
-<|im_start|>assistant\n<think>\n\n</think>\n\n
-```
+共 125 条复读消息，分布在 113 条 rollout 中。**多数（82%）在第一轮，其余在后续轮次。**
 
-对比三种传参：
+### prompt 里的对应模式
+
+Qwen3.5 的 chat template 在 `enable_thinking=False` 时，会在**生成点**插入一个完整的空思考块。
+三种传参的对比（实测）：
 
 | 传参 | prompt 尾部 |
 |---|---|
-| 不传 | `<\|im_start\|>assistant\n<think>\n`（只有开标签）|
-| **`False`** | `<\|im_start\|>assistant\n<think>\n\n</think>\n\n`（完整闭合）|
+| **不传** | `<\|im_start\|>assistant\n<think>\n` |
+| `False` | `<\|im_start\|>assistant\n<think>\n\n</think>\n\n` |
 | `True` | 同"不传" |
 
-**推荐做法：不传 `enable_thinking`。** prompt 里没有可复读的完整模式。
+**历史 assistant 消息里没有这个块** —— 模板只给生成提示符加。所以每条 prompt 里恰好 1 个。
 
-### 影响范围
+### 训练时它没有被训练
 
-退化集中在**首轮生成**（102/113 条发生在第 0 条 assistant 消息），之后模型恢复正常：
+`build_row_lcp` 的 mask 结构（本地可复现）：
 
-| | 复读组 | 正常组 |
-|---|---|---|
-| 条数 | 102 | 11 |
-| 至少编辑过一次代码 | 49% | 36% |
-| 通过率 | 24.5% | 36.4% |
+```
+row  = [... R0 ..., think, think, think, think, R1]
+mask = [... 1 1 1 ...,   0,     0,     0,     0,  1 1]
+                        └────── mask = 0 ──────┘
+```
 
-**退化不阻止任务完成，但消耗上下文预算** —— 单条最长 77,824 字符，占 `MAX_CTX_CHARS`
-（200,000 字符）的 39%。
+**模型没有被训练生成这个片段。** 复读不是学到的行为。
 
 ### 与参照实现的差异
 
-agent-lightning 使用自定义 chat template（`swe_smith_chat_template.jinja`），其中
-空思考块的插入条件是 `enable_thinking is defined and enable_thinking is false`。
-其训练配置**不传该参数**，因此 prompt 尾部只有 `<|im_start|>assistant\n`。
+agent-lightning 使用自定义 chat template（`swe_smith_chat_template.jinja`），其中空思考块的插入
+条件是 `enable_thinking is defined and enable_thinking is false`；其训练配置不传该参数，
+prompt 尾部只有 `<|im_start|>assistant\n`。
 
----
+这是本项目与该实现之间已确认的**配置差异之一**。
+
+### 影响
+
+| 项 | 数值 |
+|---|---|
+| 通过率 | 复读组 24.5% vs 基座 23.9% —— **无影响** |
+| 上下文 | 平均浪费 23,474 字符（上限 200,000 的 12%）|
+| 轮数 | 平均浪费约 1 轮（共 40 轮）|
+
+**这是"浪费"，不是"损害"。**
+
+### 状态
+
+**现象已确认（96% vs 0%）。具体机制未确定。**
+
+已排除的解释：
+- 不是"模型学会了生成它" —— 该片段在训练数据里 `mask=0`
+- 不是"每轮 prompt 都有所以被反复强化" —— 每条 prompt 里只有 1 个
+
+未解释的部分：为什么基座完全不触发、为什么 82% 发生在第一轮而非均匀分布。
+

@@ -187,8 +187,9 @@ Qwen3.5 的模板在 `enable_thinking=False` 时会在 prompt 尾部插入一个
 | `False` | `<\|im_start\|>assistant\n<think>\n\n</think>\n\n` |
 | `True` | 同"不传" |
 
-**传 `False` 时，模型有概率复读这个完整模式。** 本项目实测：训练后 96% 的 rollout
-在首轮复读它（基座 0%）。详见 [RESULTS.md 第 8 节](RESULTS.md#8-生成退化一个需要避开的行为)。
+**传 `False` 时，模型有概率复读这个完整模式。** 本项目实测：训练后 108/113（96%）的
+rollout 出现复读（基座 0/113），其中 82% 在第一轮。该片段在训练数据里 `mask=0`，
+因此复读不是学到的行为，机制未确定。详见 [RESULTS.md 第 8 节](RESULTS.md#8-生成退化一个观察到的现象)。
 
 ```python
 # 推荐

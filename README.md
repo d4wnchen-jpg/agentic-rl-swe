@@ -59,26 +59,52 @@
 
 ## 回路
 
-**① 准备沙箱** —— 复制仓库副本 → 注入缺陷补丁 → 删掉 `.git`。
-没有 Docker，隔离靠独立目录而不是容器边界。防作弊四层：补丁写在 `/tmp` 且应用后立即删除、
-删除 `.git`、命令正则拦截（git / 网络 / 装包 / 改测试）、判分前从原仓库恢复测试文件。
+```
+① 造沙箱
+   复制仓库副本 → git checkout <缺陷分支> → 应用缺陷补丁 → 删掉 .git
+   无 Docker：隔离靠独立目录；补丁写在 /tmp 且应用后立即删除
+   （留在工作区里的话，模型反向应用即可白拿满分）
 
-**② Rollout**（≤40 轮）—— 模型出动作 → 沙箱执行 → 观察拼回。
-记录 **token ids** 而不是文本（RL 要在 token 级算概率）；**不裁剪历史**（一裁就不是前缀链）。
+        ↓
 
-**③ 判分** —— pytest 跑 F2P + P2P，全通过则 reward = 1.0。
-`COLUMNS=200` 防止 `PASSED` 折行导致假失败；同时检查 `n_fail` 与 `n_missing`。
+② Rollout（vLLM + LoRA，最多 40 轮）
+   每轮：模型输出 <function=...> 动作 → 沙箱执行 → 观察拼回
+   ⭐ 记录 prompt_ids / response_ids / per-token logprob
+   ⭐ 不裁剪历史 —— 一裁就不是 token 级前缀链
+   （另外三层防作弊：命令正则拦截 git/网络/装包/改测试、编辑器拦 .git、判分前恢复测试文件）
 
-**④ 优势** —— rollout 级，组内归一化。零方差组（8 条全对或全错）优势恒为 0。
+        ↓
 
-**⑤ 拼训练行** —— 40 轮拼成一条约 25k token 的序列。
-生成提示符与历史渲染不一致，用最长公共前缀对齐；历史 response 标回 `mask=1`。
+③ 判分（任务结束时一次）
+   pytest --color=no -rA，COLUMNS=200，判分前恢复被删的测试文件
+   reward = 1.0 if 全部 F2P + P2P 通过 else 0.0
+   COLUMNS=200 是必须的 —— 否则长测试名会折行，解析不到状态、通过也判成失败
 
-**⑥ 训练** —— 梯度累积 16 条后更新一次，共 2 批。
-micro-batch = 1（各条长度不一）；两级归一化；`old_logprobs` 由训练模型重算。
+        ↓
 
-**⑦ 权重回灌** —— 保存 LoRA → 新建 `LoRARequest`。
-必须换新的 `lora_int_id`，否则 vLLM 命中缓存，用的还是旧权重。
+④ 优势（rollout 级，组内归一化）
+   A_i = (r_i − mean(r_1..r_8)) / (std + 1e-4)
+   零方差组（8 条全对或全错）优势恒为 0 —— 所以数据里 mixed 的比例很关键
+
+        ↓
+
+⑤ 拼训练行（LCP 前缀链对齐）
+   把 40 轮拼成【一条】约 25k token 的序列，比"每轮一行"省约 18 倍
+   生成提示符与历史渲染的输出不同，所以用最长公共前缀对齐
+   历史 response 要标回 mask=1（它当初也是模型生成的）
+
+        ↓
+
+⑥ PPO 更新（2 次 mini-batch，per-rollout mean loss）
+   分块 + 反向重算的 logprob（避免 [S, vocab] 巨型张量）
+   梯度累积 16 条后更新一次；micro-batch = 1（各条长度不一，padding 浪费）
+   old_logprobs 由训练模型重算 —— 用推理引擎的会混入实现差异
+
+        ↓
+
+⑦ 存 LoRA → 换成新的 LoRARequest → 回 ②
+   必须换新的 lora_int_id，否则 vLLM 命中缓存，用的还是旧权重
+```
 
 实施步骤见 [IMPLEMENTATION.md](docs/IMPLEMENTATION.md)。
 

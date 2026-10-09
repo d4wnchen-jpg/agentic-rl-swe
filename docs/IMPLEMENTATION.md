@@ -201,6 +201,23 @@ chat_template_kwargs = {"enable_thinking": False}
 **⚠️ 训练与推理必须用同一个配置。** 用 A 配置训练的权重，换 B 配置推理会得到明显更差的结果
 （本项目实测：25.4% → 15.3%）。如果要切换配置，需要用新配置重新训练。
 
+**⚠️ 另一个要注意的行为：历史渲染会剥离思考内容。**
+
+Qwen3.5 的原生模板在渲染历史 assistant 消息时，会把内容里的 `<think>…</think>` 整个删掉：
+
+```python
+content = "<think>\n思考内容\n</think>\n\n<function=bash>ls</function>"
+# 渲染结果（三种 enable_thinking 传参都一样）：
+#   <|im_start|>assistant
+#   <function=bash>ls</function><|im_end|>
+```
+
+**→ 模型在下一轮看不到自己上一轮的思考，必须重新推理。**
+
+参照实现（agent-lightning）使用自定义模板，**原样保留** assistant 内容，没有这个问题。
+
+如果需要保留思考历史，要自己写 chat template。
+
 ---
 
 ### 4.4 动作格式与容错

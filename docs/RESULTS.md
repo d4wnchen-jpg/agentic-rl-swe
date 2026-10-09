@@ -249,11 +249,35 @@ mask = [... 1 1 1 ...,   0,     0,     0,     0,  1 1]
 
 ### 与参照实现的差异
 
-agent-lightning 使用自定义 chat template（`swe_smith_chat_template.jinja`），其中空思考块的插入
-条件是 `enable_thinking is defined and enable_thinking is false`；其训练配置不传该参数，
-prompt 尾部只有 `<|im_start|>assistant\n`。
+对照 agent-lightning 的 `swe_smith_chat_template.jinja` 与本项目使用的 Qwen3.5 原生模板，
+共发现三处差异。**第三处影响最大。**
 
-这是本项目与该实现之间已确认的**配置差异之一**。
+| # | 差异 | 本项目（原生模板）| 参照实现（自定义模板）| 后果 |
+|---|---|---|---|---|
+| **1** | 生成点插入完整空思考块 | 传 `enable_thinking=False` 时插入 `<think>\n\n</think>\n\n` | 不插入 | **复读 90%** |
+| **2** | 生成提示符与历史渲染不一致 | 生成点无条件插入 `<think>\n`，历史渲染不插 | 两处结构相同 | **前缀链断裂** |
+| **3** | **历史渲染剥离 think 块** | **把 assistant 内容里的 `<think>…</think>` 整个删掉** | **原样保留** | **模型每轮看不到自己的思考** |
+
+#### 差异 3 的实测
+
+给一条包含思考内容的 assistant 消息：
+
+```python
+content = "<think>\n思考内容\n</think>\n\n<function=bash>ls</function>"
+```
+
+三种传参（不传 / `False` / `True`）渲染结果**完全相同**：
+
+```
+<|im_start|>assistant
+<function=bash>ls</function><|im_end|>
+                ↑ 思考内容消失
+```
+
+**→ 模型在下一轮看不到自己上一轮想了什么，必须重新推理一遍。**
+
+**推测影响**：40 轮里大量轮数被重复推理占用，这可能是「轮数耗尽占 99%」的原因之一。
+同时也部分解释了差异修复后通过率反而下降（15.3%）—— 思考写出来却被丢掉。
 
 ### 影响
 
@@ -277,8 +301,12 @@ prompt 尾部只有 `<|im_start|>assistant\n`。
 
 **复读被完全消除（90.3% → 0%）。** 通过率下降 10.1 pp，`SE_diff ≈ 7.4 pp`，统计上不显著。
 
-**原因**：现有 step020 权重是在 `enable_thinking=False` 下训练的。改成"不传"会打开思考模式，
-属于训练时未见过的推理模式 —— **训推不匹配**。
+**原因（两层）**：
+
+1. **训推不匹配** —— 现有 step020 权重是在 `enable_thinking=False` 下训练的，改成"不传"会打开思考模式，
+   属于训练时未见过的推理模式。
+2. **思考被丢弃** —— 见上文差异 3：模型写出的思考内容在下一轮的历史渲染中被剥离，
+   等于付出了推理成本却拿不到推理收益。
 
 ### 结论
 

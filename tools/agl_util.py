@@ -7,9 +7,27 @@
 - parse_test_statuses() 判分解析（剥 ANSI + 双模式正则）
 """
 from __future__ import annotations
+import os
 import re
 
-OBS_LIMIT = 8000          # 单条 observation 的字符上限
+# ⭐ SMITH_HARNESS_V2=1 切到"对齐 agl"的 harness：
+#    - OBS_LIMIT 8000 → 10000（agl 的 SMITH_OBS_CHAR_CAP 默认值）
+#    - 执行命令时套用 _CMD_ENV（安静 pager / 进度条，减少无关输出）
+#    ⚠️ clip_obs() 的 cap 默认参数在【函数定义时】绑定本模块的 OBS_LIMIT，
+#       所以必须改这里 —— 改 agent_par.py 里那个同名常量是无效的。
+HARNESS_V2 = os.environ.get("SMITH_HARNESS_V2") == "1"
+
+OBS_LIMIT = int(os.environ.get(
+    "SMITH_OBS_CHAR_CAP", "10000" if HARNESS_V2 else "8000"))   # 单条 observation 的字符上限
+
+# 安静 pager / 进度条，避免一条命令淹没观察（照抄 agl 的 _CMD_ENV）
+CMD_ENV = {
+    "PAGER": "cat",
+    "MANPAGER": "cat",
+    "LESS": "-R",
+    "PIP_PROGRESS_BAR": "off",
+    "TQDM_DISABLE": "1",
+}
 KEEP_LAST_OBS = 5         # 保留最近 N 个 observation 原文
 MAX_FORMAT_ERR = 3        # 格式错误容忍次数
 

@@ -14,9 +14,10 @@ from concurrent.futures import ThreadPoolExecutor
 
 import sys as _sys
 _sys.path.insert(0, str(Path(__file__).resolve().parent))
-from agl_util import (clip_obs, forbidden, tamper_path, elide_old_obs,
-                      FORMAT_HINT, MAX_FORMAT_ERR, parse_test_statuses,
-                      f2p_only_filter)
+from agl_util import (CMD_ENV, HARNESS_V2, clip_obs, forbidden,
+                        tamper_path, elide_old_obs, FORMAT_HINT,
+                        MAX_FORMAT_ERR, parse_test_statuses,
+                        f2p_only_filter)
 
 BASE = Path(os.environ.get("SWESMITH_RL_HOME", Path(__file__).resolve().parents[1]))
 REPOS = BASE / "probe"
@@ -25,13 +26,25 @@ ENVS  = {"mistune": "mistune", "sqlparse": "sqlparse",
 
 ACTION_RE = re.compile(r"<function=(\w+)>(.*?)(?:</function>|$)", re.S)
 PARAM_RE  = re.compile(r"<parameter=(\w+)>(.*?)</parameter>", re.S)
-OBS_LIMIT, EDIT_LIMIT, CMD_TIMEOUT = 8000, 20000, 60    # 代码阅读需要足够大的观察窗口
+# ⚠️ OBS_LIMIT 不在这里生效 —— clip_obs() 的默认参数绑定的是 agl_util.OBS_LIMIT。
+# 这一行只保留 EDIT_LIMIT / CMD_TIMEOUT。
+# 要调观察上限，改 agl_util.py 的 OBS_LIMIT（或用 SMITH_OBS_CHAR_CAP / SMITH_HARNESS_V2）。
+EDIT_LIMIT, CMD_TIMEOUT = 20000, 60
+
+# ⭐ SMITH_HARNESS_V2=1 切到"对齐 SWE-agent / agl"的 harness：
+#    - 系统提示词去掉 "Continue until the tests pass"（用 tpl_harness_v2.txt）
+#    - 题面补回 SWE-agent 的 5 步工作流（写脚本复现 → 改 → 重跑确认）
+#    配合 agl_util.py 的 OBS_LIMIT / CMD_ENV 一起切。
+#    HARNESS_V2 本身从 agl_util 导入（单一来源）。
 STOP_STRINGS = ["</function>"]      # 生成一个动作就停
 MAX_CTX_CHARS = 80000               # ~26k token（按 3.05 字符/token 实测），留 6k 给生成
 
-SYS_PROMPT = ((BASE/"tools/tpl_system.txt").read_text()
-              if (BASE/"tools/tpl_system.txt").exists() else
-              "You are a helpful assistant that can interact with a computer to solve tasks.")
+_SYS_V1 = ((BASE/"tools/tpl_system.txt").read_text()
+           if (BASE/"tools/tpl_system.txt").exists() else
+           "You are a helpful assistant that can interact with a computer to solve tasks.")
+_SYS_V2 = ((BASE/"tools/tpl_harness_v2.txt").read_text()
+           if (BASE/"tools/tpl_harness_v2.txt").exists() else _SYS_V1)
+SYS_PROMPT = _SYS_V2 if HARNESS_V2 else _SYS_V1
 
 USER_TPL = """<uploaded_files>
 /testbed
@@ -44,6 +57,25 @@ I've uploaded a python code repository in the directory /testbed. Consider the f
 
 Can you help me implement the necessary changes to the repository so that the requirements specified in the <pr_description> are met?
 """
+
+# 补回 SWE-agent instance_template 的后半段（写脚本复现 → 改 → 重跑确认 → 边界情况）
+USER_TPL_V2 = USER_TPL.replace(
+    """Can you help me implement the necessary changes to the repository so that the requirements specified in the <pr_description> are met?
+""",
+    """Can you help me implement the necessary changes to the repository so that the requirements specified in the <pr_description> are met?
+
+Your task is to make the minimal changes to non-tests files in /testbed to ensure the <pr_description> is satisfied.
+Follow these steps to resolve the issue:
+
+1. As a first step, it might be a good idea to find and read code relevant to the <pr_description>
+2. Create a script to reproduce the error and execute it with `python <filename.py>` to confirm the error
+3. Edit the sourcecode of the repo to resolve the issue
+4. Rerun your reproduce script and confirm that the error is fixed!
+5. Think about edgecases and make sure your fix handles them as well
+""")
+
+if HARNESS_V2:
+    USER_TPL = USER_TPL_V2
 
 
 def repo_of(task):
@@ -65,8 +97,10 @@ def _to_virt(s, wd):  return str(s).replace(str(wd), "/testbed")
 
 # ---------------- 工具 ----------------
 def run_bash(cmd, wd, timeout=CMD_TIMEOUT):
+    # V2: 套用 CMD_ENV（安静 pager / 关进度条），一条命令不会淹没观察
+    env = dict(os.environ, **CMD_ENV) if HARNESS_V2 else None
     try:
-        r = subprocess.run(_to_real(cmd, wd), shell=True, cwd=wd,
+        r = subprocess.run(_to_real(cmd, wd), shell=True, cwd=wd, env=env,
                            capture_output=True, text=True, timeout=timeout)
         out = (r.stdout or "") + (r.stderr or "")
     except subprocess.TimeoutExpired:

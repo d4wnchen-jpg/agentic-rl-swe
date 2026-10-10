@@ -24,7 +24,8 @@ def main():
     WORK  = int(sys.argv[4]) if len(sys.argv) > 4 else 8
     ADPT  = sys.argv[5] if len(sys.argv) > 5 else None
 
-    TASK_FILE = os.environ.get("TASK_FILE", f"{BASE}/tasks_with_ps.jsonl")
+    # 默认接 verify_tasks.py 的产出（验证通过的任务）
+    TASK_FILE = os.environ.get("TASK_FILE", f"{BASE}/tasks_ok.jsonl")
     tasks = [json.loads(l) for l in open(TASK_FILE)][:N]
     print(f"[题库] {TASK_FILE}", flush=True)
     jobs  = [t for t in tasks for _ in range(K)]

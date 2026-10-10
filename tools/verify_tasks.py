@@ -82,4 +82,6 @@ def main(sf):
     fok.close(); fbad.close()
     print(f"\n=== 结果 ===\n  有效 {st['ok']}\n  无效 {st['bad']}\n  跳过 {st['skip']}")
 
-if __name__=="__main__": main(sys.argv[1] if len(sys.argv)>1 else str(BASE/"tasks_220.jsonl"))
+if __name__=="__main__":
+    # 默认接 export_more.py 的产出
+    main(sys.argv[1] if len(sys.argv)>1 else str(BASE/"tasks_more.jsonl"))

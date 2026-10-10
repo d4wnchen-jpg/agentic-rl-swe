@@ -109,16 +109,46 @@ $SWESMITH_RL_HOME/
 
 ## 6. 数据从哪来
 
-本项目用的是 **SWE-smith** 的 `func_basic` 类任务：
+四步，每步的输入是上一步的输出。**文件名是接得上的** —— 每一步直接用默认值跑即可。
 
-1. 从 SWE-smith 发布的数据里筛选目标仓库的 parquet
-   → `tools/export_more.py`
-2. 验证任务可执行（在选定的 conda 环境里能跑起来）
-   → `tools/verify_tasks.py`
-3. 难度探测（每题跑 4 次）
-   → `tools/probe_par.py`
-4. 按探测结果分层切分
-   → `tools/split_train_eval.py`
+```
+swe_smith/data/*.parquet                    SWE-smith 原始数据（parquet）
+        │
+        │  python tools/export_more.py
+        ▼
+tasks_more.jsonl                            导出的任务（含 problem_statement）
+        │
+        │  python tools/verify_tasks.py
+        ▼
+tasks_ok.jsonl / tasks_bad.jsonl            可执行性验证（clean → 打 patch → F2P 挂/P2P 过 → 反向）
+        │
+        │  python tools/probe_par.py         每题跑 N 次，约 748 条 rollout
+        ▼
+probe_par_result.jsonl                      难度探测结果（每题的通过次数）
+        │
+        │  python tools/split_train_eval.py
+        ▼
+train.jsonl / eval.jsonl / val_mixed.jsonl  按难度分层切分
+```
 
-**注意**：`verify_tasks.py` 里的 `ENVS` 映射表写死了本项目用的 4 个仓库
-（mistune / sqlparse / isodate / boltons）。换仓库要改这张表。
+**每步的输入路径都可以覆盖**（换文件名或换数据源时用）：
+
+| 脚本 | 输入 | 覆盖方式 |
+|---|---|---|
+| `export_more.py` | `swe_smith/data/*.parquet` | 改脚本里的仓库/数量字典 |
+| `verify_tasks.py` | `tasks_more.jsonl` | `python tools/verify_tasks.py <路径>` |
+| `probe_par.py` | `tasks_ok.jsonl` | 环境变量 `TASK_FILE=<路径>` |
+| `split_train_eval.py` | `probe_par_result.jsonl` + `tasks_ok.jsonl` | `--probe <路径> --tasks <路径>` |
+
+**辅助工具：**
+
+- `tools/make_layered_sample.py` —— 按仓库分层采样（每仓库抽 N 道），
+  输入 `tasks_ok.jsonl`，输出 `tasks_layered.jsonl`。想要各仓库均衡时用。
+
+**⚠️ `verify_tasks.py` 里的 `ENVS` 映射表写死了本项目用的 4 个仓库**
+（mistune / sqlparse / isodate / boltons），且需要对应的 conda 环境。
+换仓库要改这张表。
+
+**⚠️ 评测集构成会影响能不能测出效果** —— 本项目 113 道里 74% 是基座做不动的题，
+导致训练真正的提升被稀释。切分时留意 mixed / allpass / allfail 的比例，
+报告时分层看。详见 [LESSONS.md 坑 3](LESSONS.md#3-评测集构成掩盖效果)。

@@ -64,7 +64,9 @@ USER_TPL_V2 = USER_TPL.replace(
 """,
     """Can you help me implement the necessary changes to the repository so that the requirements specified in the <pr_description> are met?
 
-Your task is to make the minimal changes to non-tests files in /testbed to ensure the <pr_description> is satisfied.
+Do NOT modify the tests or the test configuration. They are restored before
+the fix is evaluated, so changing them cannot help.
+Your task is to make the minimal changes to non-test source files in /testbed to ensure the <pr_description> is satisfied.
 Follow these steps to resolve the issue:
 
 1. As a first step, it might be a good idea to find and read code relevant to the <pr_description>

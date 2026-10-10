@@ -13,10 +13,19 @@ if os.path.isdir(_CU13):
     os.environ["PATH"] = f"{_CU13}/bin:" + os.environ.get("PATH", "")
 
 
+# enable_thinking 的默认值：
+#   不设 SMITH_ENABLE_THINKING  → None（不传该参数）
+#   SMITH_ENABLE_THINKING=0     → False（Qwen 原生模板会插入完整的空思考块）
+#   SMITH_ENABLE_THINKING=1     → True
+# ⭐ 做 A/B 实验时必须和基线用同一个值，否则多出一个变量。
+_ET_ENV = os.environ.get("SMITH_ENABLE_THINKING", "").strip()
+_ET_DEFAULT = None if not _ET_ENV else (_ET_ENV == "1")
+
+
 class GRPOLlm:
     def __init__(self, model_path, max_model_len=81920, gpu_mem=0.40,
                  max_new_tokens=1024, max_lora_rank=16, max_loras=2,
-                 max_num_seqs=256, enable_thinking=None):
+                 max_num_seqs=256, enable_thinking=_ET_DEFAULT):
         from vllm import LLM, SamplingParams
         from vllm.lora.request import LoRARequest
 

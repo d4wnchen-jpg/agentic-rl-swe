@@ -1,10 +1,20 @@
 {#-
   适配版 chat template
 
-  来源：agent-lightning 的 examples/swe_smith/swe_smith_chat_template.jinja
+  来源：改编自 agent-lightning 的 examples/swe_smith/swe_smith_chat_template.jinja
         https://github.com/microsoft/agent-lightning  (MIT License)
-  改动：去掉 tools / tool_calls / tool 角色的分支 —— 本项目用 XML 动作
-        (<function=...>) 从文本里解析，不走 JSON tool call。
+        ⚠️ 这是【改编版，不是原文】。有两处改动：
+
+  改动 1：去掉 tools / tool_calls / tool 角色的分支
+          —— 本项目用 XML 动作 (<function=...>) 从文本里解析，不走 JSON tool call。
+
+  改动 2：⭐ 去掉 enable_thinking 分支
+          —— 参照实现在 enable_thinking=False 时，会在【生成点和历史渲染两处】
+             都插入同一个 `<think>\n\n</think>\n\n`。它靠"两处一致"保证前缀链连续。
+             本版则【两处都不插】—— 前缀链同样连续，而且 prompt 尾部没有
+             那个完整闭合的结构，从源头上去掉可被复读的模式。
+             （实测：本项目用原生模板 + enable_thinking=False 时，训练后 90% 复读；
+               去掉该结构后降到 0%。详见 docs/RESULTS.md 第 8 节。）
 
   为什么需要自定义模板（对照 Qwen3.5 原生模板的三处问题）：
 

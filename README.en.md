@@ -9,99 +9,57 @@
 [![model](https://img.shields.io/badge/model-Qwen3.5--9B-8A2BE2.svg)]()
 [![method](https://img.shields.io/badge/method-GRPO%20%2B%20LoRA-FF6F00.svg)]()
 
-A working agentic RL loop on one 96GB GPU: multi-turn tool use → sandboxed grading → GRPO training → weight round-trip.
+The full agentic RL loop on one 96GB GPU, in a container without Docker.
 
----
+[Implementation](docs/IMPLEMENTATION.md) · [Results](docs/RESULTS.md) · [Lessons](docs/LESSONS.md) · [MIT License](LICENSE)
 
-## Scope
+## ⚡ What this is
 
-Constraints:
+Training Qwen3.5-9B on SWE-smith tasks: sandbox → multi-turn rollout → grading → GRPO → weight reload.
+LoRA + vLLM, with inference and training sharing one RTX PRO 6000.
 
-| | |
+| Constraint | |
 |---|---|
-| GPU | Single 96GB (RTX PRO 6000) |
-| Environment | Container, no Docker |
-| Model | Qwen3.5-9B (VL + linear-attention hybrid) |
+| GPU | 1× 96GB |
+| Environment | AutoDL container, no Docker |
+| Model | Qwen3.5-9B (VL + hybrid linear attention) |
 | Compute budget | Tens of hours |
 
-The goal is a working loop with the engineering pinned down, not benchmark numbers.
+## ⚡ Headline result
 
-Deliverables: a runnable loop, a configuration that lets vLLM and the training model share one card, and a reproducible procedure with a pre-flight checklist.
+20 steps, 640 rollouts. Held-out pass rate 23.9% → 25.7%, a difference within noise.
 
----
+74% of the eval set is beyond the base model, so the tier the training actually improved
+(mixed) went from **5/17 to 9/17**. The total is diluted.
 
-## The loop
+## ⚡ Two pitfalls that cost the most
 
-```
-① Sandbox       checkout the bug branch → move .git out of the worktree
-        ↓
-② Rollout       up to 40 tool-call turns; record prompt/response token ids and per-token logprobs
-        ↓
-③ Grading       pytest; reward = 1.0 iff all F2P and all P2P pass
-        ↓
-④ Advantage     rollout-level, normalized within each group
-        ↓
-⑤ Row assembly  LCP prefix alignment; all turns merged into a single sequence
-        ↓
-⑥ Training      chunked logprobs + PPO clipping, 2 mini-batch updates per batch
-        ↓
-⑦ Weight sync   save LoRA → new LoRARequest → back to ②
-```
+**The two renderings of a chat template must agree.** Qwen3.5's native template uses one
+code path at the generation point and another in history rendering, so consecutive turns
+do not form a token prefix chain, and the prompt tail keeps a complete empty thinking
+block that can be copied wholesale. After training, **90% of rollouts echoed it**. Fixed
+with [`tools/tpl_chat.jinja`](tools/tpl_chat.jinja): repetition **90.3% → 0%**.
 
----
+**Do not let the model depend on the grading tests.** When the test files are visible it
+runs the suite; pytest emits tens of thousands of characters, `obs_cap` truncates that to
+roughly the last 66 tests, and the model never gets a signal that it is done — **99% of
+rollouts hit the turn limit**. The reference implementation removes the F2P test files
+instead, and its prompt tells the model to write a minimal reproduction script.
 
-## Results
+Full analysis and the other four pitfalls: [LESSONS.md](docs/LESSONS.md).
 
-| | |
-|---|---|
-| Loop | 20 steps completed; 32 rollouts per step; ~27 min/step |
-| Memory | vLLM 43 GB + training 45 GB = 88 GB / 96 GB |
-| Row assembly | 32 / 32 succeeded |
-| Pass rate (113 held-out) | baseline 30.1% → 27.4% after training, SE = 4.3 pp |
-| Training volume | 640 rollouts; the reference implementation uses 128,000 |
-| Weight delta | ΔW/W ≈ 0.9% (LoRA) |
-
-The loop runs. Within this project's compute budget, the held-out pass rate shows no measurable change.
-
-Detecting a 12 pp effect would need roughly 15× more training (~140 hours, about 6 days, continuous). See [RESULTS.md](docs/RESULTS.md).
-
----
-
-## Suggested improvements
-
-Each item is grounded in measurements from this run.
-
-| # | Improvement | Evidence | Cost |
-|---|---|---|---|
-| **0** | **Do not pass `enable_thinking` to the chat template** | Passing `False` appends a complete empty thinking block to every prompt; after training, 90% of rollouts echo it back (0% for the base model). Not passing it removes the repetition entirely. **Requires retraining** — a train/inference mismatch makes results worse | free, needs retraining |
-| **1** | **Raise training volume to ≥10,000 rollouts** (currently 640) | Detecting a 12 pp change at this eval size needs roughly 15x more training | ~140 h on one GPU (about 6 days) |
-| **2** | **Grow the eval set to ~150 tasks** (currently 113) | SE drops from 4.3 pp to ~3.7 pp | eval time only |
-| **3** | **Take larger policy steps** (higher lr or more steps) | `clip_frac` stayed at 0.0–0.2% throughout: clipping never fired, so PPO degenerated into REINFORCE | free, needs tuning |
-| **4** | **Make the task pool dynamic** — retire tasks the model reliably solves | Zero-variance groups (all 8 correct or all 8 wrong) give advantage 0 and produce no gradient; the training set still holds 12 all-fail tasks | small |
-| **5** | **Scale the dataset to thousands of tasks** (currently 187) | The reference implementation uses 6,000; the mixed-task ratio (41%) drives GRPO's sample efficiency | data preparation |
-| **6** | **Average k>1 eval samples** | Eval temperature is 0.7, so a single sample is noisy | eval time x k |
-
-**Priority: 0 > 1 > 4 > 3 > 2 > 5 > 6**
-
-Item 1 is the only change that can make a *result* possible; the rest improve efficiency or reduce noise.
-Until it is done, the conclusion here stays engineering-level: **the loop runs, the effect is not measurable.**
-
-> Item 4 is the idea behind DAPO's Dynamic Sampling ([arXiv:2503.14476](https://arxiv.org/abs/2503.14476)).
-
----
-
-## Quick start
+## ⚡ Install
 
 ```bash
 pip install -r requirements.txt
 pip install vllm==0.30.0
 
 export SWESMITH_RL_HOME=$(pwd)
-export VLLM_USE_FLASHINFER_SAMPLER=0
-export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
-
-python tools/train_grpo.py
+bash scripts/run_train.sh
 ```
+
+Needs PyTorch ≥ 2.9 (sm_120 support). Hyperparameters have a single source:
+[configs/default.yaml](configs/default.yaml).
 
 Evaluate any saved adapter:
 
@@ -109,97 +67,102 @@ Evaluate any saved adapter:
 python tools/eval_adapter.py --adapter grpo_adapters/step000 --n 115 --k 1 --tag base
 ```
 
-`step000` is a zero LoRA (equivalent to the base model), used to measure a baseline under identical settings.
-
----
-
-## Configuration
-
-Hyperparameters live in `configs/default.yaml`:
+## ⚡ The loop
 
 ```
-configs/default.yaml  ──►  tools/config.py  ──►  tools/train_grpo.py
-                              ▲
-                   environment overrides
+┌──────────────────────────────────────────────────────────────────┐
+│ ① Build sandbox                                                  │
+│   checkout bug branch → apply patch → remove .git (anti-cheat)   │
+└──────────────────────────────────────────────────────────────────┘
+                                 ▼
+┌──────────────────────────────────────────────────────────────────┐
+│ ② Rollout (vLLM + LoRA, up to 40 turns)                          │
+│   model emits an action → sandbox runs it → observation back     │
+│   ⭐ record prompt_ids / response_ids / per-token logprob        │
+│   ⭐ never trim history (keeps the token prefix chain)           │
+└──────────────────────────────────────────────────────────────────┘
+                                 ▼
+┌──────────────────────────────────────────────────────────────────┐
+│ ③ Grade (once, when the task ends)                               │
+│   pytest --color=no -rA, COLUMNS=200                             │
+│   restore the deleted F2P tests                                  │
+│   reward = 1.0 if all F2P + P2P pass                             │
+└──────────────────────────────────────────────────────────────────┘
+                                 ▼
+┌──────────────────────────────────────────────────────────────────┐
+│ ④ Advantage (rollout level, normalised within group)             │
+│   A_i = (r_i - mean(r_1..r_8)) / (std + 1e-4)                    │
+└──────────────────────────────────────────────────────────────────┘
+                                 ▼
+┌──────────────────────────────────────────────────────────────────┐
+│ ⑤ Assemble training row (LCP prefix alignment)                   │
+│   40 turns → one ~25k-token sequence                             │
+│   ~18× cheaper than one row per turn                             │
+└──────────────────────────────────────────────────────────────────┘
+                                 ▼
+┌──────────────────────────────────────────────────────────────────┐
+│ ⑥ PPO update (2 mini-batches, per-rollout mean loss)             │
+│   chunked logprob, recomputed on the backward pass               │
+└──────────────────────────────────────────────────────────────────┘
+                                 ▼
+┌──────────────────────────────────────────────────────────────────┐
+│ ⑦ Save LoRA                                                      │
+│   new LoRARequest → back to ②                                    │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
-```bash
-GRPO_LR=3e-4 GRPO_STEPS=40 python tools/train_grpo.py
-```
+## ⚡ Results
 
-`tests/test_config.py` checks that the YAML matches the code defaults. Loading fails loudly if `pyyaml` is missing.
-
----
-
-## Tests
-
-```bash
-pytest tests/ -q     # 30 cases, CPU only
-```
-
-| Test | Coverage |
+| Item | Result |
 |---|---|
-| `tests/test_row_lcp.py` | LCP alignment: no dropped responses, mask and logprob stay aligned, truncation keeps the task statement |
-| `tests/test_config.py` | YAML matches defaults, environment overrides work, every key used by the training script is defined |
+| Steps / training volume | 20 steps · 640 rollouts (reference: 128,000) |
+| Memory | vLLM 43 GB + training 45 GB / 96 GB |
+| Pass rate (113 held-out) | 23.9% → 25.7% |
+| mixed tier pass rate | 5/17 → 9/17 |
+| Weight change | ΔW/W ≈ 0.9% (LoRA) |
 
----
+Detecting a change of 12 pp would need roughly 24× the training volume (after correcting
+for zero-variance groups).
 
-## Implementation highlights
+## ⚡ Documentation
 
-| Area | Approach |
+| Doc | Content |
 |---|---|
-| Single-card coexistence | LoRA (59 MB adapters) instead of full fine-tuning; vLLM `gpu_memory_utilization=0.45` |
-| Weight sync | Save adapter → new `LoRARequest` (fresh directory and `lora_int_id`) |
-| Multi-turn row assembly | LCP alignment; 40 turns merged into one ~25k-token sequence, ~18× cheaper than per-turn rows |
-| Logprob memory | Loss positions only, chunked (512), with `torch.utils.checkpoint` recomputation |
-| PPO clipping | 2 mini-batch updates per batch, rows shuffled first |
-| Sampling consistency | `old_logprobs` recomputed by the training model; first batch of step 1 should give `ratio == 1.000000` |
-| Evaluation | Full held-out set, temperature 0.7; baseline measured with `step000` under identical settings |
-
-Procedure details in [IMPLEMENTATION.md](docs/IMPLEMENTATION.md).
-
----
-
-## Hyperparameters
-
-| Parameter | Value | Source |
-|---|---|---|
-| `n_rollouts` | 8 | reference implementation |
-| `max_turns` | 40 | reference implementation |
-| `max_new_tokens` | 16384 | reference implementation |
-| `temperature` / `val_temperature` | 1.0 / 0.7 | reference implementation |
-| `clip_low` / `clip_high` | 0.2 / 0.28 | reference implementation |
-| `mini_batch_size` | 16 | reference implementation |
-| `max_ppo_update_times` | 2 | reference implementation |
-| `lr` | 1e-4 | calibrated for LoRA (1e-6 for full fine-tuning) |
-| `n_prompts` / `steps` | 4 / 20 | single-GPU adaptation (reference: 16 / 1000) |
-| `gpu_mem_util` | 0.45 | single-GPU adaptation (reference: 0.8) |
-| `max_num_seqs` | 128 | Qwen3.5 Mamba cache limit |
-| `max_row_tokens` | 32768 | single-GPU adaptation (reference: 65536) |
-
-Full table in [configs/default.yaml](configs/default.yaml).
-
----
-
-## Documentation
-
-| Document | Contents |
-|---|---|
-| [IMPLEMENTATION.md](docs/IMPLEMENTATION.md) | Step-by-step procedure |
+| [IMPLEMENTATION.md](docs/IMPLEMENTATION.md) | Steps, single-GPU adaptations, the three chat template problems |
 | [DATA_FORMAT.md](docs/DATA_FORMAT.md) | Task fields, directory layout, environment variables |
-| [RESULTS.md](docs/RESULTS.md) | Measurements and compute threshold |
+| [RESULTS.md](docs/RESULTS.md) | Measurements, compute thresholds, the full degeneration analysis |
+| [LESSONS.md](docs/LESSONS.md) | Six pitfalls and what to change |
 
----
+## ⚡ Tests
 
-## References
+```bash
+pytest tests/ -q     # 55 cases, CPU only
+```
+
+| File | Covers |
+|---|---|
+| `tests/test_row_lcp.py` | LCP alignment: no response lost, mask and logprob stay aligned |
+| `tests/test_config.py` | YAML matches defaults, environment overrides |
+| `tests/test_template.py` | Prefix chain and repetition trigger for both chat templates |
+| `tests/test_audit_trajectory.py` | The six trajectory classifications |
+
+## ⚡ Switches
+
+```bash
+SMITH_HARNESS_V1=1        # fall back to the old configuration (reproduces pitfall 2)
+SMITH_ENABLE_THINKING=0   # pass enable_thinking=False, which leaves the empty block
+SMITH_OBS_CHAR_CAP=10000  # per-observation character cap
+GRPO_LR=3e-4 GRPO_STEPS=40  # override any hyperparameter
+```
+
+## ⚡ References
 
 - **agent-lightning** — Microsoft, [examples/swe_smith](https://github.com/microsoft/agent-lightning/tree/main/examples/swe_smith)
-  (Qwen3.5-9B / 4×B200 / full fine-tuning with FSDP). Hyperparameters here follow this implementation first.
+  (Qwen3.5-9B / 4×B200 / full fine-tune + FSDP). Hyperparameters follow it first;
+  `tools/tpl_chat_agl.jinja` is adapted from its `swe_smith_chat_template.jinja` (MIT).
 - **SWE-smith** — task generation, [arXiv:2504.21798](https://arxiv.org/abs/2504.21798)
 - **verl** — PPO/GRPO training framework, [GitHub](https://github.com/volcengine/verl)
 
----
-
-## License
+## ⚡ License
 
 MIT

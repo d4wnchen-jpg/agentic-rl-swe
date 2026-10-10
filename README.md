@@ -127,7 +127,7 @@ python tools/eval_adapter.py --adapter grpo_adapters/step000 --n 115 --k 1 --tag
 | [IMPLEMENTATION.md](docs/IMPLEMENTATION.md) | 实施步骤、单卡适配、chat template 的三个问题 |
 | [DATA_FORMAT.md](docs/DATA_FORMAT.md) | 任务字段、目录布局、环境变量 |
 | [RESULTS.md](docs/RESULTS.md) | 实验数据、算力门槛、生成退化的完整推导 |
-| [LESSONS.md](docs/LESSONS.md) | 六个坑与改进建议 |
+| [LESSONS.md](docs/LESSONS.md) | 六个坑与改进建议（[English](docs/LESSONS.en.md)）|
 
 ## ⚡ 测试
 

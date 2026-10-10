@@ -4,6 +4,8 @@
 
 **完整推导在 [RESULTS.md](RESULTS.md)，做法在 [IMPLEMENTATION.md](IMPLEMENTATION.md)。本文只给结论。**
 
+**中文** | [English](LESSONS.en.md)
+
 | # | 坑 | 代价 |
 |---|---|---|
 | 1 | [chat template 两处渲染不一致](#1-chat-template两处渲染不一致) | 训练后 90% 的 rollout 复读 |
@@ -98,8 +100,6 @@ Qwen3.5 原生模板在**生成点**插入 `<think>\n\n</think>\n\n`，
 净变化 +2，但总翻转 24 —— **翻转量是净变化的 12 倍**。
 
 **修复：** 扩大评测集、取 k>1 次平均。在这之前，单次评测的差异不能当结论。
-
-→ 完整推导：[LESSONS 方法论](LESSONS.md)
 
 ---
 

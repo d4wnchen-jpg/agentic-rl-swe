@@ -11,7 +11,7 @@
 
 The full agentic RL loop on one 96GB GPU, in a container without Docker.
 
-[Implementation](docs/IMPLEMENTATION.md) · [Results](docs/RESULTS.md) · [Lessons](docs/LESSONS.md) · [MIT License](LICENSE)
+[Implementation](docs/IMPLEMENTATION.md) · [Results](docs/RESULTS.md) · [Lessons](docs/LESSONS.en.md) · [MIT License](LICENSE)
 
 ## ⚡ What this is
 
@@ -46,7 +46,7 @@ roughly the last 66 tests, and the model never gets a signal that it is done —
 rollouts hit the turn limit**. The reference implementation removes the F2P test files
 instead, and its prompt tells the model to write a minimal reproduction script.
 
-Full analysis and the other four pitfalls: [LESSONS.md](docs/LESSONS.md).
+Full analysis and the other four pitfalls: [LESSONS.md](docs/LESSONS.en.md).
 
 ## ⚡ Install
 
@@ -131,7 +131,9 @@ for zero-variance groups).
 | [IMPLEMENTATION.md](docs/IMPLEMENTATION.md) | Steps, single-GPU adaptations, the three chat template problems |
 | [DATA_FORMAT.md](docs/DATA_FORMAT.md) | Task fields, directory layout, environment variables |
 | [RESULTS.md](docs/RESULTS.md) | Measurements, compute thresholds, the full degeneration analysis |
-| [LESSONS.md](docs/LESSONS.md) | Six pitfalls and what to change |
+| [LESSONS.en.md](docs/LESSONS.en.md) | Six pitfalls and what to change |
+
+The first three are Chinese only.
 
 ## ⚡ Tests
 

@@ -58,23 +58,10 @@ I've uploaded a python code repository in the directory /testbed. Consider the f
 Can you help me implement the necessary changes to the repository so that the requirements specified in the <pr_description> are met?
 """
 
-# 补回 SWE-agent instance_template 的后半段（写脚本复现 → 改 → 重跑确认 → 边界情况）
-USER_TPL_V2 = USER_TPL.replace(
-    """Can you help me implement the necessary changes to the repository so that the requirements specified in the <pr_description> are met?
-""",
-    """Can you help me implement the necessary changes to the repository so that the requirements specified in the <pr_description> are met?
-
-Do NOT modify the tests or the test configuration. They are restored before
-the fix is evaluated, so changing them cannot help.
-Your task is to make the minimal changes to non-test source files in /testbed to ensure the <pr_description> is satisfied.
-Follow these steps to resolve the issue:
-
-1. As a first step, it might be a good idea to find and read code relevant to the <pr_description>
-2. Create a script to reproduce the error and execute it with `python <filename.py>` to confirm the error
-3. Edit the sourcecode of the repo to resolve the issue
-4. Rerun your reproduce script and confirm that the error is fixed!
-5. Think about edgecases and make sure your fix handles them as well
-""")
+# V2 题面从文件读（和 tpl_harness_v2.txt 对称），补回 SWE-agent 原文的
+# 边界说明 + 5 步工作流。参照原文见 tools/tpl_user_example.txt。
+USER_TPL_V2 = ((BASE/"tools/tpl_user_v2.txt").read_text()
+               if (BASE/"tools/tpl_user_v2.txt").exists() else USER_TPL)
 
 if HARNESS_V2:
     USER_TPL = USER_TPL_V2

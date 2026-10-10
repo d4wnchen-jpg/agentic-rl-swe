@@ -1,0 +1,52 @@
+{#-
+  参照实现风格的 chat template（agent-lightning 的做法）
+
+  来源：改编自 agent-lightning 的 examples/swe_smith/swe_smith_chat_template.jinja
+        https://github.com/microsoft/agent-lightning  (MIT License)
+        ⚠️ 这是【改编版】—— 去掉了 tools / tool_calls / tool 角色的分支
+           （本项目用 XML 动作 <function=...> 从文本里解析，不走 JSON tool call）。
+
+  ⭐ 和 tools/tpl_chat.jinja 的区别：这一版【保留】了 enable_thinking 分支。
+
+    参照实现的写法：在【生成点】和【历史渲染】两处，都插入同一个
+                    `<think>\n\n</think>\n\n` → 靠"两处一致"保证前缀链连续。
+
+    tpl_chat.jinja：两处都不插
+                    → 前缀链同样连续，而且 prompt 尾部没有那个完整闭合的结构。
+                      （实测：本项目用原生模板 + enable_thinking=False 时，训练后
+                        90% 的 rollout 复读该块；去掉后降到 0%。见 docs/RESULTS.md）
+
+  两个选择都能保证前缀链连续，区别只在"prompt 尾部有没有那个可被整段复制的块"。
+  本文件用于【严格对齐参照实现】；不确定时优先用 tpl_chat.jinja。
+
+  用法（vLLM）：
+      engine_kwargs={"chat_template": "<path>/tools/tpl_chat_agl.jinja"}
+  必须配合 chat_template_kwargs={"enable_thinking": False}，
+  否则两处都不插，行为等价于 tpl_chat.jinja。
+-#}
+{%- if messages[0].role == 'system' %}
+    {{- '<|im_start|>system\n' + messages[0].content + '<|im_end|>\n' }}
+{%- endif %}
+{%- for message in messages %}
+    {%- if message.content is string %}
+        {%- set content = message.content %}
+    {%- else %}
+        {%- set content = '' %}
+    {%- endif %}
+    {%- if (message.role == "user") or (message.role == "system" and not loop.first) %}
+        {{- '<|im_start|>' + message.role + '\n' + content + '<|im_end|>\n' }}
+    {%- elif message.role == "assistant" %}
+        {{- '<|im_start|>' + message.role + '\n' }}
+        {%- if enable_thinking is defined and enable_thinking is false %}
+            {{- '<think>\n\n</think>\n\n' }}
+        {%- endif %}
+        {{- content }}
+        {{- '<|im_end|>\n' }}
+    {%- endif %}
+{%- endfor %}
+{%- if add_generation_prompt %}
+    {{- '<|im_start|>assistant\n' }}
+    {%- if enable_thinking is defined and enable_thinking is false %}
+        {{- '<think>\n\n</think>\n\n' }}
+    {%- endif %}
+{%- endif %}

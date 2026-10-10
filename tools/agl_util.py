@@ -15,7 +15,12 @@ import re
 #    - 执行命令时套用 _CMD_ENV（安静 pager / 进度条，减少无关输出）
 #    ⚠️ clip_obs() 的 cap 默认参数在【函数定义时】绑定本模块的 OBS_LIMIT，
 #       所以必须改这里 —— 改 agent_par.py 里那个同名常量是无效的。
-HARNESS_V2 = os.environ.get("SMITH_HARNESS_V2") == "1"
+# ⭐ 默认就是 V2（正确配置）。
+#    要复现"旧配置下的问题"（跑测试套件 → 输出截断 → 轮数耗尽），
+#    显式设 SMITH_HARNESS_V1=1 回退。
+_V1 = os.environ.get("SMITH_HARNESS_V1", "").strip() == "1"
+_V2 = os.environ.get("SMITH_HARNESS_V2", "").strip() == "1"
+HARNESS_V2 = _V2 or not _V1
 
 OBS_LIMIT = int(os.environ.get(
     "SMITH_OBS_CHAR_CAP", "10000" if HARNESS_V2 else "8000"))   # 单条 observation 的字符上限

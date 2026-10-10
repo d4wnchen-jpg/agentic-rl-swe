@@ -22,17 +22,29 @@ ROOT = Path(__file__).resolve().parents[1]
 jinja2 = pytest.importorskip("jinja2", reason="需要 jinja2")
 
 TEMPLATE_PATH = ROOT / "tools" / "tpl_chat.jinja"
+TEMPLATE_AGL_PATH = ROOT / "tools" / "tpl_chat_agl.jinja"
+
+
+def _mk_render(path):
+    tpl = jinja2.Environment().from_string(path.read_text())
+
+    def _render(messages, add_generation_prompt=True, **kw):
+        return tpl.render(messages=messages,
+                          add_generation_prompt=add_generation_prompt, **kw)
+
+    return _render
 
 
 @pytest.fixture(scope="module")
 def render():
-    tpl = jinja2.Environment().from_string(TEMPLATE_PATH.read_text())
+    """我们推荐的模板：两处都不插 think 结构"""
+    return _mk_render(TEMPLATE_PATH)
 
-    def _render(messages, add_generation_prompt=True):
-        return tpl.render(messages=messages,
-                          add_generation_prompt=add_generation_prompt)
 
-    return _render
+@pytest.fixture(scope="module")
+def render_agl():
+    """参照实现风格：enable_thinking=False 时两处都插同一个块"""
+    return _mk_render(TEMPLATE_AGL_PATH)
 
 
 REASON = "问题可能出在 tokenizer 的分词逻辑上"
@@ -122,3 +134,44 @@ def test_multi_turn_chain(render):
 
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))
+
+
+# ═══════════════════════════════════════════════════════════
+# tpl_chat_agl.jinja —— 参照实现风格（两处都插，靠"一致"保证前缀链）
+# ═══════════════════════════════════════════════════════════
+
+def test_agl_template_exists():
+    assert TEMPLATE_AGL_PATH.exists()
+
+
+def test_agl_inserts_block_at_both_sites(render_agl):
+    """enable_thinking=False 时，生成点和历史渲染都插同一个块"""
+    p1 = render_agl(BASE, enable_thinking=False)
+    p2 = render_agl(FULL, enable_thinking=False)
+    assert "<think>\n\n</think>\n\n" in p1
+    # 历史里那条 assistant 消息也带块
+    seg = p2.split("<|im_start|>assistant")[1].split("<|im_end|>")[0]
+    assert "<think>\n\n</think>\n\n" in seg
+
+
+def test_agl_prefix_chain_with_block(render_agl):
+    """两处一致 → 前缀链仍然连续（这是参照实现的保证）"""
+    p1 = render_agl(BASE, enable_thinking=False)
+    p2 = render_agl(FULL, enable_thinking=False)
+    assert p2.startswith(p1 + R1)
+
+
+def test_agl_no_block_when_not_passed(render_agl):
+    """不传 enable_thinking 时两处都不插 —— 行为等价于 tpl_chat.jinja"""
+    p1 = render_agl(BASE)
+    assert "<think>" not in p1
+    p2 = render_agl(FULL)
+    assert p2.startswith(p1 + R1)
+
+
+def test_both_templates_keep_prefix_chain(render, render_agl):
+    """两个模板在各自推荐用法下都必须保证前缀链连续"""
+    for r, kw in ((render, {}), (render_agl, {"enable_thinking": False})):
+        p1 = r(BASE, **kw)
+        p2 = r(FULL, **kw)
+        assert p2.startswith(p1 + R1)

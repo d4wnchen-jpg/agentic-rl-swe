@@ -1,3 +1,15 @@
+{#- 这是 SWE-agent instance_template 的【渲染样例】（题面已填入）。
+
+    它证明了完整原文当时就在仓库里 —— 包括第 2 步"写复现脚本"和第 4 步"重跑确认"。
+    但早期版本只把前半段（到第一个问号）搬进了 agent_par.py 的 USER_TPL，
+    丢掉了后面的边界说明和 5 步工作流，导致模型只会去跑测试套件。
+
+    实际使用的两个版本：
+        tools/tpl_user_v2.txt   V2（默认）：边界说明 + 5 步工作流
+        agent_par.USER_TPL      V1（SMITH_HARNESS_V1=1 时）：只有前半段
+
+    本文件仅作对照留存，不被代码引用。
+-#}
 <uploaded_files>
 /testbed
 </uploaded_files>

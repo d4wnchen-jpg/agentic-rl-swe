@@ -31,7 +31,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from agl_util import parse_test_statuses  # noqa: E402
+from agl_util import f2p_only_filter, parse_test_statuses  # noqa: E402
 
 PASSED = ("PASSED", "XFAIL")
 _PYTEST_RE = __import__("re").compile(r"\bpytest\b")
@@ -262,6 +262,76 @@ def q3_solved(home: Path, base: dict, s20: dict) -> None:
     return out
 
 
+def q3b_coverage(home: Path, base: dict, s20: dict) -> None:
+    """③b 验证覆盖面 —— 模型实际跑过的节点，覆盖了判分节点的多少
+
+    覆盖率从【观察输出】解析（模型实际跑了什么），不是从命令字符串，
+    所以 `pytest tests/test_x.py` 这种没写节点名的命令也能正确计入。
+    """
+    print("=" * 74)
+    print("③b 验证覆盖面 —— 模型跑的测试 vs 判分的 195 个节点")
+    print("=" * 74)
+    tasks = {o["instance_id"]: o for o in read_jsonl(home / "eval.jsonl")
+             if "instance_id" in o}
+    if not tasks:
+        print("  （没有 eval.jsonl，跳过）\n")
+        return
+
+    for tag, rows in (("基座", base), ("step020", s20)):
+        if not rows:
+            continue
+        f2p_c, p2p_c, all_c = [], [], []
+        saw_f2p_all = 0
+        f2p_pass_seen = []      # 模型自己看到：覆盖到的 F2P 里通过的比例
+        for r in rows.values():
+            t = tasks.get(r["instance_id"]) or {}
+            f2p = t.get("FAIL_TO_PASS") or []
+            p2p = t.get("PASS_TO_PASS") or []
+            if not f2p:
+                continue
+            jf = set(f2p)
+            jp = set(f2p_only_filter(f2p, p2p))
+            ja = jf | jp
+
+            seen, passed = set(), set()
+            for m in r.get("messages", []):
+                if m.get("role") != "user":
+                    continue
+                c = str(m.get("content", ""))
+                if not c.startswith("OBSERVATION:"):
+                    continue
+                st = parse_test_statuses(c)
+                seen |= set(st)
+                passed |= {k for k, v in st.items() if v in PASSED}
+
+            if len(jf):
+                f2p_c.append(len(jf & seen) / len(jf))
+                if jf <= seen:
+                    saw_f2p_all += 1
+                if jf & seen:
+                    f2p_pass_seen.append(len(jf & passed) / len(jf & seen))
+            if len(jp):
+                p2p_c.append(len(jp & seen) / len(jp))
+            if len(ja):
+                all_c.append(len(ja & seen) / len(ja))
+
+        def avg(x):
+            return f"{sum(x)/len(x)*100:5.1f}%" if x else "   — "
+
+        n = len(rows)
+        print(f"  ── {tag}（{n} 条）")
+        print(f"     F2P 覆盖率        {avg(f2p_c)}   ← 必须修好的那些，模型看到了多少")
+        print(f"     P2P 覆盖率        {avg(p2p_c)}")
+        print(f"     判分节点总覆盖率  {avg(all_c)}")
+        print(f"     {pad('跑全过 F2P 的 rollout', 26)} {saw_f2p_all:>4} / {n}"
+              f"  ({saw_f2p_all/max(n,1)*100:.0f}%)")
+        if f2p_pass_seen:
+            print(f"     {pad('模型看到的 F2P 通过率', 26)} "
+                  f"{sum(f2p_pass_seen)/len(f2p_pass_seen)*100:5.1f}%"
+                  f"   ← 在它跑到的范围内，通过的比例")
+        print()
+
+
 def q4_continue(home: Path, base: dict, s20: dict, extra_hint: int = 3) -> None:
     print("=" * 74)
     print("④ 全通过之后还跑了几轮（停止机制）")
@@ -330,6 +400,7 @@ def main() -> int:
     q1_zero_variance(home)
     q2_tier(home, base, s20)
     q3_solved(home, base, s20)
+    q3b_coverage(home, base, s20)
     q4_continue(home, base, s20)
 
     print("=" * 74)

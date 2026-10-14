@@ -117,7 +117,37 @@ V2 prompt 本身有两处缺陷（见 v2_aligned 条目的「意图」）→ 对
 20 步 GRPO（640 条 rollout）之后，基座（step000）和训练后（step020）
 在同一批 held-out 上的差异。
 
-**配置** → 当时的 `run_manifest.py` 还不存在，配置靠 `.bash_history` 与代码反推
+**配置** → ⚠️ 当时的 `run_manifest.py` 还不存在。**代码已被事后修改，不能作为依据。**
+
+**⭐ 定案依据（2026-10-15 从会话记录里找到的现场）**
+```
+10-09 17:06 的原始对话记录（当时正在排查复读）：
+  「grpo_llm.py (vLLM, generation side): passes
+    chat_template_kwargs={"enable_thinking": False} ✅」
+
+时间顺序：
+  10-09 15:30  评测 base40        ← 用当时代码
+  10-09 16:47  评测 s20_40        ← 用当时代码
+  10-09 17:06  讨论「传 False」    ← 评测后 20 分钟
+  10-09 晚 ~ 10-10  改代码：enable_thinking → None（不传）
+  10-10 12:43  commit 52f298b "Make the correct configuration the default"
+
+⭐ 所以两次评测都在改代码【之前】→ **都传了 enable_thinking=False（关 think）**
+```
+
+**⚠️ 查证时走过的弯路（记下来，别再犯）**
+```
+读了工作目录的 tools_repo/grpo_llm.py，看到 enable_thinking=None（写死）
+→ 据此断定"两次评测都不传"
+→ ❌ 错。那是【10-09 之后改过】的版本，评测跑在改动之前。
+
+旁证：llm_client.py 的注释被改过，两段意思相反
+  当时： "Qwen3.5 默认会输出 thinking...，用 enable_thinking=False 关掉"
+  现在： "enable_thinking 默认【不传】。传 False 会...插入完整的空思考块...模型有概率复读它"
+
+⭐ 教训：**代码会被改，日志不会。** 定案先查现场（对话记录 / 日志 / 产物时间戳），
+        再拿代码佐证 —— 并且要确认代码是不是当时的版本。
+```
   ```bash
   # 两条在同一脚本里连续跑，参数完全相同，未设任何环境变量
   $PY -u tools_repo/eval_adapter.py --adapter grpo_adapters/step000 --n 115 --k 1 --tag base40 --turns 40
@@ -125,7 +155,8 @@ V2 prompt 本身有两处缺陷（见 v2_aligned 条目的「意图」）→ 对
   ```
   · 代码：`tools_repo/`（10-09 13:47 的快照；`enable_thinking=None` 写死，环境变量开关尚不存在）
   · harness：V1（当时 V2 还没写）
-  · `enable_thinking`：不传（prompt 尾部 = `<|im_start|>assistant\n<think>\n`，实测于 HF tokenizer）
+  · `enable_thinking`：⭐ **传 False（关 think）** —— prompt 尾部 = `<|im_start|>assistant\n<think>\n\n</think>\n\n`
+    （定案依据见上方「定案依据」；这一条 2026-10-15 曾被误判为「不传」）
   · 题库：`eval.jsonl` 共 115 行，两次都取前 113 道
   · 采样：温度 0.7（`quick_eval` 默认）
 
@@ -153,8 +184,8 @@ V2 prompt 本身有两处缺陷（见 v2_aligned 条目的「意图」）→ 对
   · 但 s20_40 复读的内容是**完整空块** `<think>\n\n</think>\n\n`，
     而「不传」时 prompt 尾部只有 `<think>\n`（无空块）
     → 该空块只能来自**训练时**的 prompt → 训练时用了 `False`
-  · 也就是说：训练 = 关 think（False），评测 = 不传（开 think）
-    用户记忆中的「25.7 是关了 think 的结果」指的就是**训练配置**
+  · 也就是说：训练和评测**都是关 think（False）** —— 配置一致
+    用户记忆中的「25.7 是关了 think 的结果」**完全正确**
 
 **下一步**
   · 已加 `SMITH_ENABLE_THINKING` 开关（`SMITH_ENABLE_THINKING=0` = 传 False）

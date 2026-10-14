@@ -199,6 +199,42 @@ def run_tools(actions, wd):
 
 
 # ---------------- 沙箱 ----------------
+# ⭐ SMITH_HIDE_F2P=1：沙箱里移除判分测试文件（参照实现的做法）
+#    动机：测试文件对模型可见时，它去跑 pytest → 输出几万字符被 obs_cap 截断
+#          → 拿不到"我完成了"的信号 → 轮数耗尽 99%（见 docs/LESSONS.md 坑 2）
+#    判分不受影响：restore_tests() 在判分前从干净副本恢复整个 tests/ 目录。
+HIDE_F2P = os.environ.get("SMITH_HIDE_F2P", "0").strip() == "1"
+
+
+def hide_f2p_tests(task, wd: Path) -> int:
+    """移除【全部判分测试】涉及的文件，返回移除数量。
+
+    ⭐ 判分测试 = FAIL_TO_PASS + PASS_TO_PASS，两者都删 —— 语义固定，
+       不依赖"F2P 和 P2P 是否恰好同文件"这个偶然因素。
+
+    理由：本开关要回答的是「判分测试对模型可见，是否导致行为退化」，
+          而截断的来源是模型跑【整个测试套件】，不是只跑 F2P。
+          若只删 F2P，P2P 仍会产出大量输出 → 环境变量没有真正改变。
+
+    判分不受影响：restore_tests() 从干净副本恢复整个 tests/ 目录。
+    """
+    nodes = (task.get("FAIL_TO_PASS") or []) + (task.get("PASS_TO_PASS") or [])
+    files = {str(n).split("::")[0].strip() for n in nodes}
+    n = 0
+    for rel in files:
+        if not rel:
+            continue
+        p = wd / rel
+        try:
+            if p.is_file():
+                p.unlink(); n += 1
+            elif p.is_dir():
+                shutil.rmtree(p, ignore_errors=True); n += 1
+        except OSError:
+            pass
+    return n
+
+
 def prep_sandbox(task, wd: Path):
     repo = repo_of(task)
     if wd.exists():
@@ -221,6 +257,9 @@ def prep_sandbox(task, wd: Path):
     shutil.rmtree(wd/".git", ignore_errors=True)      # 判分不需要 git
     if r.returncode != 0:
         raise RuntimeError(f"bug patch 失败: {r.stderr[:150]}")
+
+    if HIDE_F2P:
+        hide_f2p_tests(task, wd)          # ⭐ 判分前由 restore_tests() 恢复
 
 
 def restore_tests(repo, wd: Path):

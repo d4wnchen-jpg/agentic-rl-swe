@@ -121,6 +121,11 @@ def main():
     init_result_md(CFG, len(tasks), base)
     os.makedirs(ADAPTER_ROOT, exist_ok=True)
 
+    # ⭐ 先落运行清单 —— 放在建 vLLM 之前
+    from run_manifest import collect, write
+    write(collect(tag="train", tasks=CFG.get("train_file"), steps=CFG.get("steps")),
+          f"{BASE}/train.meta.json")
+
     # ═══ vLLM ═══
     llm = GRPOLlm(MODEL_PATH, max_model_len=81920, gpu_mem=CFG["gpu_mem_util"],
                   max_new_tokens=CFG["max_new_tokens"], max_loras=2,

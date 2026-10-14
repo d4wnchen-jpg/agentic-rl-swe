@@ -25,6 +25,12 @@ def main():
                     help="把每条 rollout 的明细写成 jsonl（默认 eval_<tag>_detail.jsonl）")
     a = ap.parse_args()
 
+    # ⭐ 先落运行清单 —— 放在加载模型之前，这样即使 OOM 崩溃也有记录
+    from run_manifest import collect, write
+    write(collect(tag=a.tag, adapter=a.adapter, tasks=a.tasks,
+                  n=a.n, k=a.k, turns=a.turns, gpu_mem=a.gpu_mem),
+          f"{BASE}/eval_{a.tag}.meta.json")
+
     from grpo_llm import GRPOLlm
     from eval_quick import quick_eval
 

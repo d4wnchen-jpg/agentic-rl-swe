@@ -66,12 +66,5 @@ Environment boundaries:
 - git is disabled and there is no .git directory. Do not try to use it.
 - The network is disabled. Do not fetch anything (curl, wget, python urllib/requests).
 - Do not install packages. Everything needed is already installed.
-- Do not modify tests or config files (conftest.py, pytest.ini, setup.cfg, pyproject.toml).
-  Fix the bug in the source under /testbed.
-</IMPORTANT>
-<IMPORTANT>
-Keep your reasoning VERY brief: at most 2-3 sentences, then IMMEDIATELY emit a function call.
-Do not second-guess yourself. Do not re-read the same code twice.
-If you already know the fix, apply it with str_replace immediately.
-You are an autonomous agent: you MUST modify source files, not just explain.
+- Fix the bug in the source files under /testbed.
 </IMPORTANT>

@@ -1,0 +1,12 @@
+{
+ "instance_id": "demo__calc",
+ "patch": "diff --git a/calc.py b/calc.py\nindex 2956440..285e312 100644\n--- a/calc.py\n+++ b/calc.py\n@@ -7,7 +7,7 @@ def add(a, b):\n # signature mirrors add(); used by check.py\n # ------------------------------------------------------------------\n def sub(a, b):\n-    return a + b  # BUG: should be a - b\n+    return a - b\n \n \n # ------------------------------------------------------------------\n@@ -15,7 +15,7 @@ def sub(a, b):\n # signature mirrors add(); used by check.py\n # ------------------------------------------------------------------\n def mul(a, b):\n-    return a + b  # BUG: should be a * b\n+    return a * b\n \n \n # ------------------------------------------------------------------\n@@ -23,4 +23,4 @@ def mul(a, b):\n # signature mirrors add(); used by check.py\n # ------------------------------------------------------------------\n def neg(a):\n-    return a  # BUG: should be -a\n+    return -a\n",
+ "FAIL_TO_PASS": [
+  "test_sub",
+  "test_mul",
+  "test_neg"
+ ],
+ "PASS_TO_PASS": [
+  "test_add"
+ ]
+}

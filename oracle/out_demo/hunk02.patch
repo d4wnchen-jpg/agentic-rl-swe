@@ -1,0 +1,13 @@
+diff --git a/calc.py b/calc.py
+index 2956440..285e312 100644
+--- a/calc.py
++++ b/calc.py
+@@ -15,7 +15,7 @@ def sub(a, b):
+ # signature mirrors add(); used by check.py
+ # ------------------------------------------------------------------
+ def mul(a, b):
+-    return a + b  # BUG: should be a * b
++    return a * b
+ 
+ 
+ # ------------------------------------------------------------------

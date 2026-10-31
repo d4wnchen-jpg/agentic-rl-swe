@@ -19,6 +19,7 @@ import fnmatch
 import json
 import os
 import re
+import shlex
 import shutil
 import statistics
 import subprocess
@@ -149,7 +150,7 @@ def run_one(task, args, work, out):
     patch_text = task.get("patch", "")
     if not patch_text:
         raise SystemExit(f"{iid} 缺少 patch 字段")
-    nodes_arg = " ".join(list(f2p) + list(p2p))
+    nodes_arg = " ".join(shlex.quote(n) for n in list(f2p) + list(p2p))
     os.makedirs(out, exist_ok=True)
 
     if os.path.exists(work):

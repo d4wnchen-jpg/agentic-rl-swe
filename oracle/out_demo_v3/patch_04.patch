@@ -1,0 +1,6 @@
+diff --git a/CHANGES.rst b/CHANGES.rst
+--- a/CHANGES.rst
++++ b/CHANGES.rst
+@@ -1 +1,2 @@
+ old
++new line in changelog

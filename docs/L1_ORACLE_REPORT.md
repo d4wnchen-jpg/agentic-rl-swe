@@ -1,0 +1,188 @@
+# L1 Oracle 模式报告（2026-10-31）
+
+> 目的：用数据集自带的 **gold patch** 当"完美轨迹"，验证「逐轮应用 → 逐轮判分 → 单 hunk 回滚」在真实任务上是否可行。
+> 与真实轨迹的区别：oracle 不犯错、单调变好；它测的是**管道**，不是模型分布。
+
+## 1. 代码与产物
+
+| 文件 | 作用 |
+|---|---|
+| `opd_agent/smoke_test/oracle/replay_oracle.py` | 主脚本（oracle 模式） |
+| `opd_agent/smoke_test/oracle/make_demo.py` | 生成本地 demo（无 pytest/无网络时验证代码路径） |
+| `opd_agent/smoke_test/oracle/out_demo/` | demo 运行结果（`ORACLE.md` / `oracle_report.json` / 拆分后的 hunk patch） |
+
+## 2. 本地 demo 结果（3 个 hunk、4 个测试）
+
+demo 设计：mini repo 有 3 个独立缺陷（`sub` / `mul` / `neg`），gold patch 恰好 3 个 hunk，每个 hunk 修一个缺陷、对应一个测试。
+
+### 逐轮应用（测试状态轨迹）
+
+| turn | hunk | apply | n_fail | n_pass | test_ok | test_s |
+|---|---|---|---|---|---|---|
+| 1 | 1（修 sub） | ✅ | 2 | 2 | False | 0.06 |
+| 2 | 2（修 mul） | ✅ | 1 | 3 | False | 0.06 |
+| 3 | 3（修 neg） | ✅ | 0 | 4 | **True** | 0.06 |
+
+### 单 hunk 回滚（从最终全绿状态）
+
+| 回滚 | revert | n_fail | 只挂掉的测试 |
+|---|---|---|---|
+| hunk 1 | ✅ | 1 | `test_sub` |
+| hunk 2 | ✅ | 1 | `test_mul` |
+| hunk 3 | ✅ | 1 | `test_neg` |
+
+**结论**：每个 hunk 的因果角色被测试精确区分——这正是 turn 级方法给不了的信号，也是 hunk 级标签成立的直接证据。
+
+## 3. 在真实公开任务上跑（SWE-bench Lite）
+
+### 前提
+
+1. **repo 处于 `base_commit`**（SWE-bench 数据集的 `repo` + `base_commit` 字段）；
+2. 一个能跑该 repo 测试的环境：**Docker 镜像**或**conda env**；
+3. 数据集文件：`SWE-bench_Lite.jsonl`（HF: `SWE-bench/SWE-bench_Lite`）。
+
+### 命令（Docker 路线，最省事）
+
+```bash
+python replay_oracle.py \
+  --task SWE-bench_Lite.jsonl \
+  --instance-id astropy__astropy-12907 \
+  --repo /path/to/astropy_at_base_commit \
+  --apply-test-patch \
+  --test-cmd 'docker run --rm -v {work}:/testbed -w /testbed \
+      swebench/sweb.eval.x86_64.astropy__astropy-12907:latest \
+      pytest --color=no -rA -p no:cacheprovider --no-header {nodes}' \
+  --out out/astropy_12907
+```
+
+说明：
+- `--apply-test-patch` 会先把 `test_patch` 打到基线上（否则 F2P 测试不存在）；
+- `{nodes}` 会被替换成 `FAIL_TO_PASS + PASS_TO_PASS` 的 nodeid 列表；
+- `{work}` 是工作目录的绝对路径；
+- 镜像 tag 以官方 harness 实际输出为准（形如 `swebench/sweb.eval.x86_64.<instance_id>:latest`）。
+
+### 命令（conda 路线）
+
+```bash
+--test-cmd 'conda run -n <env> pytest --color=no -rA -p no:cacheprovider --no-header {nodes}'
+```
+
+### 预期输出
+
+- 终端：每轮 `[turn k] hunkNN apply=True n_fail=... test_ok=...`
+- 文件：`out/<id>/ORACLE.md`（两张表）+ `oracle_report.json` + 拆分好的 `hunkNN.patch`
+
+## 4. 已知限制 / 待补
+
+| 限制 | 影响 | 处理 |
+|---|---|---|
+| **SWE-smith 的 `patch` 是"注入缺陷"补丁**，gold 修复是它的反向 | 直接跑会把缺陷再注入一次 | 下一步加 `--invert-patch` |
+| Docker 首次拉镜像很慢 | 第一次 `test_s` 会把拉镜像时间算进去 | 先手动 `docker pull`，或记住首轮偏大 |
+| `test_s` 含容器启动开销（秒级） | 估算真实判分成本偏高 | 记录多次后取中位数，或改用常驻容器 |
+| pytest 输出格式依赖 `-rA` | 解析不到状态时 `n_fail=None` | 测试命令里必须保留 `-rA` |
+| 只支持单文件多 hunk / 多文件均可，但 hunk 反向应用要求上下文未变 | 后续轮次改同一处会失败 | 脚本已自动回退 `--3way` |
+
+## 5. 下一步（建议顺序）
+
+1. **1 道真实任务**：选 SWE-bench Lite 里 F2P 少的题，跑通上面的命令；记录首轮耗时；
+2. **5 道任务**：确认不同 repo 的测试耗时分布（决定后面能采多少轨迹）；
+3. **接真实轨迹**：把 `git apply hunk` 换成重放 agent 动作（mini-swe-agent bash-only 最容易）；
+4. **加 `--invert-patch`**：支持 SWE-smith 的缺陷注入补丁。
+
+---
+
+## 6. 真实任务结果（2026-10-31，Codespaces）
+
+**任务**：`pallets__flask-4992`（F2P=1，P2P=18）
+**环境**：GitHub Codespaces 2 核 / 8 GB；Docker 29.9.2；镜像
+`swebench/sweb.eval.x86_64.pallets_1776_flask-4992:latest`（4.23 GB）
+**repo**：`pallets/flask` @ `4c288bc9`（base_commit）
+
+### 逐轮应用
+
+| turn | hunk | apply | n_fail | n_pass | test_s |
+|---|---|---|---|---|---|
+| 1 | 1（签名加 `text`） | ✅ | 1 | 18 | 1.63 |
+| 2 | 2（docstring 示例） | ✅ | 1 | 18 | 1.04 |
+| 3 | 3（docstring + 函数体） | ✅ | 0 | 19 | 0.79 |
+
+### 单 hunk 回滚（从最终状态）
+
+| 回滚 | n_fail | 解释 |
+|---|---|---|
+| hunk1 | 3 | 签名去掉 `text` 但函数体仍引用 → TypeError，连坐 3 个测试 |
+| hunk2 | 0 | **纯 docstring**，回滚无影响 |
+| hunk3 | 1 | 实现被撤掉 → F2P 挂 |
+
+### 三个关键数字
+
+| 数 | 结果 | 意义 |
+|---|---|---|
+| 单次判分 | 0.79–1.63 s（含容器启动） | 20 轮轨迹 ≈ 30 s；100 条 ≈ 1 h，**可行** |
+| 中间状态信号 | 有（1→1→0；回滚可区分） | L1 核心假设成立 |
+| 环境准备 | 镜像 4.23 GB + 拉取 | 一次性成本 |
+
+### ⚠️ 最重要的发现：diff hunk ≠ 语义编辑
+
+`flask-4992` 的 gold patch 是**一个功能改动**（给 `from_file` 加 `text` 参数）被 diff 切成 3 块：
+
+- hunk1 = 函数签名；
+- hunk2 = docstring 示例（**无功能影响**）；
+- hunk3 = docstring + 函数体（真正实现）。
+
+因此：
+
+1. **单独回滚一个 hunk 会破坏语法/语义**，产生“连坐失败”的假信号（hunk1 回滚 → 3 个测试挂）；
+2. **文档/注释 hunk 是惰性的**，回滚无影响，会污染“哪一步关键”的判定；
+3. 结论：**粒度定义应为「agent 的一次编辑动作（edit）」**，diff hunk 只用于 oracle 模式构造；回滚需过语法与可执行性过滤；文档 hunk 要剔除；
+4. 对大编辑，更干净的干预是「把这段编辑替换成教师给出的修正版」（intervention），而不是直接 revert。
+
+### 环境备注
+
+- Codespaces 免费额度 120 core-hours；2 核 ≈ 60 h/月；磁盘 32 GB（拉一个 flask 镜像后剩 6 GB）；
+- Codespaces 里 Docker 是 DinD，`--work` 放 `/workspaces/` 下最稳（daemon 路径可见）；
+- 数据集 v5 自带 `image` 字段，可直接 `docker pull`，不必调 `make_test_spec`（v5 里它被移到了 `swebench.harness.utils`）。
+
+### 第二个数据点：psf__requests-3362（76 个测试）
+
+| 状态 | n_fail | test_s |
+|---|---|---|
+| baseline | 1（F2P 挂） | 1.43 |
+| turn 1（应用 gold hunk） | 0 | 1.36 |
+| revert hunk | 1 | —（inert=False, syntax=True） |
+
+**结论**：76 个测试的单次判分 ≈ **1.4 s**（含容器启动），与 flask 的 1–1.6 s 同一量级。
+→ 20 轮轨迹 ≈ 30 s；100 条轨迹约 **50 分钟**（单线程；可多容器并行）。
+
+### 踩坑：nodeid 是 shell 不可信输入
+
+requests 的 P2P 里有 URL 参数化测试 ID，含 `&`、`#`：
+
+```
+tests/test_requests.py::TestRequests::test_params_are_added_before_fragment[http://example.com/path#fragment-...?a=b#fragment]
+```
+
+用 `shell=True` 拼命令时会被 bash 当成后台/注释，报 `No such file or directory`。
+**修法**：全部 `shlex.quote`（已修，commit `d2c1577`）。原 `agentic-rl-swe` 用 list 形式 `subprocess.run` 所以没踩到。
+
+---
+
+## 7. 第一条真实轨迹重放（2026-11-01）
+
+**来源**：mini-swe-agent 2.4.6 + DeepSeek `deepseek-chat`，实例 `psf__requests-3362`
+（19 次 API 调用、43 条消息、$0.0038、53 s 解出；提交 patch 与 gold 语义一致）
+
+**重放结果**（`oracle/replay_traj.py`）：
+
+| turn | n_fail | n_pass | 说明 |
+|---|---|---|---|
+| 1–4 | 1 | 75 | F2P 仍挂 |
+| **5** | **0** | 76 | 修复落地（唯一变化点） |
+| 6–19 | 0 | 76 | 保持通过 |
+
+- 单次判分 1.49–1.77 s；整条轨迹（19 轮重放 + 19 次判分）**48.3 s**；
+- 检测器正确输出唯一 pivot：`turn 5, improvement`；
+- 负对照成立：成功轨迹没有 regression。
+
+**结论**：轨迹解析 → 逐轮重放 → 快照 → test_patch → pytest → 状态轨迹 → pivot 检测，
+整条链路跑通；下一步需要**失败轨迹**才能看到 regression 型 pivot。

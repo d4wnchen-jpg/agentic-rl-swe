@@ -186,3 +186,25 @@ tests/test_requests.py::TestRequests::test_params_are_added_before_fragment[http
 
 **结论**：轨迹解析 → 逐轮重放 → 快照 → test_patch → pytest → 状态轨迹 → pivot 检测，
 整条链路跑通；下一步需要**失败轨迹**才能看到 regression 型 pivot。
+
+---
+
+## 8. 真实失败轨迹与标签噪声（2026-11-01，psf__requests-2674）
+
+**生成**：mini-swe-agent + DeepSeek `deepseek-chat`（temperature=1.0），11 轮、15 条命令，Submitted 但未解决。
+
+**重放结果**（`replay_traj.py` v5，官方语义：整文件 pytest + F2P 重跑）：
+
+| 项 | 结果 |
+|---|---|
+| baseline n_fail | **3**，而 F2P = **12**（11 个 F2P 在 base 就 PASSED） |
+| 11 轮状态轨迹 | 全部 n_fail=3（agent 的编辑对测试**完全无影响**，inert） |
+| flaky 处理 | `--rerun 1` 生效，曲线变干净但无信号 |
+| 单次判分 | ≈21 s（154 个测试，含容器启动） |
+
+**结论（两条，都写进方法学）**：
+
+1. **实例标签需要筛**：`baseline n_fail == len(F2P)` 是准入条件。requests 系测试依赖 httpbin/网络，SWE-bench Lite 又未经过 Verified 级人工验证，噪声大 → 弃用该实例。
+2. **评测必须复刻官方语义**：按 nodeid 子集跑会因测试顺序/全局状态得到不同的 F2P 结果；官方 `eval_script` 是「还原测试文件 → 打 test_patch → `pytest -rA <整个测试文件>`」。
+
+**下一实例**：`pallets__flask-5063`（F2P 2 / P2P 54，确定性测试）→ 失败轨迹 → 重放 + `--attribute`。

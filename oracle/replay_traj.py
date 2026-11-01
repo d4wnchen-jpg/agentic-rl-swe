@@ -113,9 +113,9 @@ def get_base_repo(image, dest):
     return ensure_git(dest)
 
 
-def run_tests(image, workdir, nodes, timeout=600):
+def run_tests(image, workdir, targets, timeout=600):
     inner = "pytest --color=no -rA -p no:cacheprovider --no-header " + \
-            " ".join(shlex.quote(n) for n in nodes)
+            " ".join(shlex.quote(t) for t in targets)
     rc, out, err, dt = sh(["docker", "run", "--rm", "-v", f"{workdir}:/testbed",
                            "-w", "/testbed", image, "bash", "-lc", inner],
                           timeout=timeout)
@@ -123,28 +123,48 @@ def run_tests(image, workdir, nodes, timeout=600):
     return {"ok": rc == 0, "statuses": statuses, "seconds": round(dt, 2)}
 
 
-def eval_state(image, base, ev, sha, test_patch, nodes, out):
+def eval_state(image, base, ev, sha, base_sha, test_patch, nodes, f2p, files,
+               out, rerun=0):
     shutil.rmtree(ev, ignore_errors=True)
     shutil.copytree(base, ev, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
     rc, o, e, _ = git(["checkout", "-q", sha], ev)
     if rc != 0:
         return {"sha": sha, "checkout_ok": False, "err": e[:200],
                 "test_patch_ok": False, "n_fail": None, "n_pass": None,
-                "test_s": 0.0, "statuses": {}}
+                "test_s": 0.0, "statuses": {}, "flaky": []}
+    # 官方语义：先把测试文件还原成 base 版本，再打 test_patch
+    if files:
+        git(["checkout", base_sha, "--"] + files, ev)
     tp_ok, tp_err = True, ""
     if test_patch:
         tp = os.path.join(out, "test_patch.diff")
         open(tp, "w").write(test_patch)
         rc, o, e, _ = git(["apply", "--whitespace=nowarn", tp], ev)
         tp_ok, tp_err = rc == 0, e[:300]
-    res = run_tests(image, ev, nodes)
-    n_pass = sum(1 for n in nodes if res["statuses"].get(n) == "PASSED")
-    n_fail = sum(1 for n in nodes if res["statuses"].get(n) not in ("PASSED", "XFAIL"))
+    runs = [run_tests(image, ev, files or nodes)]
+    for _ in range(rerun):
+        runs.append(run_tests(image, ev, files or nodes))
+
+    statuses, flaky = {}, []
+    for n in nodes:
+        obs = [r["statuses"].get(n) for r in runs]
+        passed = [s for s in obs if s == "PASSED"]
+        failed = [s for s in obs if s not in ("PASSED", "XFAIL")]
+        if passed and failed:
+            statuses[n] = "FLAKY"
+            flaky.append(n)
+        elif passed:
+            statuses[n] = "PASSED"
+        elif failed:
+            statuses[n] = obs[0] or "MISSING"
+    n_pass = sum(1 for n in nodes if statuses.get(n) == "PASSED")
+    n_fail = sum(1 for n in nodes if statuses.get(n) not in ("PASSED", "XFAIL", "FLAKY"))
+    res = runs[0]
     shutil.rmtree(ev, ignore_errors=True)
     return {"sha": sha, "checkout_ok": True, "test_patch_ok": tp_ok,
             "test_patch_err": tp_err, "n_pass": n_pass, "n_fail": n_fail,
-            "test_ok": res["ok"], "test_s": res["seconds"],
-            "statuses": res["statuses"]}
+            "flaky": flaky, "test_ok": res["ok"], "test_s": res["seconds"],
+            "statuses": statuses}
 
 
 def make_report(args, f2p, p2p, evals, pivots, attrs, replay_seconds):
@@ -153,14 +173,15 @@ def make_report(args, f2p, p2p, evals, pivots, attrs, replay_seconds):
          f"- 单次判分中位数 = {statistics.median([e['test_s'] for e in evals]):.2f}s",
          f"- 重放 + 判分总耗时 = {replay_seconds} s", "",
          "## 测试状态轨迹", "",
-         "| turn | n_fail | n_pass | test_patch | test_s | changed | sha |",
-         "|---|---|---|---|---|---|---|"]
+         "| turn | n_fail | n_pass | flaky | test_patch | test_s | changed | sha |",
+         "|---|---|---|---|---|---|---|---|"]
     prev = None
     for ev in evals:
         ch = "" if prev is None else ("↑" if ev["n_fail"] > prev else
                                       ("↓" if ev["n_fail"] < prev else "="))
         L.append(f"| {ev['turn']} | {ev['n_fail']} | {ev['n_pass']} | "
-                 f"{ev.get('test_patch_ok')} | {ev['test_s']} | {ch} | `{ev['sha'][:8]}` |")
+                 f"{len(ev.get('flaky') or [])} | {ev.get('test_patch_ok')} | "
+                 f"{ev['test_s']} | {ch} | `{ev['sha'][:8]}` |")
         prev = ev["n_fail"]
     # baseline F2P 逐项状态（诊断用）
     base = evals[0]
@@ -214,6 +235,8 @@ def main():
     ap.add_argument("--skip-pytest-replay", action="store_true")
     ap.add_argument("--cmd-timeout", type=int, default=300)
     ap.add_argument("--max-turns", type=int, default=0)
+    ap.add_argument("--rerun", type=int, default=0,
+                    help="F2P 失败的测试重跑次数（识别 flaky）")
     ap.add_argument("--attribute", action="store_true")
     ap.add_argument("--attribute-all", action="store_true")
     args = ap.parse_args()
@@ -225,6 +248,7 @@ def main():
             task[k] = json.loads(task[k])
     f2p, p2p = task["FAIL_TO_PASS"], task["PASS_TO_PASS"]
     nodes = list(f2p) + list(p2p)
+    files = sorted({n.split("::", 1)[0] for n in nodes})
     test_patch = task.get("test_patch")
 
     args.work = os.path.abspath(args.work)
@@ -248,7 +272,8 @@ def main():
 
     # 0) baseline：还没执行任何命令时的状态
     base_eval = eval_state(args.image, base, os.path.join(args.work, "eval"),
-                           base_sha, test_patch, nodes, args.out)
+                           base_sha, base_sha, test_patch, nodes, f2p, files,
+                           args.out, args.rerun)
     base_eval["turn"] = 0
     evals = [base_eval]
     shas = []
@@ -286,7 +311,8 @@ def main():
             dc(cname, f"chown -R {os.getuid()}:{os.getgid()} /testbed")
 
             ev = eval_state(args.image, base, os.path.join(args.work, "eval"),
-                            sha, test_patch, nodes, args.out)
+                            sha, base_sha, test_patch, nodes, f2p, files,
+                            args.out, args.rerun)
             ev["turn"] = i
             ev["n_cmds"] = len(cmds)
             evals.append(ev)

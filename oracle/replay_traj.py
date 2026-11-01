@@ -162,6 +162,18 @@ def make_report(args, f2p, p2p, evals, pivots, attrs, replay_seconds):
         L.append(f"| {ev['turn']} | {ev['n_fail']} | {ev['n_pass']} | "
                  f"{ev.get('test_patch_ok')} | {ev['test_s']} | {ch} | `{ev['sha'][:8]}` |")
         prev = ev["n_fail"]
+    # baseline F2P 逐项状态（诊断用）
+    base = evals[0]
+    st = base.get("statuses") or {}
+    f2p_rows = []
+    for n in f2p:
+        f2p_rows.append((st.get(n, "MISSING"), n))
+    passed_at_base = sum(1 for s_, _ in f2p_rows if s_ == "PASSED")
+    L += ["", f"## baseline 的 F2P 状态（{passed_at_base}/{len(f2p)} 在 base 就通过）", "",
+          "| status | nodeid |", "|---|---|"]
+    for s_, n in f2p_rows:
+        L.append(f"| {s_} | `{n}` |")
+
     L += ["", "## 候选 pivot", ""]
     if pivots:
         L += [f"- turn {p['turn']}: {p['type']}（{p['from']} → {p['to']} failing）"
@@ -263,12 +275,10 @@ def main():
 
             dc(cname, "cd /testbed && git config --global --add safe.directory /testbed")
             dc(cname, "cd /testbed && git add -A")
-            rc, _, _, _ = dc(cname, "cd /testbed && git diff --cached --quiet")
-            if rc != 0:
-                rc2, o2, e2, _ = dc(cname, "cd /testbed && git -c user.email=r@l "
-                                          f"-c user.name=r commit -qm turn{i}")
-                if rc2 != 0:
-                    print(f"  ⚠️ commit 失败: {e2[:200]}")
+            rc2, o2, e2, _ = dc(cname, "cd /testbed && git -c user.email=r@l "
+                                      f"-c user.name=r commit --allow-empty -qm turn{i}")
+            if rc2 != 0:
+                print(f"  ⚠️ commit 失败: {e2[:300]}")
             rc, out, err, _ = dc(cname, "cd /testbed && git rev-parse HEAD")
             sha = out.strip().splitlines()[-1] if out.strip() else base_sha
             shas.append(sha)

@@ -25,3 +25,12 @@ models/
 .idea/
 .vscode/
 *.swp
+
+# mini-swe-agent / oracle 产物（Codespace 里生成，体积大）
+mswa_out/
+mswa*.log
+out_*/
+replay_work*/
+work_*/
+oracle/out_*/
+*.traj.json

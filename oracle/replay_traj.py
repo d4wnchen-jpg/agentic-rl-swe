@@ -153,14 +153,14 @@ def make_report(args, f2p, p2p, evals, pivots, attrs, replay_seconds):
          f"- 单次判分中位数 = {statistics.median([e['test_s'] for e in evals]):.2f}s",
          f"- 重放 + 判分总耗时 = {replay_seconds} s", "",
          "## 测试状态轨迹", "",
-         "| turn | n_fail | n_pass | test_s | changed | sha |",
-         "|---|---|---|---|---|---|"]
+         "| turn | n_fail | n_pass | test_patch | test_s | changed | sha |",
+         "|---|---|---|---|---|---|---|"]
     prev = None
     for ev in evals:
         ch = "" if prev is None else ("↑" if ev["n_fail"] > prev else
                                       ("↓" if ev["n_fail"] < prev else "="))
-        L.append(f"| {ev['turn']} | {ev['n_fail']} | {ev['n_pass']} | {ev['test_s']} | "
-                 f"{ch} | `{ev['sha'][:8]}` |")
+        L.append(f"| {ev['turn']} | {ev['n_fail']} | {ev['n_pass']} | "
+                 f"{ev.get('test_patch_ok')} | {ev['test_s']} | {ch} | `{ev['sha'][:8]}` |")
         prev = ev["n_fail"]
     L += ["", "## 候选 pivot", ""]
     if pivots:
@@ -232,13 +232,22 @@ def main():
     sh(["docker", "run", "-d", "--name", cname, "-v", f"{base}:/testbed",
         "-w", "/testbed", args.image, "sleep", "8h"], check=True)
     print("container:", cname)
+    dc(cname, "git config --global --add safe.directory /testbed")
+
+    # 0) baseline：还没执行任何命令时的状态
+    base_eval = eval_state(args.image, base, os.path.join(args.work, "eval"),
+                           base_sha, test_patch, nodes, args.out)
+    base_eval["turn"] = 0
+    evals = [base_eval]
+    shas = []
+    print(f"baseline: n_fail={base_eval['n_fail']} n_pass={base_eval['n_pass']} "
+          f"test_patch_ok={base_eval['test_patch_ok']} ({base_eval['test_s']}s)")
 
     turns = extract_turns(traj)
     if args.max_turns:
         turns = turns[:args.max_turns]
     print(f"trajectory: {len(turns)} turns, {sum(len(t) for t in turns)} commands")
 
-    evals, shas = [], []
     t0 = time.perf_counter()
     try:
         for i, cmds in enumerate(turns, 1):
@@ -252,14 +261,19 @@ def main():
             json.dump(logs, open(os.path.join(args.out, f"turn{i:02d}_replay.json"), "w"),
                       ensure_ascii=False, indent=1)
 
+            dc(cname, "cd /testbed && git config --global --add safe.directory /testbed")
             dc(cname, "cd /testbed && git add -A")
             rc, _, _, _ = dc(cname, "cd /testbed && git diff --cached --quiet")
             if rc != 0:
-                dc(cname, "cd /testbed && git -c user.email=r@l -c user.name=r "
-                          f"commit -qm turn{i}")
-            rc, out, _, _ = dc(cname, "cd /testbed && git rev-parse HEAD")
+                rc2, o2, e2, _ = dc(cname, "cd /testbed && git -c user.email=r@l "
+                                          f"-c user.name=r commit -qm turn{i}")
+                if rc2 != 0:
+                    print(f"  ⚠️ commit 失败: {e2[:200]}")
+            rc, out, err, _ = dc(cname, "cd /testbed && git rev-parse HEAD")
             sha = out.strip().splitlines()[-1] if out.strip() else base_sha
             shas.append(sha)
+            # 把容器里 root 新建的文件还给宿主用户，避免后续 checkout/apply 权限问题
+            dc(cname, f"chown -R {os.getuid()}:{os.getgid()} /testbed")
 
             ev = eval_state(args.image, base, os.path.join(args.work, "eval"),
                             sha, test_patch, nodes, args.out)

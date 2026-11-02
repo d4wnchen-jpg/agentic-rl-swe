@@ -34,6 +34,17 @@ def main():
         final = evals[-1] if evals else {}
         pivots = r.get("pivots") or []
         regs = [x for x in pivots if x.get("type") == "regression"]
+        # 可恢复 pivot：regression 之后 n_fail 又降到 <= 回归前
+        evs = r.get("evals") or []
+        nfs = {e["turn"]: e.get("n_fail") for e in evs}
+        recovered, fatal = [], []
+        for p_ in regs:
+            t, before = p_["turn"], p_["from"]
+            later = [nfs[x] for x in sorted(nfs) if x > t and nfs[x] is not None]
+            if later and min(later) <= before:
+                recovered.append(t)
+            else:
+                fatal.append(t)
         cfs = r.get("counterfactuals") or []
         labels = [c.get("label") for c in cfs]
         verified = [c for c in cfs if c.get("label") in ("causal", "causal_by_file")]
@@ -46,6 +57,10 @@ def main():
             "final_n_fail": final.get("n_fail"),
             "n_regressions": len(regs),
             "regression_turns": [x["turn"] for x in regs],
+            "n_recovered": len(recovered),
+            "recovered_turns": recovered,
+            "n_fatal": len(fatal),
+            "fatal_turns": fatal,
             "cf_checked": len(cfs),
             "n_causal": len(causal),
             "n_causal_file": len(causal_file),
@@ -63,11 +78,11 @@ def main():
         return
 
     print(f"{'instance':24s} {'turns':>5s} {'fail':>5s} {'regs':>5s} "
-          f"{'cf':>4s} {'causal':>6s} {'file':>5s} {'unver':>6s}")
+          f"{'recov':>5s} {'fatal':>5s} {'causal':>6s} {'file':>5s} {'unver':>6s}")
     for x in rows:
         print(f"{str(x['instance'])[:24]:24s} {str(x['turns']):>5s} "
               f"{str(x['final_n_fail']):>5s} {x['n_regressions']:>5d} "
-              f"{x['cf_checked']:>4d} {x['n_causal']:>6d} "
+              f"{x['n_recovered']:>5d} {x['n_fatal']:>5d} {x['n_causal']:>6d} "
               f"{x['n_causal_file']:>5d} {x['n_unverified']:>6d}")
 
     failed = [x for x in rows if (x["final_n_fail"] or 0) > 0]

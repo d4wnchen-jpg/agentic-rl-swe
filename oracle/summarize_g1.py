@@ -35,7 +35,10 @@ def main():
         pivots = r.get("pivots") or []
         regs = [x for x in pivots if x.get("type") == "regression"]
         cfs = r.get("counterfactuals") or []
-        verified = [c for c in cfs if (c.get("delta") or 0) < 0]
+        labels = [c.get("label") for c in cfs]
+        verified = [c for c in cfs if c.get("label") in ("causal", "causal_by_file")]
+        causal = [c for c in cfs if c.get("label") == "causal"]
+        causal_file = [c for c in cfs if c.get("label") == "causal_by_file"]
         rows.append({
             "dir": d,
             "instance": r.get("instance_id"),
@@ -44,8 +47,14 @@ def main():
             "n_regressions": len(regs),
             "regression_turns": [x["turn"] for x in regs],
             "cf_checked": len(cfs),
+            "n_causal": len(causal),
+            "n_causal_file": len(causal_file),
+            "n_unverified": sum(1 for x in labels
+                                if x in ("unverified", "transient_or_confounded",
+                                         "cf_invalid_no_fallback")),
             "cf_harmful": len(verified),
             "cf_turns": [c["turn"] for c in verified],
+            "labels": labels,
             "replay_s": r.get("replay_seconds"),
         })
 
@@ -53,13 +62,13 @@ def main():
         print("没有找到 traj_report.json；检查路径模式:", pattern)
         return
 
-    print(f"{'instance':28s} {'turns':>5s} {'final_fail':>10s} "
-          f"{'regs':>5s} {'cf':>6s} {'harmful':>7s}  {'replay_s':>8s}")
+    print(f"{'instance':24s} {'turns':>5s} {'fail':>5s} {'regs':>5s} "
+          f"{'cf':>4s} {'causal':>6s} {'file':>5s} {'unver':>6s}")
     for x in rows:
-        print(f"{str(x['instance'])[:28]:28s} {str(x['turns']):>5s} "
-              f"{str(x['final_n_fail']):>10s} {x['n_regressions']:>5d} "
-              f"{x['cf_checked']:>6d} {x['cf_harmful']:>7d}  "
-              f"{str(x['replay_s']):>8s}")
+        print(f"{str(x['instance'])[:24]:24s} {str(x['turns']):>5s} "
+              f"{str(x['final_n_fail']):>5s} {x['n_regressions']:>5d} "
+              f"{x['cf_checked']:>4d} {x['n_causal']:>6d} "
+              f"{x['n_causal_file']:>5d} {x['n_unverified']:>6d}")
 
     failed = [x for x in rows if (x["final_n_fail"] or 0) > 0]
     with_reg = [x for x in failed if x["n_regressions"] > 0]
@@ -79,7 +88,8 @@ def main():
     print("明细：")
     for x in rows:
         print(f"  {x['dir']}: final_fail={x['final_n_fail']} "
-              f"reg_turns={x['regression_turns']} cf_harmful_turns={x['cf_turns']}")
+              f"reg_turns={x['regression_turns']} "
+              f"verified_turns={x['cf_turns']} labels={x['labels']}")
 
 
 if __name__ == "__main__":

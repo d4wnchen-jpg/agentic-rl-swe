@@ -225,7 +225,7 @@ def make_report(args, f2p, p2p, evals, pivots, attrs, replay_seconds):
 
 def counterfactual_replay(base, base_sha, turns, skip_idx, args,
                           nodes, f2p, files, test_patch, out):
-    """跳过第 skip_idx 轮重放整条轨迹，返回终态的评测结果。"""
+    """跳过第 skip_idx 轮重放整条轨迹，返回 (终态评测, 有效性信息)。"""
     cfdir = os.path.join(args.work, f"cf_turn{skip_idx}")
     shutil.rmtree(cfdir, ignore_errors=True)
     rc, o, e, _ = sh(["git", "clone", "-q", "--no-hardlinks", base, cfdir])
@@ -238,13 +238,16 @@ def counterfactual_replay(base, base_sha, turns, skip_idx, args,
         "-w", "/testbed", args.image, "sleep", "4h"], check=True)
     try:
         dc(cname, "git config --global --add safe.directory /testbed")
+        cmd_fail = []
         for i, cmds in enumerate(turns, 1):
             if i == skip_idx:
                 continue
             for c in cmds:
                 if args.skip_pytest_replay and "pytest" in c:
                     continue
-                dc(cname, c, timeout=args.cmd_timeout)
+                rc, o, e, _ = dc(cname, c, timeout=args.cmd_timeout)
+                if rc != 0:
+                    cmd_fail.append({"turn": i, "rc": rc, "cmd": c[:120]})
             dc(cname, "cd /testbed && git add -A")
             dc(cname, "cd /testbed && git -c user.email=r@l -c user.name=r "
                       "commit --allow-empty -qm cf")
@@ -253,9 +256,35 @@ def counterfactual_replay(base, base_sha, turns, skip_idx, args,
         sha = out_.strip().splitlines()[-1]
         ev = eval_state(args.image, cfdir, os.path.join(args.work, f"cf_eval{skip_idx}"),
                         sha, base_sha, test_patch, nodes, f2p, files, out, args.rerun)
+        # 跳过轮涉及的文件
+        ev["cf_cmd_fail"] = cmd_fail
         return ev
     finally:
         sh(["docker", "rm", "-f", cname])
+
+
+def file_revert_eval(base, base_sha, final_sha, prev_sha, files, args,
+                     nodes, f2p, test_files, test_patch, out, tag):
+    """从最终状态回滚某轮触碰的文件到该轮之前，再评测（备用干预）。"""
+    ev_dir = os.path.join(args.work, f"fr_{tag}")
+    shutil.rmtree(ev_dir, ignore_errors=True)
+    shutil.copytree(base, ev_dir, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+    git(["checkout", "-q", final_sha], ev_dir)
+    rc, o, e, _ = git(["checkout", prev_sha, "--"] + files, ev_dir)
+    if rc != 0:
+        shutil.rmtree(ev_dir, ignore_errors=True)
+        return {"ok": False, "err": e[:300], "n_fail": None}
+    if test_files:
+        git(["checkout", base_sha, "--"] + test_files, ev_dir)
+    if test_patch:
+        tp = os.path.join(out, "test_patch.diff")
+        open(tp, "w").write(test_patch)
+        git(["apply", "--whitespace=nowarn", tp], ev_dir)
+    res = run_tests(args.image, ev_dir, test_files or nodes)
+    n_fail = sum(1 for n in nodes
+                 if res["statuses"].get(n) not in ("PASSED", "XFAIL"))
+    shutil.rmtree(ev_dir, ignore_errors=True)
+    return {"ok": True, "n_fail": n_fail, "seconds": res["seconds"]}
 
 
 def main():
@@ -334,6 +363,7 @@ def main():
                     continue
                 rc, o, e, dt = dc(cname, c, timeout=args.cmd_timeout)
                 logs.append({"cmd": c, "rc": rc, "seconds": round(dt, 2)})
+                turn_rcs.setdefault(i, []).append(rc)
             json.dump(logs, open(os.path.join(args.out, f"turn{i:02d}_replay.json"), "w"),
                       ensure_ascii=False, indent=1)
 
@@ -345,6 +375,9 @@ def main():
                 print(f"  ⚠️ commit 失败: {e2[:300]}")
             rc, out, err, _ = dc(cname, "cd /testbed && git rev-parse HEAD")
             sha = out.strip().splitlines()[-1] if out.strip() else base_sha
+            prev_sha = shas[-1] if shas else base_sha
+            _, names, _, _ = git(["diff", "--name-only", prev_sha, sha], base)
+            turn_files[i] = [x for x in names.splitlines() if x.strip()]
             shas.append(sha)
             # 把容器里 root 新建的文件还给宿主用户，避免后续 checkout/apply 权限问题
             dc(cname, f"chown -R {os.getuid()}:{os.getgid()} /testbed")
@@ -425,9 +458,49 @@ def main():
             ev = counterfactual_replay(base, base_sha, turns, tno, args,
                                        nodes, f2p, files, test_patch, args.out)
             delta = (ev["n_fail"] - real_final) if ev["n_fail"] is not None else None
-            cfs.append({"turn": tno, "real_final_n_fail": real_final,
-                        "cf_final_n_fail": ev["n_fail"], "delta": delta})
-            print(f"[cf turn {tno}] real={real_final} cf={ev['n_fail']} delta={delta}")
+            idx = tno - 1
+            prev_sha = base_sha if idx == 0 else shas[idx - 1]
+            cur_files = turn_files.get(tno, [])
+            later_files = set()
+            for j in range(tno + 1, len(shas) + 1):
+                later_files |= set(turn_files.get(j, []))
+            overlap = sorted(set(cur_files) & later_files)
+            cf_cmd_fail = ev.get("cf_cmd_fail") or []
+            valid = len(cf_cmd_fail) == 0
+
+            rec = {"turn": tno, "real_final_n_fail": real_final,
+                   "cf_final_n_fail": ev["n_fail"], "delta": delta,
+                   "cf_valid": valid, "cf_cmd_fail": cf_cmd_fail[:5],
+                   "files_touched": cur_files,
+                   "later_touches_same_files": overlap,
+                   "label": None, "fallback_n_fail": None,
+                   "fallback_delta": None}
+
+            if valid and delta is not None and delta < 0:
+                rec["label"] = "causal"
+            else:
+                # 备用干预：文件级回滚（只把该轮触碰的文件恢复到该轮之前）
+                if cur_files:
+                    fr = file_revert_eval(base, base_sha, evals[-1]["sha"],
+                                          prev_sha, cur_files, args,
+                                          nodes, f2p, files, test_patch, args.out, tno)
+                    rec["fallback_n_fail"] = fr.get("n_fail")
+                    if fr.get("n_fail") is not None:
+                        rec["fallback_delta"] = fr["n_fail"] - real_final
+                        if fr["n_fail"] < real_final:
+                            rec["label"] = "causal_by_file"
+                        elif delta is not None and delta == 0 and overlap:
+                            rec["label"] = "transient_or_confounded"
+                        else:
+                            rec["label"] = "unverified"
+                    else:
+                        rec["label"] = "cf_invalid_no_fallback"
+                else:
+                    rec["label"] = "no_edit_detected"
+
+            cfs.append(rec)
+            print(f"[cf turn {tno}] real={real_final} cf={ev['n_fail']} delta={delta} "
+                  f"valid={valid} fallback={rec['fallback_n_fail']} label={rec['label']}")
 
     report = {"instance_id": args.instance_id, "image": args.image,
               "base_sha": base_sha, "n_turns": len(evals), "evals": evals,
@@ -439,19 +512,12 @@ def main():
     make_report(args, f2p, p2p, evals, pivots, attrs, report["replay_seconds"])
     if cfs:
         L3 = ["", "## 反事实重放（跳过该轮，评测终态）", "",
-              "| turn | 真实终态 n_fail | 跳过该轮后 | delta | 判断 |",
-              "|---|---|---|---|---|"]
+              "| turn | real | cf | delta | cf有效 | 文件级回滚 | label |",
+              "|---|---|---|---|---|---|---|"]
         for c in cfs:
-            if c["delta"] is None:
-                verdict = "无数据"
-            elif c["delta"] < 0:
-                verdict = "**有害编辑**（跳过它，失败减少）"
-            elif c["delta"] > 0:
-                verdict = "好编辑（跳过它，失败增加）"
-            else:
-                verdict = "无影响"
             L3.append(f"| {c['turn']} | {c['real_final_n_fail']} | "
-                      f"{c['cf_final_n_fail']} | {c['delta']} | {verdict} |")
+                      f"{c['cf_final_n_fail']} | {c['delta']} | {c['cf_valid']} | "
+                      f"{c['fallback_n_fail']} | **{c['label']}** |")
         with open(os.path.join(args.out, "TRAJ.md"), "a") as fh:
             fh.write("\n".join(L3) + "\n")
     print(f"\n报告 → {args.out}/TRAJ.md")

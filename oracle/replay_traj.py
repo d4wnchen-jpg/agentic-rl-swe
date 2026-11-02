@@ -223,6 +223,41 @@ def make_report(args, f2p, p2p, evals, pivots, attrs, replay_seconds):
     open(os.path.join(args.out, "TRAJ.md"), "w").write("\n".join(L) + "\n")
 
 
+def counterfactual_replay(base, base_sha, turns, skip_idx, args,
+                          nodes, f2p, files, test_patch, out):
+    """跳过第 skip_idx 轮重放整条轨迹，返回终态的评测结果。"""
+    cfdir = os.path.join(args.work, f"cf_turn{skip_idx}")
+    shutil.rmtree(cfdir, ignore_errors=True)
+    rc, o, e, _ = sh(["git", "clone", "-q", "--no-hardlinks", base, cfdir])
+    if rc != 0:
+        raise RuntimeError(f"git clone 失败: {e[:300]}")
+    git(["checkout", "-q", base_sha], cfdir)
+
+    cname = f"cf_{skip_idx}_{uuid.uuid4().hex[:6]}"
+    sh(["docker", "run", "-d", "--name", cname, "-v", f"{cfdir}:/testbed",
+        "-w", "/testbed", args.image, "sleep", "4h"], check=True)
+    try:
+        dc(cname, "git config --global --add safe.directory /testbed")
+        for i, cmds in enumerate(turns, 1):
+            if i == skip_idx:
+                continue
+            for c in cmds:
+                if args.skip_pytest_replay and "pytest" in c:
+                    continue
+                dc(cname, c, timeout=args.cmd_timeout)
+            dc(cname, "cd /testbed && git add -A")
+            dc(cname, "cd /testbed && git -c user.email=r@l -c user.name=r "
+                      "commit --allow-empty -qm cf")
+            dc(cname, f"chown -R {os.getuid()}:{os.getgid()} /testbed")
+        rc, out_, _, _ = dc(cname, "cd /testbed && git rev-parse HEAD")
+        sha = out_.strip().splitlines()[-1]
+        ev = eval_state(args.image, cfdir, os.path.join(args.work, f"cf_eval{skip_idx}"),
+                        sha, base_sha, test_patch, nodes, f2p, files, out, args.rerun)
+        return ev
+    finally:
+        sh(["docker", "rm", "-f", cname])
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--traj", required=True)
@@ -239,6 +274,8 @@ def main():
                     help="F2P 失败的测试重跑次数（识别 flaky）")
     ap.add_argument("--attribute", action="store_true")
     ap.add_argument("--attribute-all", action="store_true")
+    ap.add_argument("--counterfactual", default="",
+                    help="逗号分隔轮次，如 '5,9'：跳过该轮重放并评测终态（反事实归因）")
     args = ap.parse_args()
 
     traj = json.load(open(args.traj))
@@ -374,14 +411,42 @@ def main():
             print(f"attr turn {tno}: final_fail={final['n_fail']} "
                   f"after_revert={n_fail_after}")
 
+    cfs = []
+    if args.counterfactual and evals:
+        real_final = evals[-1]["n_fail"]
+        for tno in [int(x) for x in args.counterfactual.split(",") if x.strip()]:
+            ev = counterfactual_replay(base, base_sha, turns, tno, args,
+                                       nodes, f2p, files, test_patch, args.out)
+            delta = (ev["n_fail"] - real_final) if ev["n_fail"] is not None else None
+            cfs.append({"turn": tno, "real_final_n_fail": real_final,
+                        "cf_final_n_fail": ev["n_fail"], "delta": delta})
+            print(f"[cf turn {tno}] real={real_final} cf={ev['n_fail']} delta={delta}")
+
     report = {"instance_id": args.instance_id, "image": args.image,
               "base_sha": base_sha, "n_turns": len(evals), "evals": evals,
-              "pivots": pivots, "attrs": attrs,
+              "pivots": pivots, "attrs": attrs, "counterfactuals": cfs,
               "eval_seconds": [e["test_s"] for e in evals],
               "replay_seconds": round(time.perf_counter() - t0, 1)}
     json.dump(report, open(os.path.join(args.out, "traj_report.json"), "w"),
               ensure_ascii=False, indent=1)
     make_report(args, f2p, p2p, evals, pivots, attrs, report["replay_seconds"])
+    if cfs:
+        L3 = ["", "## 反事实重放（跳过该轮，评测终态）", "",
+              "| turn | 真实终态 n_fail | 跳过该轮后 | delta | 判断 |",
+              "|---|---|---|---|---|"]
+        for c in cfs:
+            if c["delta"] is None:
+                verdict = "无数据"
+            elif c["delta"] < 0:
+                verdict = "**有害编辑**（跳过它，失败减少）"
+            elif c["delta"] > 0:
+                verdict = "好编辑（跳过它，失败增加）"
+            else:
+                verdict = "无影响"
+            L3.append(f"| {c['turn']} | {c['real_final_n_fail']} | "
+                      f"{c['cf_final_n_fail']} | {c['delta']} | {verdict} |")
+        with open(os.path.join(args.out, "TRAJ.md"), "a") as fh:
+            fh.write("\n".join(L3) + "\n")
     print(f"\n报告 → {args.out}/TRAJ.md")
 
 

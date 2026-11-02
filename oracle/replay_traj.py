@@ -345,6 +345,7 @@ def main():
     base_eval["turn"] = 0
     evals = [base_eval]
     shas = []
+    turn_files, turn_rcs = {}, {}
     print(f"baseline: n_fail={base_eval['n_fail']} n_pass={base_eval['n_pass']} "
           f"test_patch_ok={base_eval['test_patch_ok']} ({base_eval['test_s']}s)")
 

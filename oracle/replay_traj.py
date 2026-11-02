@@ -303,6 +303,8 @@ def main():
                     help="F2P 失败的测试重跑次数（识别 flaky）")
     ap.add_argument("--attribute", action="store_true")
     ap.add_argument("--attribute-all", action="store_true")
+    ap.add_argument("--counterfactual-recoveries", action="store_true",
+                    help="对每个 (regression, 恢复轮) 配对，跳过恢复轮重放，验证恢复的因果性")
     ap.add_argument("--counterfactual-pivots", action="store_true",
                     help="自动对所有 regression pivot 轮做反事实重放")
     ap.add_argument("--counterfactual", default="",
@@ -503,14 +505,52 @@ def main():
             print(f"[cf turn {tno}] real={real_final} cf={ev['n_fail']} delta={delta} "
                   f"valid={valid} fallback={rec['fallback_n_fail']} label={rec['label']}")
 
+    # ── (regression -> recovery) 配对：跳过恢复轮，验证恢复的因果性 ──
+    recoveries = []
+    if args.counterfactual_recoveries and evals:
+        real_final = evals[-1]["n_fail"]
+        pairs = []
+        for p_ in pivots:
+            if p_.get("type") != "regression":
+                continue
+            t, before = p_["turn"], p_["from"]
+            later = [e for e in evals if e["turn"] > t and e["n_fail"] is not None]
+            r_turn = next((e["turn"] for e in later if e["n_fail"] <= before), None)
+            if r_turn is not None:
+                pairs.append((t, r_turn))
+        for t, r_turn in pairs:
+            ev = counterfactual_replay(base, base_sha, turns, r_turn, args,
+                                       nodes, f2p, files, test_patch, args.out)
+            cf_valid = not (ev.get("cf_cmd_fail") or [])
+            rec = {"pivot_turn": t, "recovery_turn": r_turn,
+                   "real_final_n_fail": real_final,
+                   "cf_skip_recovery_final_n_fail": ev["n_fail"],
+                   "cf_valid": cf_valid}
+            rec["recovery_causal"] = bool(cf_valid and ev["n_fail"] is not None
+                                          and ev["n_fail"] > real_final)
+            recoveries.append(rec)
+            print(f"[recovery] pivot={t} recovery={r_turn} real={real_final} "
+                  f"skip_recovery={ev['n_fail']} causal={rec['recovery_causal']}")
+
     report = {"instance_id": args.instance_id, "image": args.image,
               "base_sha": base_sha, "n_turns": len(evals), "evals": evals,
-              "pivots": pivots, "attrs": attrs, "counterfactuals": cfs,
+              "pivots": pivots, "attrs": attrs, "counterfactuals": cfs, "recoveries": recoveries,
               "eval_seconds": [e["test_s"] for e in evals],
               "replay_seconds": round(time.perf_counter() - t0, 1)}
     json.dump(report, open(os.path.join(args.out, "traj_report.json"), "w"),
               ensure_ascii=False, indent=1)
     make_report(args, f2p, p2p, evals, pivots, attrs, report["replay_seconds"])
+    if recoveries:
+        L4 = ["", "## (错误步 → 恢复步) 配对验证", "",
+              "| pivot | recovery | 真实终态 | 跳过恢复轮后 | 恢复因果 |",
+              "|---|---|---|---|---|"]
+        for r_ in recoveries:
+            L4.append(f"| {r_['pivot_turn']} | {r_['recovery_turn']} | "
+                      f"{r_['real_final_n_fail']} | "
+                      f"{r_['cf_skip_recovery_final_n_fail']} | "
+                      f"**{r_['recovery_causal']}** |")
+        with open(os.path.join(args.out, "TRAJ.md"), "a") as fh:
+            fh.write("\n".join(L4) + "\n")
     if cfs:
         L3 = ["", "## 反事实重放（跳过该轮，评测终态）", "",
               "| turn | real | cf | delta | cf有效 | 文件级回滚 | label |",

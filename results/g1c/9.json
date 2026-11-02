@@ -13,7 +13,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 2.62,
+   "test_s": 1.55,
    "statuses": {
     "tests/test_cli.py::TestRoutes::test_subdomain": "FAILED",
     "tests/test_cli.py::TestRoutes::test_host": "FAILED",
@@ -75,7 +75,7 @@
    "turn": 0
   },
   {
-   "sha": "143749f41d9350052ee74bf9eb53dd3665bcbfad",
+   "sha": "8339bf1c59f4a12b0d304c4dd122161492fef2f4",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -83,7 +83,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 2.35,
+   "test_s": 1.73,
    "statuses": {
     "tests/test_cli.py::TestRoutes::test_subdomain": "FAILED",
     "tests/test_cli.py::TestRoutes::test_host": "FAILED",
@@ -146,7 +146,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "2930798cc65417c2c8ba637ad1d5acab2a8cb91b",
+   "sha": "eefe84ca2a118925a9c16fc7cbe26326d07be5bb",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -154,7 +154,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 2.68,
+   "test_s": 1.51,
    "statuses": {
     "tests/test_cli.py::TestRoutes::test_subdomain": "FAILED",
     "tests/test_cli.py::TestRoutes::test_host": "FAILED",
@@ -217,7 +217,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "b8cff3b4f72b931da0b1b8eac7c48b646f7cd634",
+   "sha": "a9ee2ec20650873babd01d3544cb4343fcec6ebe",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -225,7 +225,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 2.27,
+   "test_s": 1.42,
    "statuses": {
     "tests/test_cli.py::TestRoutes::test_subdomain": "FAILED",
     "tests/test_cli.py::TestRoutes::test_host": "FAILED",
@@ -288,7 +288,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "b4b8ed60d6dcd74311db9adca26c88ca9cf7f5b7",
+   "sha": "d07b3749fc2729c173337aec2c4d7a8f91cb7a33",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -296,7 +296,7 @@
    "n_fail": 4,
    "flaky": [],
    "test_ok": false,
-   "test_s": 2.64,
+   "test_s": 1.35,
    "statuses": {
     "tests/test_cli.py::TestRoutes::test_subdomain": "FAILED",
     "tests/test_cli.py::TestRoutes::test_host": "FAILED",
@@ -359,7 +359,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "ef22969962740ff459800bfcec9cd19a7293ccd6",
+   "sha": "7966de035c1926581d577ad2fa84e10df327895c",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -367,7 +367,7 @@
    "n_fail": 4,
    "flaky": [],
    "test_ok": false,
-   "test_s": 2.4,
+   "test_s": 1.41,
    "statuses": {
     "tests/test_cli.py::TestRoutes::test_subdomain": "FAILED",
     "tests/test_cli.py::TestRoutes::test_host": "FAILED",
@@ -430,7 +430,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "1b38994df0d10f156e5f3cda766c17d1001be38d",
+   "sha": "1599b72d0ba3e07f47787e9ac181ff3b7541eae9",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -438,7 +438,7 @@
    "n_fail": 4,
    "flaky": [],
    "test_ok": false,
-   "test_s": 2.48,
+   "test_s": 1.48,
    "statuses": {
     "tests/test_cli.py::TestRoutes::test_subdomain": "FAILED",
     "tests/test_cli.py::TestRoutes::test_host": "FAILED",
@@ -501,7 +501,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "17b4b951e52876f294f557cf0f5709cc5d132b6c",
+   "sha": "3013e6a682091a2f17167b9db30f6195ceba9836",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -509,7 +509,7 @@
    "n_fail": 4,
    "flaky": [],
    "test_ok": false,
-   "test_s": 2.41,
+   "test_s": 2.13,
    "statuses": {
     "tests/test_cli.py::TestRoutes::test_subdomain": "FAILED",
     "tests/test_cli.py::TestRoutes::test_host": "FAILED",
@@ -572,7 +572,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "44e1967abbf600bfc0b0f450279b64ac72328735",
+   "sha": "84da806808675865bf324c3a83d6eb5e47ed3528",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -580,7 +580,7 @@
    "n_fail": 4,
    "flaky": [],
    "test_ok": false,
-   "test_s": 2.4,
+   "test_s": 2.55,
    "statuses": {
     "tests/test_cli.py::TestRoutes::test_subdomain": "FAILED",
     "tests/test_cli.py::TestRoutes::test_host": "FAILED",
@@ -643,7 +643,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "655c8db3dff1fab269431f8f77475018c28de8c2",
+   "sha": "7c71acb5cac07a573f5a63663b3a585f230336c0",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -651,7 +651,7 @@
    "n_fail": 4,
    "flaky": [],
    "test_ok": false,
-   "test_s": 2.12,
+   "test_s": 2.08,
    "statuses": {
     "tests/test_cli.py::TestRoutes::test_subdomain": "FAILED",
     "tests/test_cli.py::TestRoutes::test_host": "FAILED",
@@ -714,7 +714,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "9bf61a61b72b860dcbee0a4138c6e2fa88feb214",
+   "sha": "a385d5d2b5d2fc4b63655710972b7b62fcf3fbf8",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -722,7 +722,7 @@
    "n_fail": 4,
    "flaky": [],
    "test_ok": false,
-   "test_s": 2.74,
+   "test_s": 2.02,
    "statuses": {
     "tests/test_cli.py::TestRoutes::test_subdomain": "FAILED",
     "tests/test_cli.py::TestRoutes::test_host": "FAILED",
@@ -785,7 +785,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "ad06bbe6f79181a673bca915e3cd3bb7b583add8",
+   "sha": "c8e10d7508d7af1aedfd1b98180df7bde5dd1c83",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -793,7 +793,7 @@
    "n_fail": 4,
    "flaky": [],
    "test_ok": false,
-   "test_s": 2.44,
+   "test_s": 2.09,
    "statuses": {
     "tests/test_cli.py::TestRoutes::test_subdomain": "FAILED",
     "tests/test_cli.py::TestRoutes::test_host": "FAILED",
@@ -856,7 +856,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "59d5c8ca3bad355e00044730c377ca8831433f40",
+   "sha": "43861480dba999fa951204b5532aebc665dde510",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -864,7 +864,7 @@
    "n_fail": 4,
    "flaky": [],
    "test_ok": false,
-   "test_s": 2.41,
+   "test_s": 2.26,
    "statuses": {
     "tests/test_cli.py::TestRoutes::test_subdomain": "FAILED",
     "tests/test_cli.py::TestRoutes::test_host": "FAILED",
@@ -927,7 +927,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "5091e39bb02d0571a2575382defc2eb1caac8264",
+   "sha": "ccb16e8648458fd0ad7039eb61e1e457664bde41",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -935,7 +935,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 3.71,
+   "test_s": 2.15,
    "statuses": {
     "tests/test_cli.py::TestRoutes::test_subdomain": "FAILED",
     "tests/test_cli.py::TestRoutes::test_host": "FAILED",
@@ -998,7 +998,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "3bdf7a324adddc7ae8463bf1c519657ac1fb7b8b",
+   "sha": "c61011e990ef5d54ec196b18545632e13af69c82",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -1006,7 +1006,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 3.01,
+   "test_s": 2.17,
    "statuses": {
     "tests/test_cli.py::TestRoutes::test_subdomain": "FAILED",
     "tests/test_cli.py::TestRoutes::test_host": "FAILED",
@@ -1069,7 +1069,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "45e5ac1b3012802785a6ee3d53014c79f0d3f34e",
+   "sha": "18f533f92a68c6dfac414e5c5e6f80e685d9c86a",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -1077,7 +1077,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 2.77,
+   "test_s": 2.34,
    "statuses": {
     "tests/test_cli.py::TestRoutes::test_subdomain": "FAILED",
     "tests/test_cli.py::TestRoutes::test_host": "FAILED",
@@ -1140,7 +1140,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "03f55e13e0fc56fc0855aa4d7e4934d8165d440c",
+   "sha": "2eb2fe26d6749f4f0a126f4d02d9d42c3ca278a8",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -1148,7 +1148,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 2.13,
+   "test_s": 2.44,
    "statuses": {
     "tests/test_cli.py::TestRoutes::test_subdomain": "FAILED",
     "tests/test_cli.py::TestRoutes::test_host": "FAILED",
@@ -1211,7 +1211,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "b604608943b488f225cbc217ae2c8b65c649dd9b",
+   "sha": "8a209c4dc1c5af261444a2868069b73c79e72064",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -1219,7 +1219,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 2.07,
+   "test_s": 2.26,
    "statuses": {
     "tests/test_cli.py::TestRoutes::test_subdomain": "FAILED",
     "tests/test_cli.py::TestRoutes::test_host": "FAILED",
@@ -1282,7 +1282,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "8de6d28faa00fb855a2962621718add788be2d16",
+   "sha": "1e9a40e08b37cf8ff452bb8fddfb7e622ef2fa49",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -1290,7 +1290,7 @@
    "n_fail": 56,
    "flaky": [],
    "test_ok": false,
-   "test_s": 1.58,
+   "test_s": 1.79,
    "statuses": {
     "tests/test_cli.py::TestRoutes::test_subdomain": "MISSING",
     "tests/test_cli.py::TestRoutes::test_host": "MISSING",
@@ -1353,7 +1353,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "d8cc6892323e56b50b67505684b82d55d696151b",
+   "sha": "7cce71e6e5a09abc7fe68c66af3e303eb7d701cc",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -1361,7 +1361,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 2.18,
+   "test_s": 2.34,
    "statuses": {
     "tests/test_cli.py::TestRoutes::test_subdomain": "FAILED",
     "tests/test_cli.py::TestRoutes::test_host": "FAILED",
@@ -1424,7 +1424,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "4e3cfe184032527251fa6e7357acb2b12f211f82",
+   "sha": "588ca8098dc08df2ef64e5e96d110a6ee36ba892",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -1432,7 +1432,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 2.03,
+   "test_s": 2.41,
    "statuses": {
     "tests/test_cli.py::TestRoutes::test_subdomain": "FAILED",
     "tests/test_cli.py::TestRoutes::test_host": "FAILED",
@@ -1495,7 +1495,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "21d13e577f23c47bbc871ea496fdbb5d30bd0cdb",
+   "sha": "501cf2244acf6963074f20c1b0996275a417ef00",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -1503,7 +1503,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 2.18,
+   "test_s": 2.92,
    "statuses": {
     "tests/test_cli.py::TestRoutes::test_subdomain": "FAILED",
     "tests/test_cli.py::TestRoutes::test_host": "FAILED",
@@ -1566,7 +1566,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "2e878634500f793e488a795b014cad87d129ec1c",
+   "sha": "adf5301c0971120a9ba5d49c358b67f423e49731",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -1574,7 +1574,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 2.29,
+   "test_s": 2.6,
    "statuses": {
     "tests/test_cli.py::TestRoutes::test_subdomain": "FAILED",
     "tests/test_cli.py::TestRoutes::test_host": "FAILED",
@@ -1637,7 +1637,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "81fdc7c6c27cbf0df8c61f2c6ece4055577b899f",
+   "sha": "7a9c74f7c1de25809c5dcc26be1927291168cfb0",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -1645,7 +1645,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 2.08,
+   "test_s": 2.72,
    "statuses": {
     "tests/test_cli.py::TestRoutes::test_subdomain": "FAILED",
     "tests/test_cli.py::TestRoutes::test_host": "FAILED",
@@ -1708,7 +1708,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "6a7afe6fcc103c76d1376ec2cc49b486a1f50ccc",
+   "sha": "f6f746c85774f64a99cca74de5e8b2a369cb99a5",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -1716,7 +1716,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 2.63,
+   "test_s": 2.28,
    "statuses": {
     "tests/test_cli.py::TestRoutes::test_subdomain": "FAILED",
     "tests/test_cli.py::TestRoutes::test_host": "FAILED",
@@ -1779,7 +1779,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "01e15d12a36bfe0411b94d4c8e1e8828e3e20dca",
+   "sha": "9c7acfdd31a52826d95ef1c3e62cbef68da1e74e",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -1787,7 +1787,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 2.42,
+   "test_s": 2.16,
    "statuses": {
     "tests/test_cli.py::TestRoutes::test_subdomain": "FAILED",
     "tests/test_cli.py::TestRoutes::test_host": "FAILED",
@@ -1969,32 +1969,32 @@
   }
  ],
  "eval_seconds": [
-  2.62,
-  2.35,
-  2.68,
-  2.27,
-  2.64,
-  2.4,
-  2.48,
-  2.41,
-  2.4,
-  2.12,
-  2.74,
-  2.44,
-  2.41,
-  3.71,
-  3.01,
-  2.77,
+  1.55,
+  1.73,
+  1.51,
+  1.42,
+  1.35,
+  1.41,
+  1.48,
   2.13,
-  2.07,
-  1.58,
-  2.18,
-  2.03,
-  2.18,
-  2.29,
+  2.55,
   2.08,
-  2.63,
-  2.42
+  2.02,
+  2.09,
+  2.26,
+  2.15,
+  2.17,
+  2.34,
+  2.44,
+  2.26,
+  1.79,
+  2.34,
+  2.41,
+  2.92,
+  2.6,
+  2.72,
+  2.28,
+  2.16
  ],
- "replay_seconds": 421.7
+ "replay_seconds": 379.3
 }

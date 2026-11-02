@@ -23,7 +23,7 @@ for i in $(seq 1 "$N"); do
   python oracle/replay_traj.py --traj "$traj" --task SWE-bench_Lite.jsonl \
     --instance-id "$IID" --image "$IMAGE" \
     --work "replay_${PREFIX}_$i" --out "out_${PREFIX}_$i" \
-    --attribute --rerun 1 --counterfactual-pivots \
+    --rerun 1 --counterfactual-pivots --counterfactual-recoveries \
     || echo "重放失败（out_${PREFIX}_$i）"
   rm -rf "replay_${PREFIX}_$i"
 done

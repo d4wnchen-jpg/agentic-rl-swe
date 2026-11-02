@@ -45,6 +45,8 @@ def main():
                 recovered.append(t)
             else:
                 fatal.append(t)
+        recs = r.get("recoveries") or []
+        rec_causal = [x for x in recs if x.get("recovery_causal")]
         cfs = r.get("counterfactuals") or []
         labels = [c.get("label") for c in cfs]
         verified = [c for c in cfs if c.get("label") in ("causal", "causal_by_file")]
@@ -61,6 +63,9 @@ def main():
             "recovered_turns": recovered,
             "n_fatal": len(fatal),
             "fatal_turns": fatal,
+            "n_recovery_pairs": len(recs),
+            "n_recovery_causal": len(rec_causal),
+            "recovery_pairs": [(x.get("pivot_turn"), x.get("recovery_turn")) for x in recs],
             "cf_checked": len(cfs),
             "n_causal": len(causal),
             "n_causal_file": len(causal_file),
@@ -78,11 +83,13 @@ def main():
         return
 
     print(f"{'instance':24s} {'turns':>5s} {'fail':>5s} {'regs':>5s} "
-          f"{'recov':>5s} {'fatal':>5s} {'causal':>6s} {'file':>5s} {'unver':>6s}")
+          f"{'recov':>5s} {'fatal':>5s} {'pairs':>5s} {'rcaus':>5s} "
+          f"{'causal':>6s} {'file':>5s} {'unver':>6s}")
     for x in rows:
         print(f"{str(x['instance'])[:24]:24s} {str(x['turns']):>5s} "
               f"{str(x['final_n_fail']):>5s} {x['n_regressions']:>5d} "
-              f"{x['n_recovered']:>5d} {x['n_fatal']:>5d} {x['n_causal']:>6d} "
+              f"{x['n_recovered']:>5d} {x['n_fatal']:>5d} {x['n_recovery_pairs']:>5d} "
+              f"{x['n_recovery_causal']:>5d} {x['n_causal']:>6d} "
               f"{x['n_causal_file']:>5d} {x['n_unverified']:>6d}")
 
     failed = [x for x in rows if (x["final_n_fail"] or 0) > 0]
@@ -94,6 +101,9 @@ def main():
     print(f"失败轨迹        : {len(failed)}")
     print(f"有 regression   : {len(with_reg)}")
     print(f"有反事实验证    : {len(with_cf)}")
+    n_pairs = sum(x["n_recovery_pairs"] for x in rows)
+    n_pairs_causal = sum(x["n_recovery_causal"] for x in rows)
+    print(f"(错误步→恢复步) 配对数 : {n_pairs}（因果验证 {n_pairs_causal}）")
     if failed:
         print(f"G1a（有 regression / 失败）   = {len(with_reg)}/{len(failed)} "
               f"= {len(with_reg)/len(failed)*100:.1f}%")

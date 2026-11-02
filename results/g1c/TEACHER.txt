@@ -1,0 +1,90 @@
+Traceback (most recent call last):
+  File "/workspaces/agentic-rl-swe/oracle/teacher_label.py", line 162, in <module>
+    main()
+    ~~~~^^
+  File "/workspaces/agentic-rl-swe/oracle/teacher_label.py", line 132, in main
+    client = OpenAI(api_key=os.environ["DEEPSEEK_API_KEY"],
+                            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "<frozen os>", line 709, in __getitem__
+KeyError: 'DEEPSEEK_API_KEY'
+Traceback (most recent call last):
+  File "/workspaces/agentic-rl-swe/oracle/teacher_label.py", line 162, in <module>
+    main()
+    ~~~~^^
+  File "/workspaces/agentic-rl-swe/oracle/teacher_label.py", line 132, in main
+    client = OpenAI(api_key=os.environ["DEEPSEEK_API_KEY"],
+                            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "<frozen os>", line 709, in __getitem__
+KeyError: 'DEEPSEEK_API_KEY'
+Traceback (most recent call last):
+  File "/workspaces/agentic-rl-swe/oracle/teacher_label.py", line 162, in <module>
+    main()
+    ~~~~^^
+  File "/workspaces/agentic-rl-swe/oracle/teacher_label.py", line 132, in main
+    client = OpenAI(api_key=os.environ["DEEPSEEK_API_KEY"],
+                            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "<frozen os>", line 709, in __getitem__
+KeyError: 'DEEPSEEK_API_KEY'
+Traceback (most recent call last):
+  File "/workspaces/agentic-rl-swe/oracle/teacher_label.py", line 162, in <module>
+    main()
+    ~~~~^^
+  File "/workspaces/agentic-rl-swe/oracle/teacher_label.py", line 132, in main
+    client = OpenAI(api_key=os.environ["DEEPSEEK_API_KEY"],
+                            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "<frozen os>", line 709, in __getitem__
+KeyError: 'DEEPSEEK_API_KEY'
+Traceback (most recent call last):
+  File "/workspaces/agentic-rl-swe/oracle/teacher_label.py", line 162, in <module>
+    main()
+    ~~~~^^
+  File "/workspaces/agentic-rl-swe/oracle/teacher_label.py", line 132, in main
+    client = OpenAI(api_key=os.environ["DEEPSEEK_API_KEY"],
+                            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "<frozen os>", line 709, in __getitem__
+KeyError: 'DEEPSEEK_API_KEY'
+Traceback (most recent call last):
+  File "/workspaces/agentic-rl-swe/oracle/teacher_label.py", line 162, in <module>
+    main()
+    ~~~~^^
+  File "/workspaces/agentic-rl-swe/oracle/teacher_label.py", line 132, in main
+    client = OpenAI(api_key=os.environ["DEEPSEEK_API_KEY"],
+                            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "<frozen os>", line 709, in __getitem__
+KeyError: 'DEEPSEEK_API_KEY'
+Traceback (most recent call last):
+  File "/workspaces/agentic-rl-swe/oracle/teacher_label.py", line 162, in <module>
+    main()
+    ~~~~^^
+  File "/workspaces/agentic-rl-swe/oracle/teacher_label.py", line 132, in main
+    client = OpenAI(api_key=os.environ["DEEPSEEK_API_KEY"],
+                            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "<frozen os>", line 709, in __getitem__
+KeyError: 'DEEPSEEK_API_KEY'
+Traceback (most recent call last):
+  File "/workspaces/agentic-rl-swe/oracle/teacher_label.py", line 162, in <module>
+    main()
+    ~~~~^^
+  File "/workspaces/agentic-rl-swe/oracle/teacher_label.py", line 132, in main
+    client = OpenAI(api_key=os.environ["DEEPSEEK_API_KEY"],
+                            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "<frozen os>", line 709, in __getitem__
+KeyError: 'DEEPSEEK_API_KEY'
+Traceback (most recent call last):
+  File "/workspaces/agentic-rl-swe/oracle/teacher_label.py", line 162, in <module>
+    main()
+    ~~~~^^
+  File "/workspaces/agentic-rl-swe/oracle/teacher_label.py", line 132, in main
+    client = OpenAI(api_key=os.environ["DEEPSEEK_API_KEY"],
+                            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "<frozen os>", line 709, in __getitem__
+KeyError: 'DEEPSEEK_API_KEY'
+Traceback (most recent call last):
+  File "/workspaces/agentic-rl-swe/oracle/teacher_label.py", line 162, in <module>
+    main()
+    ~~~~^^
+  File "/workspaces/agentic-rl-swe/oracle/teacher_label.py", line 132, in main
+    client = OpenAI(api_key=os.environ["DEEPSEEK_API_KEY"],
+                            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "<frozen os>", line 709, in __getitem__
+KeyError: 'DEEPSEEK_API_KEY'

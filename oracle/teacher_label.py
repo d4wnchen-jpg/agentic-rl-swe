@@ -98,7 +98,11 @@ def main():
         final_text = (f"final n_fail={fin.get('n_fail')}, n_pass={fin.get('n_pass')}; "
                       f"F2P failed: {[n for n, s in (fin.get('statuses') or {}).items() if s not in ('PASSED','XFAIL','FLAKY')][:8]}")
         ours = r.get("recoveries") or []
-        our_pivots = sorted({x.get("pivot_turn") for x in ours if x.get("pivot_turn")})
+        cfs = r.get("counterfactuals") or []
+        fatal = {c.get("turn") for c in cfs
+                 if c.get("label") in ("causal", "causal_by_file")}
+        our_pivots = sorted(
+            {x.get("pivot_turn") for x in ours if x.get("pivot_turn")} | fatal)
     else:
         our_pivots = []
 

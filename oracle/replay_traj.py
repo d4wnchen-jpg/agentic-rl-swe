@@ -469,11 +469,17 @@ def main():
                 later_files |= set(turn_files.get(j, []))
             overlap = sorted(set(cur_files) & later_files)
             cf_cmd_fail = ev.get("cf_cmd_fail") or []
-            valid = len(cf_cmd_fail) == 0
+            orig_fail = 0
+            for j, rcs in turn_rcs.items():
+                if j != tno:
+                    orig_fail += sum(1 for rc in rcs if rc != 0)
+            valid = len(cf_cmd_fail) <= orig_fail
+            rec_orig_fail = orig_fail
 
             rec = {"turn": tno, "real_final_n_fail": real_final,
                    "cf_final_n_fail": ev["n_fail"], "delta": delta,
                    "cf_valid": valid, "cf_cmd_fail": cf_cmd_fail[:5],
+                   "orig_fail_cmds": rec_orig_fail,
                    "files_touched": cur_files,
                    "later_touches_same_files": overlap,
                    "label": None, "fallback_n_fail": None,

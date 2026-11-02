@@ -3,11 +3,16 @@
 > 新会话先读这一页 + [PHASE0_CHARTER.md](PHASE0_CHARTER.md)。
 > 目标：**可执行验证的 pivot 信用标签（VPD）**，code agent / SWE 场景；11-10 go/no-go。
 
-## 一、当前状态（2026-11-02 晚）
+## 一、当前状态（2026-11-02 晚，G1/G2 首轮数据已出）
 
-**已拿到第一条可验证的有害编辑标签**（flask-5063：turn 5 造成 2 个 P2P 回归，反事实重放 `4→2`，delta=-2）。
-管道：生成轨迹 → 逐轮重放/判分 → 定位 regression → 反事实重放做因果归因 → 汇总 G1。
-**下一步：G1 覆盖率（批量 5 条）→ G2 教师分歧率（11-05/06 前）。**
+**flask-5063 × 10 条轨迹**（3 成功 / 7 失败）：
+- G1a（失败中有 regression）= 6/7 = 85.7%；
+- **含可恢复 pivot 配对 = 7/10 = 70%**（超过 60% 门槛）；
+- 致命回归 2 条，**2/2 执行验证归因成功**；
+- G2：可比案例教师 exact 4/5（80%），但**遗漏型失败 5/5 教师都在编 pivot**，从不回答"没有关键步"。
+
+数据与报告：`results/g1c/`（含 SUMMARY.txt / TEACHER.txt / 每条 report+traj+teacher）。
+**下一步：第二个实例复现 + 扩样本 + 修后重放（v10 有效性判据）。**
 
 ## 二、已完成（时间线）
 
@@ -22,6 +27,8 @@
 | 11-02 | 实例筛查工具 + 官方 eval 语义对齐（v5） | `screen_instance.py` |
 | 11-02 | **第一条可验证有害编辑**：flask-5063 turn5，反事实 `4→2` | L1 报告 §9 |
 | 11-02 | 反事实归因（skip-turn）+ G1 批量驱动/汇总 | `replay_traj.py --counterfactual-pivots`、`run_g1.sh`、`summarize_g1.py` |
+| 11-02 | G1/G2 首轮：10 条 flask-5063 | `results/g1c/` |
+| 11-02 | 管线化 + 自动入库 + 教师标注 | `run_pipeline.sh`、`teacher_label.py`、`summarize_g2.py` |
 
 ## 三、关键数字
 
@@ -101,3 +108,10 @@
 | 11-10 ~ 11-30 | ARR reviews 优先，项目暂停 |
 
 **风险**：DeepSeek 把题都解出来（→ 提高温度/降 step_limit）；flaky（→ rerun）；磁盘（→ 一次一个镜像）；Codespace 空闲自动停（→ 后台任务别跑太久）。
+
+## 九、11-03 ~ 11-06 计划（G1/G2 已出首轮）
+
+1. **换第二个实例**（`pallets__flask-4045` 或 `pytest-dev__pytest-7168`）：先跑 `screen_instance.py` 准入，再跑 `run_pipeline.sh ... N=10`，看 G1-rec 是否还在 60% 以上；
+2. **扩样本**：同实例再加 10 条（prefix g1d），把 G1/G2 的 n 提到 20+；
+3. **修后重放**：用 v10 有效性判据重放 `results/g1c/*.traj.json`，更新恢复配对的因果数（原始 7/8 → 预期更高）；
+4. **11-06**：写半页 memo（G1-rec、fatal 归因、教师过度归因），交 11-10 go/no-go。

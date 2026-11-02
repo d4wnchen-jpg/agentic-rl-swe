@@ -129,7 +129,18 @@ Return ONLY JSON:
 {{"pivot_step": <int>, "reason": "<short>", "correct_action": "<short>"}}
 """
 
-    client = OpenAI(api_key=os.environ["DEEPSEEK_API_KEY"],
+    api_key = os.environ.get("DEEPSEEK_API_KEY")
+    if not api_key:
+        envp = os.path.expanduser("~/.config/mini-swe-agent/.env")
+        if os.path.exists(envp):
+            for line in open(envp):
+                line = line.strip()
+                if line.startswith("DEEPSEEK_API_KEY="):
+                    api_key = line.split("=", 1)[1].strip().strip('"').strip("'")
+                    break
+    if not api_key:
+        raise SystemExit("DEEPSEEK_API_KEY 未设置（环境变量或 ~/.config/mini-swe-agent/.env）")
+    client = OpenAI(api_key=api_key,
                     base_url="https://api.deepseek.com/v1")
     resp = client.chat.completions.create(
         model=args.model,

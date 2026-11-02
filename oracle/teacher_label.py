@@ -89,16 +89,30 @@ def main():
     trace, n_steps = build_trace(traj, args.max_chars)
 
     final_text = "unknown"
+    final_n_fail = None
     ours = []
     if args.report and os.path.exists(args.report):
         r = json.load(open(args.report))
         fin = (r.get("evals") or [{}])[-1]
+        final_n_fail = fin.get("n_fail")
         final_text = (f"final n_fail={fin.get('n_fail')}, n_pass={fin.get('n_pass')}; "
                       f"F2P failed: {[n for n, s in (fin.get('statuses') or {}).items() if s not in ('PASSED','XFAIL','FLAKY')][:8]}")
         ours = r.get("recoveries") or []
         our_pivots = sorted({x.get("pivot_turn") for x in ours if x.get("pivot_turn")})
     else:
         our_pivots = []
+
+    if final_n_fail == 0:
+        question = ("This attempt eventually SUCCEEDED. Identify the single most pivotal "
+                    "mistake step (1-indexed) that was made and later recovered, i.e. a step "
+                    "that made tests worse before they were fixed. If there was no such "
+                    "recoverable mistake, answer pivot_step = 0.")
+    else:
+        question = ("This attempt FAILED. Identify the single most pivotal step (1-indexed) "
+                    "that caused the failure. If the failure is because the fix was never "
+                    "attempted / the agent did nothing effective, answer pivot_step = 0. "
+                    "If a step made tests worse and they were never recovered, that is a "
+                    "pivotal mistake.")
 
     user = f"""## Problem statement
 {task['problem_statement']}
@@ -110,11 +124,7 @@ def main():
 {final_text}
 
 ## Question
-Identify the single most pivotal step (1-indexed, as shown as "### Step N") that caused this
-attempt to fail. Rules:
-- If the failure is because the fix was never attempted / the agent did nothing effective,
-  answer pivot_step = 0.
-- If a step made tests worse and they were never fixed, that is a pivotal mistake.
+{question}
 Return ONLY JSON:
 {{"pivot_step": <int>, "reason": "<short>", "correct_action": "<short>"}}
 """

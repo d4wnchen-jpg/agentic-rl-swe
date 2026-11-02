@@ -1,5 +1,6 @@
 instance                 turns  fail  regs recov fatal pairs rcaus causal  file  unver
 pallets__flask-5063         32     0     1     1     0     1     0      0     0      1
+pallets__flask-5063         26     0     1     1     0     1     0      0     0      1
 pallets__flask-5063         22     1     1     1     0     1     1      0     0      1
 pallets__flask-5063         40     2     1     1     0     1     0      0     0      1
 pallets__flask-5063         25     4     1     0     1     0     0      0     1      0
@@ -9,16 +10,17 @@ pallets__flask-5063         23     4     1     0     1     0     0      1     0 
 pallets__flask-5063         19     0     1     1     0     1     0      0     0      1
 pallets__flask-5063         26     2     2     2     0     2     0      0     0      2
 
-轨迹总数        : 9
+轨迹总数        : 10
 失败轨迹        : 7
 有 regression   : 6
 有反事实验证    : 2
-(错误步→恢复步) 配对数 : 7（因果验证 1）
+(错误步→恢复步) 配对数 : 8（因果验证 1）
 G1a（有 regression / 失败）   = 6/7 = 85.7%
 G1b（有因果验证 / 失败）      = 2/7 = 28.6%
 
 明细：
   out_g1c_1: final_fail=0 reg_turns=[6] verified_turns=[] labels=['transient_or_confounded']
+  out_g1c_10: final_fail=0 reg_turns=[12] verified_turns=[] labels=['unverified']
   out_g1c_2: final_fail=1 reg_turns=[6] verified_turns=[] labels=['unverified']
   out_g1c_3: final_fail=2 reg_turns=[20] verified_turns=[] labels=['transient_or_confounded']
   out_g1c_4: final_fail=4 reg_turns=[5] verified_turns=[5] labels=['causal_by_file']

@@ -1,5 +1,5 @@
 instance                 turns  fail  regs recov fatal pairs rcaus causal  file  unver
-pallets__flask-5063         32     0     1     1     0     0     0      0     0      1
+pallets__flask-5063         32     0     1     1     0     1     0      0     0      1
 pallets__flask-5063         22     2     0     0     0     0     0      0     0      0
 pallets__flask-5063         40     2     1     1     0     0     0      0     0      1
 pallets__flask-5063         25     4     1     0     1     0     0      0     1      0
@@ -10,7 +10,7 @@ pallets__flask-5063         20     2     0     0     0     0     0      0     0 
 失败轨迹        : 5
 有 regression   : 3
 有反事实验证    : 1
-(错误步→恢复步) 配对数 : 0（因果验证 0）
+(错误步→恢复步) 配对数 : 1（因果验证 0）
 G1a（有 regression / 失败）   = 3/5 = 60.0%
 G1b（有因果验证 / 失败）      = 1/5 = 20.0%
 

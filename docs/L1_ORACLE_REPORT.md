@@ -208,3 +208,37 @@ tests/test_requests.py::TestRequests::test_params_are_added_before_fragment[http
 2. **评测必须复刻官方语义**：按 nodeid 子集跑会因测试顺序/全局状态得到不同的 F2P 结果；官方 `eval_script` 是「还原测试文件 → 打 test_patch → `pytest -rA <整个测试文件>`」。
 
 **下一实例**：`pallets__flask-5063`（F2P 2 / P2P 54，确定性测试）→ 失败轨迹 → 重放 + `--attribute`。
+
+---
+
+## 9. 第一条**可验证的有害编辑**（2026-11-02，pallets__flask-5063）
+
+**实例**：flask-5063（F2P=2 / P2P=54；`screen_instance.py`：VERDICT=OK，基线 2/2 失败、P2P 全过）
+
+**轨迹**：mini-swe-agent + DeepSeek（temperature=1.0），18 轮 / 22 条命令，Submitted 但未解决。
+
+**测试状态轨迹**：
+
+| 轮次 | n_fail | 说明 |
+|---|---|---|
+| 0（baseline） | 2 | = F2P，标签干净 |
+| 1–4 | 2 | 只读探索 |
+| **5** | **4** | **regression：弄坏 2 个 P2P** |
+| 6–18 | 4 | 再没修回来 |
+
+**turn 5 的编辑**：`src/flask/cli.py` 的 `routes_command` 增加 `Domain` 列（`rule.subdomain`），
+行模板从 3 列改成 4 列 → 破坏了 `tests/test_cli.py` 里 2 个依赖原输出格式的测试。
+
+**归因**：
+- ❌ 直接回滚补丁失败：后续 13 轮反复改同一文件，`git apply -R --3way` 冲突（`U src/flask/cli.py`）；
+- ✅ **反事实重放**（跳过 turn 5 的命令重放整条轨迹）：
+
+```
+[cf turn 5] real=4 cf=2 delta=-2
+```
+
+**结论**：turn 5 是两次回归的**因果来源**（跳过它，最终失败数 4→2）。
+这是本项目第一个 **edit 级、可执行验证的信用标签**——不是教师猜的，是重放+测试验出来的。
+
+**方法学要点**：对“长轨迹 + 同一文件反复编辑”的场景，反事实重放（skip-turn）比补丁回滚更稳；
+补丁回滚只适合独立 hunk（oracle 模式）。

@@ -3,9 +3,11 @@
 > 新会话先读这一页 + [PHASE0_CHARTER.md](PHASE0_CHARTER.md)。
 > 目标：**可执行验证的 pivot 信用标签（VPD）**，code agent / SWE 场景；11-10 go/no-go。
 
-## 一、当前状态（一句话）
+## 一、当前状态（2026-11-02 晚）
 
-**管道全部打通，开始产出真实数据**：oracle 模式已在 2 个公开任务上验证；mini-swe-agent + DeepSeek 生成的轨迹能逐轮重放、逐轮判分、定位变化点、做 edit 级归因。**还缺一条“标签干净 + 有 regression”的失败轨迹**（11-06 前必须拿到）。
+**已拿到第一条可验证的有害编辑标签**（flask-5063：turn 5 造成 2 个 P2P 回归，反事实重放 `4→2`，delta=-2）。
+管道：生成轨迹 → 逐轮重放/判分 → 定位 regression → 反事实重放做因果归因 → 汇总 G1。
+**下一步：G1 覆盖率（批量 5 条）→ G2 教师分歧率（11-05/06 前）。**
 
 ## 二、已完成（时间线）
 
@@ -17,6 +19,9 @@
 | 11-01 | L1 oracle：flask-4992、requests-3362 真实任务跑通 | `smoke_test/L1_ORACLE_REPORT.md` |
 | 11-01 | 真实轨迹重放：mini-swe-agent + DeepSeek（requests-3362 成功轨迹） | `replay_traj.py` + L1 报告 §7 |
 | 11-01 | 发现并处理：diff hunk≠edit、nodeid 需 shlex、官方 eval 语义、实例标签噪声 | charter §2/§3、L1 报告 §8 |
+| 11-02 | 实例筛查工具 + 官方 eval 语义对齐（v5） | `screen_instance.py` |
+| 11-02 | **第一条可验证有害编辑**：flask-5063 turn5，反事实 `4→2` | L1 报告 §9 |
+| 11-02 | 反事实归因（skip-turn）+ G1 批量驱动/汇总 | `replay_traj.py --counterfactual-pivots`、`run_g1.sh`、`summarize_g1.py` |
 
 ## 三、关键数字
 

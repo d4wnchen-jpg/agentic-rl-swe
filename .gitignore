@@ -34,3 +34,6 @@ replay_work*/
 work_*/
 oracle/out_*/
 *.traj.json
+
+# 管线结果（小文件，入库）
+!results/

@@ -274,6 +274,8 @@ def main():
                     help="F2P 失败的测试重跑次数（识别 flaky）")
     ap.add_argument("--attribute", action="store_true")
     ap.add_argument("--attribute-all", action="store_true")
+    ap.add_argument("--counterfactual-pivots", action="store_true",
+                    help="自动对所有 regression pivot 轮做反事实重放")
     ap.add_argument("--counterfactual", default="",
                     help="逗号分隔轮次，如 '5,9'：跳过该轮重放并评测终态（反事实归因）")
     args = ap.parse_args()
@@ -412,9 +414,14 @@ def main():
                   f"after_revert={n_fail_after}")
 
     cfs = []
-    if args.counterfactual and evals:
+    cf_turns = [int(x) for x in args.counterfactual.split(",") if x.strip()] \
+        if args.counterfactual else []
+    if args.counterfactual_pivots:
+        cf_turns += [p["turn"] for p in pivots if p["type"] == "regression"]
+    cf_turns = sorted(set(cf_turns))
+    if cf_turns and evals:
         real_final = evals[-1]["n_fail"]
-        for tno in [int(x) for x in args.counterfactual.split(",") if x.strip()]:
+        for tno in cf_turns:
             ev = counterfactual_replay(base, base_sha, turns, tno, args,
                                        nodes, f2p, files, test_patch, args.out)
             delta = (ev["n_fail"] - real_final) if ev["n_fail"] is not None else None

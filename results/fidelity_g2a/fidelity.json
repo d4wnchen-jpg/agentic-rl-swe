@@ -1,0 +1,13 @@
+{
+ "instance_id": "pallets__flask-4045",
+ "n_commands": 25,
+ "cmd_fail": 0,
+ "patch_len": 1453,
+ "apply_ok": true,
+ "apply_err": "",
+ "identical": false,
+ "n_diff_files": 1,
+ "diff_files": [
+  "./patch.txt"
+ ]
+}

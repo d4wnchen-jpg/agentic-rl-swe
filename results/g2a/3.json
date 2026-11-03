@@ -13,7 +13,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.42,
+   "test_s": 9.54,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "FAILED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -71,7 +71,7 @@
    "turn": 0
   },
   {
-   "sha": "e39c0a55135edf34d1497eb6a0333ece6f10fb3a",
+   "sha": "bc7ffb27e14075d30f8ddbcb8e9e0f91c5b943aa",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -79,7 +79,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.41,
+   "test_s": 9.62,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "FAILED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -138,7 +138,7 @@
    "n_cmds": 2
   },
   {
-   "sha": "edcb4c3598a9ddf7b9bb4c96ca5e503e1120763c",
+   "sha": "00ea112516568edfeca70ddc7bd061ab6507c959",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -146,7 +146,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.57,
+   "test_s": 9.55,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "FAILED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -205,7 +205,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "aeb50563fb49d10ca0be3ec6100b82e1ccfaef58",
+   "sha": "bcbcb0d13f60b5acfceb93a335eb113e138df7e2",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -213,7 +213,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.47,
+   "test_s": 9.88,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "FAILED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -272,7 +272,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "beb3c3226638b55b23f11533ffd2a7dfb5f807ee",
+   "sha": "afe2fd34e0476c5db44bec59bf65aa9bb547328a",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -280,7 +280,7 @@
    "n_fail": 1,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.33,
+   "test_s": 9.41,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "PASSED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -339,7 +339,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "b78e8cab22b3b3ad0dc53e9ff600591c1014ce13",
+   "sha": "e6b0dc9647b0c8468cb709e20533f0fef81d36ed",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -347,7 +347,7 @@
    "n_fail": 1,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.29,
+   "test_s": 9.46,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "PASSED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -406,7 +406,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "05f5f73f719c162e868ac406c7eec9f4e498c694",
+   "sha": "6fc298df948138ea81c6929d1ef08f553d363757",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -414,7 +414,7 @@
    "n_fail": 1,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.19,
+   "test_s": 9.32,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "PASSED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -473,7 +473,7 @@
    "n_cmds": 2
   },
   {
-   "sha": "06ba16730a6b78490d357e5578207bde62993c76",
+   "sha": "89ca79123b68daac911142c988369336493cf5d8",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -481,7 +481,7 @@
    "n_fail": 1,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.14,
+   "test_s": 9.6,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "PASSED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -540,7 +540,7 @@
    "n_cmds": 2
   },
   {
-   "sha": "fdc4259524883b73d79007d9bbddf34b10c0be4e",
+   "sha": "ab136b0954e8f9a11dba77fba8976afc2bcb1bf5",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -548,7 +548,7 @@
    "n_fail": 1,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.19,
+   "test_s": 9.52,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "PASSED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -607,7 +607,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "616d7906ad8c4da9abd6addb9447fef815537e44",
+   "sha": "290f14231b7fdbc72070832d29414c480a82eb0c",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -615,7 +615,7 @@
    "n_fail": 1,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.02,
+   "test_s": 9.28,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "PASSED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -683,19 +683,42 @@
   }
  ],
  "attrs": [],
- "counterfactuals": [],
+ "counterfactuals": [
+  {
+   "turn": 4,
+   "real_final_n_fail": 1,
+   "cf_final_n_fail": 2,
+   "delta": 1,
+   "cf_valid": true,
+   "cf_cmd_fail": [
+    {
+     "turn": 7,
+     "rc": 1,
+     "cmd": "cd /testbed && git stash && python -m pytest tests/test_blueprints.py -q 2>&1 | tail -3; git stash pop"
+    }
+   ],
+   "orig_fail_cmds": 1,
+   "files_touched": [
+    "src/flask/blueprints.py"
+   ],
+   "later_touches_same_files": [],
+   "label": "beneficial",
+   "fallback_n_fail": null,
+   "fallback_delta": null
+  }
+ ],
  "recoveries": [],
  "eval_seconds": [
-  8.42,
-  8.41,
-  8.57,
-  8.47,
-  8.33,
-  8.29,
-  8.19,
-  8.14,
-  8.19,
-  8.02
+  9.54,
+  9.62,
+  9.55,
+  9.88,
+  9.41,
+  9.46,
+  9.32,
+  9.6,
+  9.52,
+  9.28
  ],
- "replay_seconds": 93.1
+ "replay_seconds": 129.7
 }

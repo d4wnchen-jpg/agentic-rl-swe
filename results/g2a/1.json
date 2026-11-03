@@ -13,7 +13,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.72,
+   "test_s": 9.45,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "FAILED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -71,7 +71,7 @@
    "turn": 0
   },
   {
-   "sha": "31e2b8456fd1be3203ad9762ae654f17d49a6167",
+   "sha": "0201973b73769a08dfb5d0b9a94e2abf9e7a63aa",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -79,7 +79,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.54,
+   "test_s": 9.81,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "FAILED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -138,7 +138,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "3667ec8770931cf25965c920af55e0ffb8b35a8a",
+   "sha": "52b3c8d500fe8f2a000faa8d106fe31861c43ae0",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -146,7 +146,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.32,
+   "test_s": 11.72,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "FAILED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -205,7 +205,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "d5a461c1f99d75d3d2583f9b90251e285a751a03",
+   "sha": "d0fde0c38b0f95bb1582177051cd9c177cc5720f",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -213,7 +213,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.3,
+   "test_s": 11.17,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "FAILED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -272,7 +272,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "488a09751bca87b96d9218b70368f83a8250befe",
+   "sha": "24230bf3426b2a658b357814ac4ab3ebe9e2b6c0",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -280,7 +280,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.66,
+   "test_s": 11.05,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "FAILED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -339,7 +339,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "51e18329b05280987d5b076b90685dbd79ab5ab5",
+   "sha": "c41df3c610a59091bfa769f51f2a03cd336d5f5e",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -347,7 +347,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.66,
+   "test_s": 12.84,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "FAILED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -406,7 +406,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "0e7911c72d636b85e93fd35947f982cecb87d0ab",
+   "sha": "813e0c3336604809265ad830fc6409aa20ea20e1",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -414,7 +414,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.43,
+   "test_s": 13.53,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "FAILED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -473,7 +473,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "2b0a29dce71e5e38d5c02269c00314c8b7b979f3",
+   "sha": "8a98174eb3ca5dfb8443c2e0c28114cc2744b515",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -481,7 +481,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.59,
+   "test_s": 13.85,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "FAILED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -540,7 +540,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "3c56a16c6c316ed465a32f1747dee669d1a0d498",
+   "sha": "9ebcbd42cc03102ca5916598c835b090f33df6fb",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -548,7 +548,7 @@
    "n_fail": 2,
    "flaky": [],
    "test_ok": false,
-   "test_s": 9.18,
+   "test_s": 14.29,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "FAILED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -607,7 +607,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "8bd03880ca40e6b3c3e2a3ac2e34bdcc100d1ac4",
+   "sha": "e9ce07cad4337a136ed7de79778b1144316c6845",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -615,7 +615,7 @@
    "n_fail": 1,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.97,
+   "test_s": 11.22,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "PASSED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -674,7 +674,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "e37ff6141ceea71d21e0ecfcdbc34eb543450936",
+   "sha": "8d3ba7d76e4397c0d190371d046f1099879034e2",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -682,7 +682,7 @@
    "n_fail": 1,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.67,
+   "test_s": 11.5,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "PASSED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -741,7 +741,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "e2d9dfd6b0d9f6df5a9306ac05ef9d65477c78b6",
+   "sha": "80889f05f188401d842338b3d0d8f0eec9a92f9b",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -749,7 +749,7 @@
    "n_fail": 1,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.53,
+   "test_s": 11.55,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "PASSED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -808,7 +808,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "99ef85f42ed622a30af6f518e559b789a3551837",
+   "sha": "3a1f17bdb394c32c1fd7ee079b97496b243ba005",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -816,7 +816,7 @@
    "n_fail": 1,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.69,
+   "test_s": 10.31,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "PASSED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -875,7 +875,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "6e8291ddae03db8c731275f6b86110532d25ac1d",
+   "sha": "5c452fb4c80e8c7b7bc6df529e133cf809d0cdc7",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -883,7 +883,7 @@
    "n_fail": 1,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.58,
+   "test_s": 10.98,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "PASSED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -942,7 +942,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "40e0d2b4633503ceb0a8550553fb6509effb8d78",
+   "sha": "8a5f1289e63be3509939fc714365ef9109dc549b",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -950,7 +950,7 @@
    "n_fail": 1,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.71,
+   "test_s": 10.61,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "PASSED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -1009,7 +1009,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "29dfe02a26f061a9a12ee0bf41e568a9a62689f4",
+   "sha": "412315c26f9eaad9f3141c05490a1ea438a0942c",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -1017,7 +1017,7 @@
    "n_fail": 1,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.53,
+   "test_s": 10.85,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "PASSED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -1076,7 +1076,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "0cf89250cbccb4e909460b32a60838f324c422fe",
+   "sha": "02e27d7232e658916516ea35f509654e1110fadc",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -1084,7 +1084,7 @@
    "n_fail": 1,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.56,
+   "test_s": 10.51,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "PASSED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -1143,7 +1143,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "fcf5c3ea8ece0916aa4e31949708489baec3984b",
+   "sha": "a554937b610d5aecac84d36e72d5db4879b001a2",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -1151,7 +1151,7 @@
    "n_fail": 1,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.46,
+   "test_s": 10.18,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "PASSED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -1210,7 +1210,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "4630bfd25ea5ebbc43869a4f1ea992c4bd9fa1e0",
+   "sha": "a0e0c4ceacc9b20fa9b90bdd54acd5bdb7b67a11",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -1218,7 +1218,7 @@
    "n_fail": 1,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.29,
+   "test_s": 9.38,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "PASSED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -1277,7 +1277,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "a6440a302d9fdcd8d9f816219d615deb8d536745",
+   "sha": "61260cc64beb1aeeff4024de0fc162ed6853dff7",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -1285,7 +1285,7 @@
    "n_fail": 1,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.44,
+   "test_s": 9.05,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "PASSED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -1344,7 +1344,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "4cdded9935df0ee093db6ebeeb4bbdff09469549",
+   "sha": "a080ea98af0e6e3ddc5aebbe21c2ab00a17d31eb",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -1352,7 +1352,7 @@
    "n_fail": 1,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.54,
+   "test_s": 9.48,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "PASSED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -1411,74 +1411,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "84576f175da583aaead83fe40a26db64466bd053",
-   "checkout_ok": true,
-   "test_patch_ok": true,
-   "test_patch_err": "",
-   "n_pass": 51,
-   "n_fail": 1,
-   "flaky": [],
-   "test_ok": false,
-   "test_s": 8.6,
-   "statuses": {
-    "tests/test_blueprints.py::test_dotted_name_not_allowed": "PASSED",
-    "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
-    "tests/test_basic.py::test_method_route_no_methods": "PASSED",
-    "tests/test_basic.py::test_disallow_string_for_allowed_methods": "PASSED",
-    "tests/test_basic.py::test_error_handler_unknown_code": "PASSED",
-    "tests/test_basic.py::test_request_locals": "PASSED",
-    "tests/test_basic.py::test_exception_propagation": "PASSED",
-    "tests/test_basic.py::test_werkzeug_passthrough_errors[None-True-True-True]": "PASSED",
-    "tests/test_basic.py::test_werkzeug_passthrough_errors[None-True-True-False]": "PASSED",
-    "tests/test_basic.py::test_werkzeug_passthrough_errors[None-True-False-True]": "PASSED",
-    "tests/test_basic.py::test_werkzeug_passthrough_errors[None-True-False-False]": "PASSED",
-    "tests/test_basic.py::test_werkzeug_passthrough_errors[None-False-True-True]": "PASSED",
-    "tests/test_basic.py::test_werkzeug_passthrough_errors[None-False-True-False]": "PASSED",
-    "tests/test_basic.py::test_werkzeug_passthrough_errors[None-False-False-True]": "PASSED",
-    "tests/test_basic.py::test_werkzeug_passthrough_errors[None-False-False-False]": "PASSED",
-    "tests/test_basic.py::test_werkzeug_passthrough_errors[True-True-True-True]": "PASSED",
-    "tests/test_basic.py::test_werkzeug_passthrough_errors[True-True-True-False]": "PASSED",
-    "tests/test_basic.py::test_werkzeug_passthrough_errors[True-True-False-True]": "PASSED",
-    "tests/test_basic.py::test_werkzeug_passthrough_errors[True-True-False-False]": "PASSED",
-    "tests/test_basic.py::test_werkzeug_passthrough_errors[True-False-True-True]": "PASSED",
-    "tests/test_basic.py::test_werkzeug_passthrough_errors[True-False-True-False]": "PASSED",
-    "tests/test_basic.py::test_werkzeug_passthrough_errors[True-False-False-True]": "PASSED",
-    "tests/test_basic.py::test_werkzeug_passthrough_errors[True-False-False-False]": "PASSED",
-    "tests/test_basic.py::test_werkzeug_passthrough_errors[False-True-True-True]": "PASSED",
-    "tests/test_basic.py::test_werkzeug_passthrough_errors[False-True-True-False]": "PASSED",
-    "tests/test_basic.py::test_werkzeug_passthrough_errors[False-True-False-True]": "PASSED",
-    "tests/test_basic.py::test_werkzeug_passthrough_errors[False-True-False-False]": "PASSED",
-    "tests/test_basic.py::test_werkzeug_passthrough_errors[False-False-True-True]": "PASSED",
-    "tests/test_basic.py::test_werkzeug_passthrough_errors[False-False-True-False]": "PASSED",
-    "tests/test_basic.py::test_werkzeug_passthrough_errors[False-False-False-True]": "PASSED",
-    "tests/test_basic.py::test_werkzeug_passthrough_errors[False-False-False-False]": "PASSED",
-    "tests/test_basic.py::test_get_method_on_g": "PASSED",
-    "tests/test_basic.py::test_g_iteration_protocol": "PASSED",
-    "tests/test_basic.py::test_run_defaults": "PASSED",
-    "tests/test_basic.py::test_run_server_port": "PASSED",
-    "tests/test_basic.py::test_run_from_config[None-None-pocoo.org:8080-pocoo.org-8080]": "PASSED",
-    "tests/test_basic.py::test_run_from_config[localhost-None-pocoo.org:8080-localhost-8080]": "PASSED",
-    "tests/test_basic.py::test_run_from_config[None-80-pocoo.org:8080-pocoo.org-80]": "PASSED",
-    "tests/test_basic.py::test_run_from_config[localhost-80-pocoo.org:8080-localhost-80]": "PASSED",
-    "tests/test_basic.py::test_run_from_config[localhost-0-localhost:8080-localhost-0]": "PASSED",
-    "tests/test_basic.py::test_run_from_config[None-None-localhost:8080-localhost-8080]": "PASSED",
-    "tests/test_basic.py::test_run_from_config[None-None-localhost:0-localhost-0]": "PASSED",
-    "tests/test_basic.py::test_app_freed_on_zero_refcount": "PASSED",
-    "tests/test_blueprints.py::test_template_filter": "PASSED",
-    "tests/test_blueprints.py::test_add_template_filter": "PASSED",
-    "tests/test_blueprints.py::test_template_filter_with_name": "PASSED",
-    "tests/test_blueprints.py::test_add_template_filter_with_name": "PASSED",
-    "tests/test_blueprints.py::test_template_test": "PASSED",
-    "tests/test_blueprints.py::test_add_template_test": "PASSED",
-    "tests/test_blueprints.py::test_template_test_with_name": "PASSED",
-    "tests/test_blueprints.py::test_add_template_test_with_name": "PASSED",
-    "tests/test_blueprints.py::test_template_global": "PASSED"
-   },
-   "turn": 21,
-   "n_cmds": 1
-  },
-  {
-   "sha": "ee12ab0b821a3f35bfa4ea3f48e2336497259fd9",
+   "sha": "e3949a698990cdfda9962032c1b7ab249fc59dcf",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -1541,11 +1474,11 @@
     "tests/test_blueprints.py::test_add_template_test_with_name": "PASSED",
     "tests/test_blueprints.py::test_template_global": "PASSED"
    },
-   "turn": 22,
+   "turn": 21,
    "n_cmds": 1
   },
   {
-   "sha": "ba38bcc40d3fb2b62158e8b4ec7d6de9e8988438",
+   "sha": "9694e73bdc2b5efb622bc20e79c1af2327f79e96",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -1553,7 +1486,74 @@
    "n_fail": 1,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.64,
+   "test_s": 9.69,
+   "statuses": {
+    "tests/test_blueprints.py::test_dotted_name_not_allowed": "PASSED",
+    "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
+    "tests/test_basic.py::test_method_route_no_methods": "PASSED",
+    "tests/test_basic.py::test_disallow_string_for_allowed_methods": "PASSED",
+    "tests/test_basic.py::test_error_handler_unknown_code": "PASSED",
+    "tests/test_basic.py::test_request_locals": "PASSED",
+    "tests/test_basic.py::test_exception_propagation": "PASSED",
+    "tests/test_basic.py::test_werkzeug_passthrough_errors[None-True-True-True]": "PASSED",
+    "tests/test_basic.py::test_werkzeug_passthrough_errors[None-True-True-False]": "PASSED",
+    "tests/test_basic.py::test_werkzeug_passthrough_errors[None-True-False-True]": "PASSED",
+    "tests/test_basic.py::test_werkzeug_passthrough_errors[None-True-False-False]": "PASSED",
+    "tests/test_basic.py::test_werkzeug_passthrough_errors[None-False-True-True]": "PASSED",
+    "tests/test_basic.py::test_werkzeug_passthrough_errors[None-False-True-False]": "PASSED",
+    "tests/test_basic.py::test_werkzeug_passthrough_errors[None-False-False-True]": "PASSED",
+    "tests/test_basic.py::test_werkzeug_passthrough_errors[None-False-False-False]": "PASSED",
+    "tests/test_basic.py::test_werkzeug_passthrough_errors[True-True-True-True]": "PASSED",
+    "tests/test_basic.py::test_werkzeug_passthrough_errors[True-True-True-False]": "PASSED",
+    "tests/test_basic.py::test_werkzeug_passthrough_errors[True-True-False-True]": "PASSED",
+    "tests/test_basic.py::test_werkzeug_passthrough_errors[True-True-False-False]": "PASSED",
+    "tests/test_basic.py::test_werkzeug_passthrough_errors[True-False-True-True]": "PASSED",
+    "tests/test_basic.py::test_werkzeug_passthrough_errors[True-False-True-False]": "PASSED",
+    "tests/test_basic.py::test_werkzeug_passthrough_errors[True-False-False-True]": "PASSED",
+    "tests/test_basic.py::test_werkzeug_passthrough_errors[True-False-False-False]": "PASSED",
+    "tests/test_basic.py::test_werkzeug_passthrough_errors[False-True-True-True]": "PASSED",
+    "tests/test_basic.py::test_werkzeug_passthrough_errors[False-True-True-False]": "PASSED",
+    "tests/test_basic.py::test_werkzeug_passthrough_errors[False-True-False-True]": "PASSED",
+    "tests/test_basic.py::test_werkzeug_passthrough_errors[False-True-False-False]": "PASSED",
+    "tests/test_basic.py::test_werkzeug_passthrough_errors[False-False-True-True]": "PASSED",
+    "tests/test_basic.py::test_werkzeug_passthrough_errors[False-False-True-False]": "PASSED",
+    "tests/test_basic.py::test_werkzeug_passthrough_errors[False-False-False-True]": "PASSED",
+    "tests/test_basic.py::test_werkzeug_passthrough_errors[False-False-False-False]": "PASSED",
+    "tests/test_basic.py::test_get_method_on_g": "PASSED",
+    "tests/test_basic.py::test_g_iteration_protocol": "PASSED",
+    "tests/test_basic.py::test_run_defaults": "PASSED",
+    "tests/test_basic.py::test_run_server_port": "PASSED",
+    "tests/test_basic.py::test_run_from_config[None-None-pocoo.org:8080-pocoo.org-8080]": "PASSED",
+    "tests/test_basic.py::test_run_from_config[localhost-None-pocoo.org:8080-localhost-8080]": "PASSED",
+    "tests/test_basic.py::test_run_from_config[None-80-pocoo.org:8080-pocoo.org-80]": "PASSED",
+    "tests/test_basic.py::test_run_from_config[localhost-80-pocoo.org:8080-localhost-80]": "PASSED",
+    "tests/test_basic.py::test_run_from_config[localhost-0-localhost:8080-localhost-0]": "PASSED",
+    "tests/test_basic.py::test_run_from_config[None-None-localhost:8080-localhost-8080]": "PASSED",
+    "tests/test_basic.py::test_run_from_config[None-None-localhost:0-localhost-0]": "PASSED",
+    "tests/test_basic.py::test_app_freed_on_zero_refcount": "PASSED",
+    "tests/test_blueprints.py::test_template_filter": "PASSED",
+    "tests/test_blueprints.py::test_add_template_filter": "PASSED",
+    "tests/test_blueprints.py::test_template_filter_with_name": "PASSED",
+    "tests/test_blueprints.py::test_add_template_filter_with_name": "PASSED",
+    "tests/test_blueprints.py::test_template_test": "PASSED",
+    "tests/test_blueprints.py::test_add_template_test": "PASSED",
+    "tests/test_blueprints.py::test_template_test_with_name": "PASSED",
+    "tests/test_blueprints.py::test_add_template_test_with_name": "PASSED",
+    "tests/test_blueprints.py::test_template_global": "PASSED"
+   },
+   "turn": 22,
+   "n_cmds": 1
+  },
+  {
+   "sha": "bb9a59c79716120cbe27c659fa7277a4e61b2d6c",
+   "checkout_ok": true,
+   "test_patch_ok": true,
+   "test_patch_err": "",
+   "n_pass": 51,
+   "n_fail": 1,
+   "flaky": [],
+   "test_ok": false,
+   "test_s": 9.66,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "PASSED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -1612,7 +1612,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "2d0d6cb717b096fc231b253a968a9e4e7af389bc",
+   "sha": "25d4b23c5b1fa95abc6b27eb084cd1c5764092e7",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -1620,7 +1620,7 @@
    "n_fail": 1,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.83,
+   "test_s": 9.58,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "PASSED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -1679,7 +1679,7 @@
    "n_cmds": 1
   },
   {
-   "sha": "143dea6a9d8b754d748b34944252033ffdab6a3f",
+   "sha": "cb04d73022d0ad307b41f684a6dc7d89291f4d76",
    "checkout_ok": true,
    "test_patch_ok": true,
    "test_patch_err": "",
@@ -1687,7 +1687,7 @@
    "n_fail": 1,
    "flaky": [],
    "test_ok": false,
-   "test_s": 8.65,
+   "test_s": 9.31,
    "statuses": {
     "tests/test_blueprints.py::test_dotted_name_not_allowed": "PASSED",
     "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "FAILED",
@@ -1755,35 +1755,60 @@
   }
  ],
  "attrs": [],
- "counterfactuals": [],
+ "counterfactuals": [
+  {
+   "turn": 9,
+   "real_final_n_fail": 1,
+   "cf_final_n_fail": 2,
+   "delta": 1,
+   "cf_valid": true,
+   "cf_cmd_fail": [
+    {
+     "turn": 15,
+     "rc": 1,
+     "cmd": "cd /testbed && python -m pytest \"tests/test_blueprints.py::test_nested_blueprint\" -q 2>&1 | grep -i \"deprecat\" | head -3"
+    }
+   ],
+   "orig_fail_cmds": 1,
+   "files_touched": [
+    "src/flask/blueprints.py"
+   ],
+   "later_touches_same_files": [
+    "src/flask/blueprints.py"
+   ],
+   "label": "beneficial",
+   "fallback_n_fail": null,
+   "fallback_delta": null
+  }
+ ],
  "recoveries": [],
  "eval_seconds": [
-  8.72,
-  8.54,
-  8.32,
-  8.3,
-  8.66,
-  8.66,
-  8.43,
-  8.59,
-  9.18,
-  8.97,
-  8.67,
-  8.53,
-  8.69,
-  8.58,
-  8.71,
-  8.53,
-  8.56,
-  8.46,
-  8.29,
-  8.44,
-  8.54,
-  8.6,
+  9.45,
+  9.81,
+  11.72,
+  11.17,
+  11.05,
+  12.84,
+  13.53,
+  13.85,
+  14.29,
+  11.22,
+  11.5,
+  11.55,
+  10.31,
+  10.98,
+  10.61,
+  10.85,
+  10.51,
+  10.18,
+  9.38,
+  9.05,
+  9.48,
   9.02,
-  8.64,
-  8.83,
-  8.65
+  9.69,
+  9.66,
+  9.58,
+  9.31
  ],
- "replay_seconds": 258.8
+ "replay_seconds": 364.0
 }

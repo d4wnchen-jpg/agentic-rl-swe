@@ -453,7 +453,7 @@ def main():
     cf_turns = [int(x) for x in args.counterfactual.split(",") if x.strip()] \
         if args.counterfactual else []
     if args.counterfactual_pivots:
-        cf_turns += [p["turn"] for p in pivots if p["type"] == "regression"]
+        cf_turns += [p["turn"] for p in pivots]   # regression + improvement 都验
     cf_turns = sorted(set(cf_turns))
     if cf_turns and evals:
         real_final = evals[-1]["n_fail"]
@@ -486,7 +486,9 @@ def main():
                    "fallback_delta": None}
 
             if valid and delta is not None and delta < 0:
-                rec["label"] = "causal"
+                rec["label"] = "causal"          # 有害：跳过它失败减少
+            elif valid and delta is not None and delta > 0:
+                rec["label"] = "beneficial"      # 有益：跳过它失败增加
             else:
                 # 备用干预：文件级回滚（只把该轮触碰的文件恢复到该轮之前）
                 if cur_files:
@@ -498,6 +500,8 @@ def main():
                         rec["fallback_delta"] = fr["n_fail"] - real_final
                         if fr["n_fail"] < real_final:
                             rec["label"] = "causal_by_file"
+                        elif fr["n_fail"] > real_final:
+                            rec["label"] = "beneficial_by_file"
                         elif delta is not None and delta == 0 and overlap:
                             rec["label"] = "transient_or_confounded"
                         else:

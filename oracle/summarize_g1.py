@@ -49,9 +49,11 @@ def main():
         rec_causal = [x for x in recs if x.get("recovery_causal")]
         cfs = r.get("counterfactuals") or []
         labels = [c.get("label") for c in cfs]
-        verified = [c for c in cfs if c.get("label") in ("causal", "causal_by_file")]
+        VER = ("causal", "causal_by_file", "beneficial", "beneficial_by_file")
+        verified = [c for c in cfs if c.get("label") in VER]
         causal = [c for c in cfs if c.get("label") == "causal"]
         causal_file = [c for c in cfs if c.get("label") == "causal_by_file"]
+        beneficial = [c for c in cfs if c.get("label") in ("beneficial", "beneficial_by_file")]
         rows.append({
             "dir": d,
             "instance": r.get("instance_id"),
@@ -69,6 +71,7 @@ def main():
             "cf_checked": len(cfs),
             "n_causal": len(causal),
             "n_causal_file": len(causal_file),
+            "n_beneficial": len(beneficial),
             "n_unverified": sum(1 for x in labels
                                 if x in ("unverified", "transient_or_confounded",
                                          "cf_invalid_no_fallback")),
@@ -84,13 +87,13 @@ def main():
 
     print(f"{'instance':24s} {'turns':>5s} {'fail':>5s} {'regs':>5s} "
           f"{'recov':>5s} {'fatal':>5s} {'pairs':>5s} {'rcaus':>5s} "
-          f"{'causal':>6s} {'file':>5s} {'unver':>6s}")
+          f"{'harm':>5s} {'file':>5s} {'benef':>5s} {'unver':>6s}")
     for x in rows:
         print(f"{str(x['instance'])[:24]:24s} {str(x['turns']):>5s} "
               f"{str(x['final_n_fail']):>5s} {x['n_regressions']:>5d} "
               f"{x['n_recovered']:>5d} {x['n_fatal']:>5d} {x['n_recovery_pairs']:>5d} "
-              f"{x['n_recovery_causal']:>5d} {x['n_causal']:>6d} "
-              f"{x['n_causal_file']:>5d} {x['n_unverified']:>6d}")
+              f"{x['n_recovery_causal']:>5d} {x['n_causal']:>5d} "
+              f"{x['n_causal_file']:>5d} {x['n_beneficial']:>5d} {x['n_unverified']:>6d}")
 
     failed = [x for x in rows if (x["final_n_fail"] or 0) > 0]
     with_reg = [x for x in failed if x["n_regressions"] > 0]
@@ -104,6 +107,9 @@ def main():
     n_pairs = sum(x["n_recovery_pairs"] for x in rows)
     n_pairs_causal = sum(x["n_recovery_causal"] for x in rows)
     print(f"(错误步→恢复步) 配对数 : {n_pairs}（因果验证 {n_pairs_causal}）")
+    with_any = [x for x in rows if (x["n_causal"] + x["n_causal_file"] + x["n_beneficial"]) > 0]
+    print(f"G1-any（有任一方向验证标签 / 全部轨迹） = {len(with_any)}/{len(rows)} "
+          f"= {len(with_any)/len(rows)*100:.1f}%")
     if failed:
         print(f"G1a（有 regression / 失败）   = {len(with_reg)}/{len(failed)} "
               f"= {len(with_reg)/len(failed)*100:.1f}%")

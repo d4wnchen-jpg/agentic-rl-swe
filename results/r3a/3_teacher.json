@@ -1,0 +1,12 @@
+{
+ "instance_id": "psf__requests-3362",
+ "model": "deepseek-chat",
+ "n_steps": 32,
+ "teacher": {
+  "pivot_step": 11,
+  "reason": "Modified stream_decode_response_unicode to use apparent_encoding when encoding is None, which broke the streaming path (empty output / TypeError) and diverged from .text behavior; later reverted in step 21.",
+  "correct_action": "Leave stream_decode_response_unicode unchanged and instead handle the encoding fallback in iter_content only for consumed content, matching .text's apparent_encoding fallback."
+ },
+ "our_pivot_turns": [],
+ "raw": "{\"pivot_step\": 11, \"reason\": \"Modified stream_decode_response_unicode to use apparent_encoding when encoding is None, which broke the streaming path (empty output / TypeError) and diverged from .text behavior; later reverted in step 21.\", \"correct_action\": \"Leave stream_decode_response_unicode unchanged and instead handle the encoding fallback in iter_content only for consumed content, matching .text's apparent_encoding fallback.\"}"
+}

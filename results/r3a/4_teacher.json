@@ -1,0 +1,12 @@
+{
+ "instance_id": "psf__requests-3362",
+ "model": "deepseek-chat",
+ "n_steps": 36,
+ "teacher": {
+  "pivot_step": 23,
+  "reason": "The agent modified stream_decode_response_unicode to use chardet.detect on each chunk when encoding is None, which is incorrect for streaming (per-chunk detection is unreliable and diverges from Response.text behavior).",
+  "correct_action": "Instead of guessing encoding per-chunk in the streaming decoder, set the response encoding from apparent_encoding (or detect once) before decoding, matching how Response.text handles missing encoding."
+ },
+ "our_pivot_turns": [],
+ "raw": "{\"pivot_step\": 23, \"reason\": \"The agent modified stream_decode_response_unicode to use chardet.detect on each chunk when encoding is None, which is incorrect for streaming (per-chunk detection is unreliable and diverges from Response.text behavior).\", \"correct_action\": \"Instead of guessing encoding per-chunk in the streaming decoder, set the response encoding from apparent_encoding (or detect once) before decoding, matching how Response.text handles missing encoding.\"}"
+}

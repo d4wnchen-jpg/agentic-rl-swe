@@ -1,0 +1,10 @@
+[teacher] pivot_step=4 reason=First edit made stream_decode_response_unicode set r.encoding = r.apparent_encoding unconditionally, which raised TypeEr
+[ours]    verified pivot turns=[]
+[teacher] pivot_step=0 reason=No recoverable mistake; the agent correctly diagnosed the bug (stream_decode_response_unicode yielded bytes when encodin
+[ours]    verified pivot turns=[]
+[teacher] pivot_step=11 reason=Modified stream_decode_response_unicode to use apparent_encoding when encoding is None, which broke the streaming path (
+[ours]    verified pivot turns=[]
+[teacher] pivot_step=23 reason=The agent modified stream_decode_response_unicode to use chardet.detect on each chunk when encoding is None, which is in
+[ours]    verified pivot turns=[]
+[teacher] pivot_step=0 reason=No step made tests worse before recovery; the single edit in step 4 was the correct fix and no regressions were introduc
+[ours]    verified pivot turns=[]

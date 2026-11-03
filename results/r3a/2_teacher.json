@@ -1,0 +1,12 @@
+{
+ "instance_id": "psf__requests-3362",
+ "model": "deepseek-chat",
+ "n_steps": 20,
+ "teacher": {
+  "pivot_step": 0,
+  "reason": "No recoverable mistake; the agent correctly diagnosed the bug (stream_decode_response_unicode yielded bytes when encoding was None) and fixed it in one edit, with tests passing.",
+  "correct_action": "N/A"
+ },
+ "our_pivot_turns": [],
+ "raw": "{\"pivot_step\": 0, \"reason\": \"No recoverable mistake; the agent correctly diagnosed the bug (stream_decode_response_unicode yielded bytes when encoding was None) and fixed it in one edit, with tests passing.\", \"correct_action\": \"N/A\"}"
+}

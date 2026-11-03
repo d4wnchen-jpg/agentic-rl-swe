@@ -1,0 +1,12 @@
+{
+ "instance_id": "psf__requests-3362",
+ "model": "deepseek-chat",
+ "n_steps": 17,
+ "teacher": {
+  "pivot_step": 4,
+  "reason": "First edit made stream_decode_response_unicode set r.encoding = r.apparent_encoding unconditionally, which raised TypeError for empty content (apparent_encoding None) and broke tests.",
+  "correct_action": "Guard the fallback: only set encoding from apparent_encoding if not None, then fall back to 'utf-8'."
+ },
+ "our_pivot_turns": [],
+ "raw": "{\"pivot_step\": 4, \"reason\": \"First edit made stream_decode_response_unicode set r.encoding = r.apparent_encoding unconditionally, which raised TypeError for empty content (apparent_encoding None) and broke tests.\", \"correct_action\": \"Guard the fallback: only set encoding from apparent_encoding if not None, then fall back to 'utf-8'.\"}"
+}

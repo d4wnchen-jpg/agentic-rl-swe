@@ -1,0 +1,12 @@
+{
+ "instance_id": "psf__requests-3362",
+ "model": "deepseek-chat",
+ "n_steps": 9,
+ "teacher": {
+  "pivot_step": 0,
+  "reason": "No step made tests worse before recovery; the single edit in step 4 was the correct fix and no regressions were introduced by the agent's own changes.",
+  "correct_action": "N/A"
+ },
+ "our_pivot_turns": [],
+ "raw": "{\"pivot_step\": 0, \"reason\": \"No step made tests worse before recovery; the single edit in step 4 was the correct fix and no regressions were introduced by the agent's own changes.\", \"correct_action\": \"N/A\"}"
+}

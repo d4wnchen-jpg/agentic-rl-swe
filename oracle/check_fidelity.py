@@ -92,14 +92,15 @@ def load_task(path, iid):
     raise SystemExit("task 未找到")
 
 
-def tree_diff(a, b, ignore=("__pycache__", ".git", ".pytest_cache", "*.pyc")):
+def tree_diff(a, b, ignore=("__pycache__", ".git", ".pytest_cache", "*.pyc"),
+              ignore_files=("patch.txt",)):
     """返回不一致的文件列表（相对路径）。"""
     diff = []
     for root, dirs, files in os.walk(a):
         dirs[:] = [d for d in dirs if d not in ("__pycache__", ".git", ".pytest_cache")]
         rel = os.path.relpath(root, a)
         for fn in files:
-            if fn.endswith(".pyc"):
+            if fn.endswith(".pyc") or fn in ignore_files:
                 continue
             pa = os.path.join(root, fn)
             pb = os.path.join(b, rel, fn)
@@ -113,7 +114,7 @@ def tree_diff(a, b, ignore=("__pycache__", ".git", ".pytest_cache", "*.pyc")):
         dirs[:] = [d for d in dirs if d not in ("__pycache__", ".git", ".pytest_cache")]
         rel = os.path.relpath(root, b)
         for fn in files:
-            if fn.endswith(".pyc"):
+            if fn.endswith(".pyc") or fn in ignore_files:
                 continue
             if not os.path.exists(os.path.join(a, rel, fn)):
                 diff.append(rel + "/" + fn)

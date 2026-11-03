@@ -80,8 +80,46 @@ def main():
     over = sum(1 for x in omis if x["match"] == "teacher_over")
     zero = sum(1 for x in rows if x["step"] in (None, 0))
 
+    # ── 新口径：轮次定位（对任意已验证编辑）+ 符号正确性 ──
+    loc_exact = loc_near = loc_total = 0
+    sign_mismatch = sign_total = 0
+    noedit_teacher = noedit_total = 0
+    for i in sorted(reports, key=int):
+        r, t = reports[i], teachers.get(i, {})
+        cfs = r.get("counterfactuals") or []
+        harmful = {c["turn"] for c in cfs if c.get("label") in ("causal", "causal_by_file")}
+        beneficial = {c["turn"] for c in cfs if c.get("label") in ("beneficial", "beneficial_by_file")}
+        recov = {x["pivot_turn"] for x in (r.get("recoveries") or [])}
+        ours = sorted(harmful | beneficial | recov)
+        step = (t.get("teacher") or {}).get("pivot_step")
+        if not ours:
+            noedit_total += 1
+            if step not in (None, 0):
+                noedit_teacher += 1
+            continue
+        loc_total += 1
+        if step in ours:
+            loc_exact += 1
+            loc_near += 1
+        elif any(isinstance(step, int) and abs(step - o) <= 1 for o in ours):
+            loc_near += 1
+        # 符号：命中的轮次是否只有 beneficial 语义（教师默认说成 mistake）
+        if isinstance(step, int):
+            hit_harmful = step in harmful
+            hit_beneficial = step in beneficial
+            if hit_harmful or hit_beneficial:
+                sign_total += 1
+                if hit_beneficial and not hit_harmful:
+                    sign_mismatch += 1
+
     print()
     print(f"轨迹总数: {len(rows)}")
+    print(f"[轮次定位] 有验证编辑的轨迹 {loc_total}: exact {loc_exact}/{loc_total} "
+          f"({loc_exact/max(1,loc_total)*100:.0f}%), ±1 {loc_near}/{loc_total} "
+          f"({loc_near/max(1,loc_total)*100:.0f}%)")
+    print(f"[符号正确] 教师命中轮次 {sign_total}: 把仅 beneficial 的轮说成 mistake = "
+          f"{sign_mismatch}/{sign_total}")
+    print(f"[无编辑可归因] {noedit_total} 条中教师仍指认 = {noedit_teacher}")
     print(f"可比案例: {len(comp)}")
     print(f"  教师 exact   : {exact}/{len(comp)} = {exact/max(1,len(comp))*100:.0f}%")
     print(f"  教师 within-1: {near}/{len(comp)} = {near/max(1,len(comp))*100:.0f}%")

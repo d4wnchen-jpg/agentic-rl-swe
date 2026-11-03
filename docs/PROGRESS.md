@@ -3,6 +3,13 @@
 > 新会话先读这一页 + [PHASE0_CHARTER.md](PHASE0_CHARTER.md)。
 > 目标：**可执行验证的 pivot 信用标签（VPD）**，code agent / SWE 场景；11-10 go/no-go。
 
+## 零、最新更新（2026-11-03 晚）
+
+- **Q1 保真度通过**：5/5 条轨迹重放后的代码与提交 patch 完全一致（仅 `patch.txt` 产物差异）；
+- **双向标签成立**：flask-4045 × 5 全部产出 beneficial 标签（G1-any 5/5）；
+- **G2 修正口径**：教师是「无符号定位器」——轮次 ±1 命中 11/14（79%），但**把 beneficial 轮说成 mistake 5/5**，从不回答"没有关键步"（0/15）；
+- 数据：`results/g1c/`、`results/g2a/`、`results/fidelity_g2a/`；memo 口径见 L1 报告 §11。
+
 ## 一、当前状态（2026-11-02 晚，G1/G2 首轮数据已出）
 
 **flask-5063 × 10 条轨迹**（3 成功 / 7 失败）：

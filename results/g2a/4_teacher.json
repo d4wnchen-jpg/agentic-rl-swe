@@ -4,9 +4,9 @@
  "n_steps": 13,
  "teacher": {
   "pivot_step": 6,
-  "reason": "The agent added a blanket ValueError for any dot in the blueprint name, but the failing test test_route_decorator_custom_endpoint_with_dots relies on dotted endpoint names within a blueprint; the fix was too broad and broke existing behavior.",
-  "correct_action": "Only reject dots in the blueprint's own name (the name argument), not in endpoint names passed to route decorators; verify against test_route_decorator_custom_endpoint_with_dots and adjust the validation scope accordingly."
+  "reason": "The agent added a blanket ValueError for any dot in the blueprint name, which breaks the existing test_route_decorator_custom_endpoint_with_dots that relies on dotted blueprint names being allowed.",
+  "correct_action": "Check existing tests first; the dot restriction should not break test_route_decorator_custom_endpoint_with_dots, so either the test expectation must be updated or the validation should be scoped appropriately (e.g., only reject dots in the blueprint's own name while preserving intended behavior)."
  },
  "our_pivot_turns": [],
- "raw": "{\"pivot_step\": 6, \"reason\": \"The agent added a blanket ValueError for any dot in the blueprint name, but the failing test test_route_decorator_custom_endpoint_with_dots relies on dotted endpoint names within a blueprint; the fix was too broad and broke existing behavior.\", \"correct_action\": \"Only reject dots in the blueprint's own name (the name argument), not in endpoint names passed to route decorators; verify against test_route_decorator_custom_endpoint_with_dots and adjust the validation scope accordingly.\"}"
+ "raw": "{\"pivot_step\": 6, \"reason\": \"The agent added a blanket ValueError for any dot in the blueprint name, which breaks the existing test_route_decorator_custom_endpoint_with_dots that relies on dotted blueprint names being allowed.\", \"correct_action\": \"Check existing tests first; the dot restriction should not break test_route_decorator_custom_endpoint_with_dots, so either the test expectation must be updated or the validation should be scoped appropriately (e.g., only reject dots in the blueprint's own name while preserving intended behavior).\"}"
 }

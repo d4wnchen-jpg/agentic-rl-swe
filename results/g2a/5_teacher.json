@@ -4,9 +4,9 @@
  "n_steps": 19,
  "teacher": {
   "pivot_step": 5,
-  "reason": "The agent added a blanket dot check in Blueprint.__init__ that rejects any dotted name, but the existing test test_route_decorator_custom_endpoint_with_dots expects dotted endpoint names to still work; the check should only apply to the blueprint name, not break endpoint handling, and the agent never reconciled this.",
-  "correct_action": "Add the dot validation for the blueprint name while preserving dotted custom endpoint behavior, and verify against test_route_decorator_custom_endpoint_with_dots."
+  "reason": "The agent added a blanket dot check in Blueprint.__init__, but the failing test test_route_decorator_custom_endpoint_with_dots expects custom endpoint names with dots to still work; the check should only reject dots in the blueprint name, not break existing dotted endpoint behavior, and the agent never investigated why that test failed.",
+  "correct_action": "Run the failing test to see the actual error and ensure the new name check doesn't affect endpoint handling; verify the test's expectation and adjust the implementation accordingly."
  },
  "our_pivot_turns": [],
- "raw": "{\"pivot_step\": 5, \"reason\": \"The agent added a blanket dot check in Blueprint.__init__ that rejects any dotted name, but the existing test test_route_decorator_custom_endpoint_with_dots expects dotted endpoint names to still work; the check should only apply to the blueprint name, not break endpoint handling, and the agent never reconciled this.\", \"correct_action\": \"Add the dot validation for the blueprint name while preserving dotted custom endpoint behavior, and verify against test_route_decorator_custom_endpoint_with_dots.\"}"
+ "raw": "{\"pivot_step\": 5, \"reason\": \"The agent added a blanket dot check in Blueprint.__init__, but the failing test test_route_decorator_custom_endpoint_with_dots expects custom endpoint names with dots to still work; the check should only reject dots in the blueprint name, not break existing dotted endpoint behavior, and the agent never investigated why that test failed.\", \"correct_action\": \"Run the failing test to see the actual error and ensure the new name check doesn't affect endpoint handling; verify the test's expectation and adjust the implementation accordingly.\"}"
 }

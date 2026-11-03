@@ -4,9 +4,9 @@
  "n_steps": 25,
  "teacher": {
   "pivot_step": 9,
-  "reason": "The agent added the dot check in Blueprint.__init__ but never updated the existing test test_route_decorator_custom_endpoint_with_dots, which uses a dotted blueprint name and now fails.",
-  "correct_action": "Update tests/test_blueprints.py to remove/rename the dotted blueprint name in test_route_decorator_custom_endpoint_with_dots (and any other tests using dotted blueprint names) so they comply with the new restriction."
+  "reason": "The agent added the dot check in Blueprint.__init__ but never updated existing tests that intentionally use dotted blueprint names (e.g. test_route_decorator_custom_endpoint_with_dots), so the F2P test still fails.",
+  "correct_action": "Update tests/test_blueprints.py to use non-dotted blueprint names (or adjust the test) so the new ValueError doesn't break existing dotted-name tests."
  },
  "our_pivot_turns": [],
- "raw": "{\"pivot_step\": 9, \"reason\": \"The agent added the dot check in Blueprint.__init__ but never updated the existing test test_route_decorator_custom_endpoint_with_dots, which uses a dotted blueprint name and now fails.\", \"correct_action\": \"Update tests/test_blueprints.py to remove/rename the dotted blueprint name in test_route_decorator_custom_endpoint_with_dots (and any other tests using dotted blueprint names) so they comply with the new restriction.\"}"
+ "raw": "{\"pivot_step\": 9, \"reason\": \"The agent added the dot check in Blueprint.__init__ but never updated existing tests that intentionally use dotted blueprint names (e.g. test_route_decorator_custom_endpoint_with_dots), so the F2P test still fails.\", \"correct_action\": \"Update tests/test_blueprints.py to use non-dotted blueprint names (or adjust the test) so the new ValueError doesn't break existing dotted-name tests.\"}"
 }

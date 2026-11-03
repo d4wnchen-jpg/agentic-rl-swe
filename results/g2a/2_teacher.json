@@ -4,9 +4,9 @@
  "n_steps": 18,
  "teacher": {
   "pivot_step": 9,
-  "reason": "The agent added the dot check in Blueprint.__init__ but did not update the existing test test_route_decorator_custom_endpoint_with_dots, which uses a dotted blueprint name and now fails; the agent never addressed this F2P test.",
-  "correct_action": "Update tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots to use a non-dotted blueprint name (or adjust the test to expect the new ValueError), and add a test asserting Blueprint names with dots raise ValueError."
+  "reason": "The agent added a blanket ValueError for any dot in Blueprint name, but the failing test test_route_decorator_custom_endpoint_with_dots expects dotted blueprint names to still be allowed in some contexts; the fix was too broad and broke that test.",
+  "correct_action": "Check the existing test expectations and only raise the error where appropriate (e.g., match upstream behavior that permits dots in blueprint names but rejects them in endpoint names), or update the test if the new behavior is intended."
  },
  "our_pivot_turns": [],
- "raw": "{\"pivot_step\": 9, \"reason\": \"The agent added the dot check in Blueprint.__init__ but did not update the existing test test_route_decorator_custom_endpoint_with_dots, which uses a dotted blueprint name and now fails; the agent never addressed this F2P test.\", \"correct_action\": \"Update tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots to use a non-dotted blueprint name (or adjust the test to expect the new ValueError), and add a test asserting Blueprint names with dots raise ValueError.\"}"
+ "raw": "{\"pivot_step\": 9, \"reason\": \"The agent added a blanket ValueError for any dot in Blueprint name, but the failing test test_route_decorator_custom_endpoint_with_dots expects dotted blueprint names to still be allowed in some contexts; the fix was too broad and broke that test.\", \"correct_action\": \"Check the existing test expectations and only raise the error where appropriate (e.g., match upstream behavior that permits dots in blueprint names but rejects them in endpoint names), or update the test if the new behavior is intended.\"}"
 }

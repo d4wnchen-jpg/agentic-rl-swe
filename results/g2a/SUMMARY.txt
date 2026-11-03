@@ -1,15 +1,17 @@
 instance                 turns  fail  regs recov fatal pairs rcaus causal  file  unver
 pallets__flask-4045         26     1     0     0     0     0     0      0     0      0
 pallets__flask-4045         19     1     0     0     0     0     0      0     0      0
+pallets__flask-4045         10     1     0     0     0     0     0      0     0      0
 
-轨迹总数        : 2
-失败轨迹        : 2
+轨迹总数        : 3
+失败轨迹        : 3
 有 regression   : 0
 有反事实验证    : 0
 (错误步→恢复步) 配对数 : 0（因果验证 0）
-G1a（有 regression / 失败）   = 0/2 = 0.0%
-G1b（有因果验证 / 失败）      = 0/2 = 0.0%
+G1a（有 regression / 失败）   = 0/3 = 0.0%
+G1b（有因果验证 / 失败）      = 0/3 = 0.0%
 
 明细：
   out_g2a_1: final_fail=1 reg_turns=[] verified_turns=[] labels=[]
   out_g2a_2: final_fail=1 reg_turns=[] verified_turns=[] labels=[]
+  out_g2a_3: final_fail=1 reg_turns=[] verified_turns=[] labels=[]

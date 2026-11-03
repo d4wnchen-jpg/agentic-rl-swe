@@ -40,6 +40,7 @@ for i in $(seq 1 "$N"); do
   cp "out_${PREFIX}_$i/TRAJ.md" "$RES/${i}.md" 2>/dev/null
   cp "out_${PREFIX}_$i/traj_report.json" "$RES/${i}.json" 2>/dev/null
   cp "$traj" "$RES/${i}.traj.json" 2>/dev/null
+  cp "$outdir/preds.json" "$RES/${i}_preds.json" 2>/dev/null
   python oracle/summarize_g1.py "out_${PREFIX}_*" > "$RES/SUMMARY.txt" 2>&1
   push "$i/$N"
   echo "[$i/$N] 已入库"

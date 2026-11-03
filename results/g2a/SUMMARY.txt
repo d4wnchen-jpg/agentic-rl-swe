@@ -1,6 +1,6 @@
 instance                 turns  fail  regs recov fatal pairs rcaus  harm  file benef  unver
 pallets__flask-4045         26     1     0     0     0     0     0     0     0     1      0
-pallets__flask-4045         19     1     0     0     0     0     0     0     0     0      0
+pallets__flask-4045         19     1     0     0     0     0     0     0     0     1      0
 pallets__flask-4045         10     1     0     0     0     0     0     0     0     0      0
 pallets__flask-4045         14     1     0     0     0     0     0     0     0     0      0
 pallets__flask-4045         20     1     0     0     0     0     0     0     0     0      0
@@ -8,15 +8,15 @@ pallets__flask-4045         20     1     0     0     0     0     0     0     0  
 轨迹总数        : 5
 失败轨迹        : 5
 有 regression   : 0
-有反事实验证    : 1
+有反事实验证    : 2
 (错误步→恢复步) 配对数 : 0（因果验证 0）
-G1-any（有任一方向验证标签 / 全部轨迹） = 1/5 = 20.0%
+G1-any（有任一方向验证标签 / 全部轨迹） = 2/5 = 40.0%
 G1a（有 regression / 失败）   = 0/5 = 0.0%
-G1b（有因果验证 / 失败）      = 1/5 = 20.0%
+G1b（有因果验证 / 失败）      = 2/5 = 40.0%
 
 明细：
   out_g2a_1: final_fail=1 reg_turns=[] verified_turns=[9] labels=['beneficial']
-  out_g2a_2: final_fail=1 reg_turns=[] verified_turns=[] labels=[]
+  out_g2a_2: final_fail=1 reg_turns=[] verified_turns=[9] labels=['beneficial']
   out_g2a_3: final_fail=1 reg_turns=[] verified_turns=[] labels=[]
   out_g2a_4: final_fail=1 reg_turns=[] verified_turns=[] labels=[]
   out_g2a_5: final_fail=1 reg_turns=[] verified_turns=[] labels=[]

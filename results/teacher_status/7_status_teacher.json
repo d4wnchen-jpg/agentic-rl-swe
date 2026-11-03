@@ -1,0 +1,9 @@
+{
+ "instance_id": "pallets__flask-5063",
+ "teacher": {
+  "pivot_step": 5,
+  "reason": "The first implementation added a Domain column but computed it incorrectly (using rule.host or SERVER_NAME without combining subdomain), and it broke existing tests expecting the old output format. The core logic was wrong from the start.",
+  "correct_action": "Compute domain as rule.host if set, else (subdomain + '.' + SERVER_NAME) when subdomain is truthy, else SERVER_NAME or empty; and update tests/expected output accordingly."
+ },
+ "raw": "{\"pivot_step\": 5, \"reason\": \"The first implementation added a Domain column but computed it incorrectly (using rule.host or SERVER_NAME without combining subdomain), and it broke existing tests expecting the old output format. The core logic was wrong from the start.\", \"correct_action\": \"Compute domain as rule.host if set, else (subdomain + '.' + SERVER_NAME) when subdomain is truthy, else SERVER_NAME or empty; and update tests/expected output accordingly.\"}"
+}

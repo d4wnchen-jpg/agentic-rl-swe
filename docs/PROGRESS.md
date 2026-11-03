@@ -8,7 +8,9 @@
 - **Q1 保真度通过**：5/5 条轨迹重放后的代码与提交 patch 完全一致（仅 `patch.txt` 产物差异）；
 - **双向标签成立**：flask-4045 × 5 全部产出 beneficial 标签（G1-any 5/5）；
 - **G2 修正口径**：教师是「无符号定位器」——轮次 ±1 命中 11/14（79%），但**把 beneficial 轮说成 mistake 5/5**，从不回答"没有关键步"（0/15）；
-- 数据：`results/g1c/`、`results/g2a/`、`results/fidelity_g2a/`；memo 口径见 L1 报告 §11。
+- **Q4 公平对照**：教师+逐轮状态 exact 71%（原版 64%，随机 5%），但**符号仍 5/10 说反**、从不承认"无关键步"（0/15）；
+- 结论：增量在 **signed 因果标签 + 敢说"无可归因编辑"**，不在"定位轮次"；
+- 数据：`results/g1c/`、`results/g2a/`、`results/fidelity_g2a/`、`results/teacher_status/`；memo 口径见 L1 报告 §11–12。
 
 ## 一、当前状态（2026-11-02 晚，G1/G2 首轮数据已出）
 

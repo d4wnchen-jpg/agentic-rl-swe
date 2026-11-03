@@ -1,0 +1,9 @@
+{
+ "instance_id": "pallets__flask-5063",
+ "teacher": {
+  "pivot_step": 12,
+  "reason": "The replacement accidentally removed the @click.command/@click.option decorators from routes_command, breaking import (56 failures).",
+  "correct_action": "Preserve the decorators when replacing the function body, or re-add them immediately."
+ },
+ "raw": "{\"pivot_step\": 12, \"reason\": \"The replacement accidentally removed the @click.command/@click.option decorators from routes_command, breaking import (56 failures).\", \"correct_action\": \"Preserve the decorators when replacing the function body, or re-add them immediately.\"}"
+}

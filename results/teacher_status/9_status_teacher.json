@@ -1,0 +1,9 @@
+{
+ "instance_id": "pallets__flask-5063",
+ "teacher": {
+  "pivot_step": 18,
+  "reason": "Step 18 inserted a broken import 'from .sansio.rules import Rule' (nonexistent module), breaking the module; step 19 patched it to werkzeug.routing but the import was placed incorrectly and later moved in step 23, leaving the final diff with a stray/incorrect import ordering and the fix not cleanly integrated.",
+  "correct_action": "Import Rule correctly from werkzeug.routing at the top with other werkzeug imports in one clean edit, then verify the full diff and tests."
+ },
+ "raw": "{\"pivot_step\": 18, \"reason\": \"Step 18 inserted a broken import 'from .sansio.rules import Rule' (nonexistent module), breaking the module; step 19 patched it to werkzeug.routing but the import was placed incorrectly and later moved in step 23, leaving the final diff with a stray/incorrect import ordering and the fix not cleanly integrated.\", \"correct_action\": \"Import Rule correctly from werkzeug.routing at the top with other werkzeug imports in one clean edit, then verify the full diff and tests.\"}"
+}

@@ -86,36 +86,36 @@ def main():
           f"{totals['beneficial']} | {totals['pairs']} | "
           f"{totals['any']}/{totals['n']} | {totals['rec']}/{totals['n']} |")
 
-    # 教师对照
-    print("\n**教师对照（基准 = 我们的可验证编辑：harmful ∪ beneficial ∪ recovery pivot）**\n")
-    print("| group | 有编辑轨迹 | exact | ±1 | 符号说反 | 无编辑仍指认 | 从不回答0 |")
-    print("|---|---|---|---|---|---|---|")
-    exact = near = total = sign_bad = sign_hit = noedit = noedit_over = zero = 0
+    # 教师对照（修正语义）：
+    #   有 mistake 的轨迹 = 失败+harmful 或 成功+recovery
+    #   无 mistake 的轨迹 = 其余；教师给出非零轮次 = 过度归因/符号错误
+    print("\n**教师对照（mismatch=我们判定没有可归因错误，教师仍指认）**\n")
+    print("| group | 轨迹数 | 教师 exact | ±1 | 无 mistake 轨迹 | 其中教师仍指认 |")
+    print("|---|---|---|---|---|---|")
+    with_m = with_m_exact = with_m_near = 0
+    no_m = no_m_over = 0
     for name, i, r, t in all_rows:
         harmful, beneficial, recov, _, _ = ours_sets(r)
-        ours = sorted(harmful | beneficial | recov)
+        evs = r.get("evals") or []
+        final = evs[-1].get("n_fail") if evs else None
+        failed = final not in (0, None)
+        mistakes = sorted(harmful) if failed else sorted(recov)
         step = None
         if t and (t.get("teacher") or {}).get("pivot_step") is not None:
             step = t["teacher"]["pivot_step"]
-        if step in (None, 0):
-            zero += 1
-        if not ours:
-            noedit += 1
+        if not mistakes:
+            no_m += 1
             if step not in (None, 0):
-                noedit_over += 1
+                no_m_over += 1
             continue
-        total += 1
-        if isinstance(step, int) and step in ours:
-            exact += 1
-            near += 1
-            if step in beneficial and step not in harmful:
-                sign_bad += 1
-            if step in beneficial or step in harmful:
-                sign_hit += 1
-        elif isinstance(step, int) and any(abs(step - o) <= 1 for o in ours):
-            near += 1
-    print(f"| 教师原版 | {total} | {exact}/{total} ({exact/max(1,total)*100:.0f}%) | "
-          f"{near}/{total} | {sign_bad}/{sign_hit} | {noedit_over}/{noedit} | {zero}/{len(all_rows)} |")
+        with_m += 1
+        if isinstance(step, int) and step in mistakes:
+            with_m_exact += 1
+            with_m_near += 1
+        elif isinstance(step, int) and any(abs(step - o) <= 1 for o in mistakes):
+            with_m_near += 1
+    print(f"| 有可归因错误 | {with_m} | {with_m_exact}/{with_m} | {with_m_near}/{with_m} | - | - |")
+    print(f"| 无 mistake 轨迹 | {no_m} | - | - | {no_m} | {no_m_over}/{no_m} |")
 
     # 保真度
     print("\n**保真度**\n")

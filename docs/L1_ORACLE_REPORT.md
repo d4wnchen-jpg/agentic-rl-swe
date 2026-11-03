@@ -345,3 +345,34 @@ tests/test_requests.py::TestRequests::test_params_are_added_before_fragment[http
 而不是"定位轮次"本身（教师已经能定位）。
 
 数据/脚本：`oracle/teacher_status_eval.py`、`results/teacher_status/summary.json`。
+
+---
+
+## 13. 三实例总表与 G2 修正语义（2026-11-03 晚）
+
+**数据**：flask-5063 × 10、flask-4045 × 5、requests-3362 × 5（合计 20 条；12 失败 / 8 成功）。
+
+### Q2 标签产出
+
+| instance | n | failed | harmful | beneficial | recovery pairs | cf-verified any |
+|---|---|---|---|---|---|---|
+| flask-5063 | 10 | 7 | 2 | 0 | 8（7 条） | 2/10 |
+| flask-4045 | 5 | 5 | 0 | 5 | 0 | 5/5 |
+| requests-3362 | 5 | 0 | 0 | 5 | 0 | 5/5 |
+| 合计 | **20** | 12 | 2 | 10 | 8 | **12/20 = 60%** |
+
+**标签类型由失败模式决定**：
+- 改坏/可恢复型（flask-5063）→ harmful + recovery pairs；
+- 只修一半/修好型（flask-4045 / requests-3362）→ beneficial。
+
+### Q4 教师对照（修正语义）
+
+| 组 | 轨迹数 | 教师 exact | ±1 |
+|---|---|---|---|
+| 有可归因错误（失败+harmful / 成功+recovery） | 5 | **4/5 = 80%** | 4/5 |
+| 无可归因错误（omission / 顺利成功） | 15 | — | 教师仍指认 **13/15 = 87%** |
+
+教师 2/20 次回答「没有关键步」。
+
+**论文口径**：教师的增量是“定位”（80%），我们的增量是 **signed 标签 + “无错误”判定**；
+在“没有单个错误编辑”的轨迹上，教师 87% 会编一个 pivot。

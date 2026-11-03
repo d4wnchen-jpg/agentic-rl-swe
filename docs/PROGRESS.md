@@ -3,7 +3,15 @@
 > 新会话先读这一页 + [PHASE0_CHARTER.md](PHASE0_CHARTER.md)。
 > 目标：**可执行验证的 pivot 信用标签（VPD）**，code agent / SWE 场景；11-10 go/no-go。
 
-## 零、最新更新（2026-11-03 晚）
+## 零、最新更新（2026-11-03 深夜）
+
+- **三实例齐了**（20 条）：flask-5063 ×10、flask-4045 ×5、requests-3362 ×5；
+- cf-verified 标签覆盖 **12/20 = 60%**；recovery 配对 8 对（原始因果 7/8）；harmful 2/2 验证；
+- **G2 修正语义**：教师有 mistake 时 exact 4/5（80%），无 mistake 时仍编 pivot **13/15 = 87%**，仅 2/20 答“没有”；
+- memo v1.0：[`MEMO_feasibility.md`](MEMO_feasibility.md)；选题建议 **A（signed 标签）+ B（产出率分析）**。
+- 待补：requests 系难题（`psf__requests-1963`）验证 harmful 跨 repo；保真度重跑；memo 定稿。
+
+## 历史状态（11-03 晚）
 
 - **Q1 保真度通过**：5/5 条轨迹重放后的代码与提交 patch 完全一致（仅 `patch.txt` 产物差异）；
 - **双向标签成立**：flask-4045 × 5 全部产出 beneficial 标签（G1-any 5/5）；

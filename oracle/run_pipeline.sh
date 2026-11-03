@@ -8,6 +8,7 @@ IMAGE=${2:-swebench/sweb.eval.x86_64.pallets_1776_flask-5063:latest}
 N=${3:-10}
 PREFIX=${4:-run}
 TEACHER=${5:-1}
+RERUN=${RERUN:-1}
 RES="results/$PREFIX"
 mkdir -p "$RES"
 
@@ -32,7 +33,7 @@ for i in $(seq 1 "$N"); do
   python oracle/replay_traj.py --traj "$traj" --task SWE-bench_Lite.jsonl \
     --instance-id "$IID" --image "$IMAGE" \
     --work "replay_${PREFIX}_$i" --out "out_${PREFIX}_$i" \
-    --rerun 1 --counterfactual-pivots --counterfactual-recoveries \
+    --rerun "$RERUN" --counterfactual-pivots --counterfactual-recoveries \
     > "${PREFIX}_replay_$i.log" 2>&1 || echo "[$i] 重放失败"
   rm -rf "replay_${PREFIX}_$i"
 

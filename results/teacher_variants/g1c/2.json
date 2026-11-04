@@ -1,0 +1,49 @@
+{
+ "changes": [
+  {
+   "step": 6,
+   "label": "harmful"
+  },
+  {
+   "step": 9,
+   "label": "beneficial"
+  },
+  {
+   "step": 13,
+   "label": "beneficial"
+  }
+ ],
+ "skip": {
+  "skip_step": 0,
+  "reason": "No single step removal improves the final outcome; the remaining failure is unrelated to the skipped-step candidates and all steps contributed to the final patch."
+ },
+ "exists": {
+  "exists": false,
+  "step": 0
+ },
+ "status_changes": [
+  {
+   "step": 6,
+   "dir": "harmful"
+  },
+  {
+   "step": 9,
+   "dir": "beneficial"
+  },
+  {
+   "step": 13,
+   "dir": "beneficial"
+  }
+ ],
+ "ours": {
+  "harmful": [],
+  "beneficial": [],
+  "recovery": [
+   6
+  ],
+  "any": [
+   6
+  ]
+ },
+ "final": 1
+}

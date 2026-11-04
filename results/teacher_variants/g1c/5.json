@@ -1,0 +1,49 @@
+{
+ "changes": [
+  {
+   "step": 12,
+   "label": "beneficial"
+  },
+  {
+   "step": 16,
+   "label": "harmful"
+  },
+  {
+   "step": 18,
+   "label": "beneficial"
+  }
+ ],
+ "skip": {
+  "skip_step": 0,
+  "reason": "No single step removal improves the final outcome; the remaining failure is unrelated to the edits and skipping any step would not fix it."
+ },
+ "exists": {
+  "exists": false,
+  "step": 0
+ },
+ "status_changes": [
+  {
+   "step": 12,
+   "dir": "beneficial"
+  },
+  {
+   "step": 16,
+   "dir": "harmful"
+  },
+  {
+   "step": 18,
+   "dir": "beneficial"
+  }
+ ],
+ "ours": {
+  "harmful": [],
+  "beneficial": [],
+  "recovery": [
+   16
+  ],
+  "any": [
+   16
+  ]
+ },
+ "final": 1
+}

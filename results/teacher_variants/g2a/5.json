@@ -1,0 +1,33 @@
+{
+ "changes": [
+  {
+   "step": 5,
+   "label": "beneficial"
+  }
+ ],
+ "skip": {
+  "skip_step": 0,
+  "reason": "No step's removal improves the final outcome; the remaining failure is an unrelated werkzeug 'as_tuple' incompatibility, and the dot-name change is the intended fix."
+ },
+ "exists": {
+  "exists": false,
+  "step": 0
+ },
+ "status_changes": [
+  {
+   "step": 5,
+   "dir": "beneficial"
+  }
+ ],
+ "ours": {
+  "harmful": [],
+  "beneficial": [
+   5
+  ],
+  "recovery": [],
+  "any": [
+   5
+  ]
+ },
+ "final": 1
+}

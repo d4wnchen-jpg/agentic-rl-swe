@@ -1,0 +1,59 @@
+{
+ "changes": [
+  {
+   "step": 4,
+   "label": "harmful"
+  },
+  {
+   "step": 13,
+   "label": "beneficial"
+  },
+  {
+   "step": 18,
+   "label": "harmful"
+  },
+  {
+   "step": 19,
+   "label": "beneficial"
+  }
+ ],
+ "skip": {
+  "skip_step": 18,
+  "reason": "Step 18 introduced a broken import (from .sansio.rules import Rule) that spiked failures to 56; skipping it avoids that regression and the later fix steps."
+ },
+ "exists": {
+  "exists": false,
+  "step": 0
+ },
+ "status_changes": [
+  {
+   "step": 4,
+   "dir": "harmful"
+  },
+  {
+   "step": 13,
+   "dir": "beneficial"
+  },
+  {
+   "step": 18,
+   "dir": "harmful"
+  },
+  {
+   "step": 19,
+   "dir": "beneficial"
+  }
+ ],
+ "ours": {
+  "harmful": [],
+  "beneficial": [],
+  "recovery": [
+   4,
+   18
+  ],
+  "any": [
+   4,
+   18
+  ]
+ },
+ "final": 2
+}

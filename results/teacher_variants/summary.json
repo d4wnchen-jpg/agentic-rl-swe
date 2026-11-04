@@ -1,0 +1,799 @@
+{
+ "rows": [
+  {
+   "dir": "g1c",
+   "run": "1",
+   "changes": [
+    {
+     "step": 6,
+     "label": "harmful"
+    },
+    {
+     "step": 16,
+     "label": "beneficial"
+    }
+   ],
+   "skip": {
+    "skip_step": 0,
+    "reason": "Final outcome is already n_fail=0; skipping any step cannot improve it and could break the fix."
+   },
+   "exists": {
+    "exists": false,
+    "step": 0
+   },
+   "status_changes": [
+    {
+     "step": 6,
+     "dir": "harmful"
+    },
+    {
+     "step": 16,
+     "dir": "beneficial"
+    }
+   ],
+   "ours": {
+    "harmful": [],
+    "beneficial": [],
+    "recovery": [
+     6
+    ],
+    "any": [
+     6
+    ]
+   },
+   "final": 0
+  },
+  {
+   "dir": "g1c",
+   "run": "10",
+   "changes": [
+    {
+     "step": 12,
+     "label": "harmful"
+    },
+    {
+     "step": 14,
+     "label": "beneficial"
+    },
+    {
+     "step": 21,
+     "label": "beneficial"
+    }
+   ],
+   "skip": {
+    "skip_step": 0,
+    "reason": "Final outcome is already n_fail=0; skipping any step cannot improve it."
+   },
+   "exists": {
+    "exists": false,
+    "step": 0
+   },
+   "status_changes": [
+    {
+     "step": 12,
+     "dir": "harmful"
+    },
+    {
+     "step": 14,
+     "dir": "beneficial"
+    },
+    {
+     "step": 21,
+     "dir": "beneficial"
+    }
+   ],
+   "ours": {
+    "harmful": [],
+    "beneficial": [],
+    "recovery": [
+     12
+    ],
+    "any": [
+     12
+    ]
+   },
+   "final": 0
+  },
+  {
+   "dir": "g1c",
+   "run": "2",
+   "changes": [
+    {
+     "step": 6,
+     "label": "harmful"
+    },
+    {
+     "step": 9,
+     "label": "beneficial"
+    },
+    {
+     "step": 13,
+     "label": "beneficial"
+    }
+   ],
+   "skip": {
+    "skip_step": 0,
+    "reason": "No single step removal improves the final outcome; the remaining failure is unrelated to the skipped-step candidates and all steps contributed to the final patch."
+   },
+   "exists": {
+    "exists": false,
+    "step": 0
+   },
+   "status_changes": [
+    {
+     "step": 6,
+     "dir": "harmful"
+    },
+    {
+     "step": 9,
+     "dir": "beneficial"
+    },
+    {
+     "step": 13,
+     "dir": "beneficial"
+    }
+   ],
+   "ours": {
+    "harmful": [],
+    "beneficial": [],
+    "recovery": [
+     6
+    ],
+    "any": [
+     6
+    ]
+   },
+   "final": 1
+  },
+  {
+   "dir": "g1c",
+   "run": "3",
+   "changes": [
+    {
+     "step": 20,
+     "label": "harmful"
+    },
+    {
+     "step": 28,
+     "label": "beneficial"
+    }
+   ],
+   "skip": {
+    "skip_step": 0,
+    "reason": "No single step skip improves the final outcome; the 2 remaining failures are pre-existing (confirmed at step 35 via stash) and unrelated to the routes change."
+   },
+   "exists": {
+    "exists": false,
+    "step": 0
+   },
+   "status_changes": [
+    {
+     "step": 20,
+     "dir": "harmful"
+    },
+    {
+     "step": 28,
+     "dir": "beneficial"
+    }
+   ],
+   "ours": {
+    "harmful": [],
+    "beneficial": [],
+    "recovery": [
+     20
+    ],
+    "any": [
+     20
+    ]
+   },
+   "final": 2
+  },
+  {
+   "dir": "g1c",
+   "run": "4",
+   "changes": [
+    {
+     "step": 5,
+     "label": "harmful"
+    }
+   ],
+   "skip": {
+    "skip_step": 0,
+    "reason": "No single step skip improves the final outcome; the failing count stays at 4 regardless, and the fix was completed successfully."
+   },
+   "exists": {
+    "exists": false,
+    "step": 0
+   },
+   "status_changes": [
+    {
+     "step": 5,
+     "dir": "harmful"
+    }
+   ],
+   "ours": {
+    "harmful": [
+     5
+    ],
+    "beneficial": [],
+    "recovery": [],
+    "any": [
+     5
+    ]
+   },
+   "final": 4
+  },
+  {
+   "dir": "g1c",
+   "run": "5",
+   "changes": [
+    {
+     "step": 12,
+     "label": "beneficial"
+    },
+    {
+     "step": 16,
+     "label": "harmful"
+    },
+    {
+     "step": 18,
+     "label": "beneficial"
+    }
+   ],
+   "skip": {
+    "skip_step": 0,
+    "reason": "No single step removal improves the final outcome; the remaining failure is unrelated to the edits and skipping any step would not fix it."
+   },
+   "exists": {
+    "exists": false,
+    "step": 0
+   },
+   "status_changes": [
+    {
+     "step": 12,
+     "dir": "beneficial"
+    },
+    {
+     "step": 16,
+     "dir": "harmful"
+    },
+    {
+     "step": 18,
+     "dir": "beneficial"
+    }
+   ],
+   "ours": {
+    "harmful": [],
+    "beneficial": [],
+    "recovery": [
+     16
+    ],
+    "any": [
+     16
+    ]
+   },
+   "final": 1
+  },
+  {
+   "dir": "g1c",
+   "run": "6",
+   "changes": [],
+   "skip": {
+    "skip_step": 0,
+    "reason": "No single step removal improves the final outcome; the 2 failing tests are pre-existing and unrelated to the changes."
+   },
+   "exists": {
+    "exists": false,
+    "step": 0
+   },
+   "status_changes": [],
+   "ours": {
+    "harmful": [],
+    "beneficial": [],
+    "recovery": [],
+    "any": []
+   },
+   "final": 2
+  },
+  {
+   "dir": "g1c",
+   "run": "7",
+   "changes": [
+    {
+     "step": 5,
+     "label": "harmful"
+    }
+   ],
+   "skip": {
+    "skip_step": 0,
+    "reason": "No single step skip would improve the final outcome; the failing tests stem from the implementation changes, not from any one exploratory step."
+   },
+   "exists": {
+    "exists": false,
+    "step": 0
+   },
+   "status_changes": [
+    {
+     "step": 5,
+     "dir": "harmful"
+    }
+   ],
+   "ours": {
+    "harmful": [
+     5
+    ],
+    "beneficial": [],
+    "recovery": [],
+    "any": [
+     5
+    ]
+   },
+   "final": 4
+  },
+  {
+   "dir": "g1c",
+   "run": "8",
+   "changes": [
+    {
+     "step": 4,
+     "label": "harmful"
+    },
+    {
+     "step": 13,
+     "label": "beneficial"
+    }
+   ],
+   "skip": {
+    "skip_step": 0,
+    "reason": "Final outcome is already n_fail=0; skipping any step cannot improve it."
+   },
+   "exists": {
+    "exists": false,
+    "step": 0
+   },
+   "status_changes": [
+    {
+     "step": 4,
+     "dir": "harmful"
+    },
+    {
+     "step": 13,
+     "dir": "beneficial"
+    }
+   ],
+   "ours": {
+    "harmful": [],
+    "beneficial": [],
+    "recovery": [
+     4
+    ],
+    "any": [
+     4
+    ]
+   },
+   "final": 0
+  },
+  {
+   "dir": "g1c",
+   "run": "9",
+   "changes": [
+    {
+     "step": 4,
+     "label": "harmful"
+    },
+    {
+     "step": 13,
+     "label": "beneficial"
+    },
+    {
+     "step": 18,
+     "label": "harmful"
+    },
+    {
+     "step": 19,
+     "label": "beneficial"
+    }
+   ],
+   "skip": {
+    "skip_step": 18,
+    "reason": "Step 18 introduced a broken import (from .sansio.rules import Rule) that spiked failures to 56; skipping it avoids that regression and the later fix steps."
+   },
+   "exists": {
+    "exists": false,
+    "step": 0
+   },
+   "status_changes": [
+    {
+     "step": 4,
+     "dir": "harmful"
+    },
+    {
+     "step": 13,
+     "dir": "beneficial"
+    },
+    {
+     "step": 18,
+     "dir": "harmful"
+    },
+    {
+     "step": 19,
+     "dir": "beneficial"
+    }
+   ],
+   "ours": {
+    "harmful": [],
+    "beneficial": [],
+    "recovery": [
+     4,
+     18
+    ],
+    "any": [
+     4,
+     18
+    ]
+   },
+   "final": 2
+  },
+  {
+   "dir": "g2a",
+   "run": "1",
+   "changes": [
+    {
+     "step": 9,
+     "label": "beneficial"
+    }
+   ],
+   "skip": {
+    "skip_step": 0,
+    "reason": "No single step removal improves the final outcome; the remaining failure is an unrelated pre-existing DeprecationWarning, and the dot-name change is required by the task."
+   },
+   "exists": {
+    "exists": false,
+    "step": 0
+   },
+   "status_changes": [
+    {
+     "step": 9,
+     "dir": "beneficial"
+    }
+   ],
+   "ours": {
+    "harmful": [],
+    "beneficial": [
+     9
+    ],
+    "recovery": [],
+    "any": [
+     9
+    ]
+   },
+   "final": 1
+  },
+  {
+   "dir": "g2a",
+   "run": "2",
+   "changes": [
+    {
+     "step": 9,
+     "label": "beneficial"
+    }
+   ],
+   "skip": {
+    "skip_step": 0,
+    "reason": "No single step removal improves the final outcome; the remaining failure is an unrelated Werkzeug DeprecationWarning, and the dot-name validation change is required by the task."
+   },
+   "exists": {
+    "exists": false,
+    "step": 0
+   },
+   "status_changes": [
+    {
+     "step": 9,
+     "dir": "beneficial"
+    }
+   ],
+   "ours": {
+    "harmful": [],
+    "beneficial": [
+     9
+    ],
+    "recovery": [],
+    "any": [
+     9
+    ]
+   },
+   "final": 1
+  },
+  {
+   "dir": "g2a",
+   "run": "3",
+   "changes": [
+    {
+     "step": 4,
+     "label": "beneficial"
+    }
+   ],
+   "skip": {
+    "skip_step": 0,
+    "reason": "No step's removal would improve the final outcome; the remaining failure is unrelated to the edits and skipping any step would not fix it."
+   },
+   "exists": {
+    "exists": false,
+    "step": 0
+   },
+   "status_changes": [
+    {
+     "step": 4,
+     "dir": "beneficial"
+    }
+   ],
+   "ours": {
+    "harmful": [],
+    "beneficial": [
+     4
+    ],
+    "recovery": [],
+    "any": [
+     4
+    ]
+   },
+   "final": 1
+  },
+  {
+   "dir": "g2a",
+   "run": "4",
+   "changes": [
+    {
+     "step": 6,
+     "label": "beneficial"
+    }
+   ],
+   "skip": {
+    "skip_step": 0,
+    "reason": "No step's removal improves the final outcome; the remaining failure is an unrelated werkzeug 'as_tuple' incompatibility, and the blueprint dot-name fix is already correct."
+   },
+   "exists": {
+    "exists": false,
+    "step": 0
+   },
+   "status_changes": [
+    {
+     "step": 6,
+     "dir": "beneficial"
+    }
+   ],
+   "ours": {
+    "harmful": [],
+    "beneficial": [
+     6
+    ],
+    "recovery": [],
+    "any": [
+     6
+    ]
+   },
+   "final": 1
+  },
+  {
+   "dir": "g2a",
+   "run": "5",
+   "changes": [
+    {
+     "step": 5,
+     "label": "beneficial"
+    }
+   ],
+   "skip": {
+    "skip_step": 0,
+    "reason": "No step's removal improves the final outcome; the remaining failure is an unrelated werkzeug 'as_tuple' incompatibility, and the dot-name change is the intended fix."
+   },
+   "exists": {
+    "exists": false,
+    "step": 0
+   },
+   "status_changes": [
+    {
+     "step": 5,
+     "dir": "beneficial"
+    }
+   ],
+   "ours": {
+    "harmful": [],
+    "beneficial": [
+     5
+    ],
+    "recovery": [],
+    "any": [
+     5
+    ]
+   },
+   "final": 1
+  },
+  {
+   "dir": "r3a",
+   "run": "1",
+   "changes": [
+    {
+     "step": 4,
+     "label": "beneficial"
+    }
+   ],
+   "skip": {
+    "skip_step": 0,
+    "reason": "Final outcome is already n_fail=0; skipping any step cannot improve it."
+   },
+   "exists": {
+    "exists": false,
+    "step": 0
+   },
+   "status_changes": [
+    {
+     "step": 4,
+     "dir": "beneficial"
+    }
+   ],
+   "ours": {
+    "harmful": [],
+    "beneficial": [
+     4
+    ],
+    "recovery": [],
+    "any": [
+     4
+    ]
+   },
+   "final": 0
+  },
+  {
+   "dir": "r3a",
+   "run": "2",
+   "changes": [
+    {
+     "step": 15,
+     "label": "beneficial"
+    }
+   ],
+   "skip": {
+    "skip_step": 0,
+    "reason": "All steps are needed; skipping any would not improve the already-passing final outcome (n_fail=0)."
+   },
+   "exists": {
+    "exists": false,
+    "step": 0
+   },
+   "status_changes": [
+    {
+     "step": 15,
+     "dir": "beneficial"
+    }
+   ],
+   "ours": {
+    "harmful": [],
+    "beneficial": [
+     15
+    ],
+    "recovery": [],
+    "any": [
+     15
+    ]
+   },
+   "final": 0
+  },
+  {
+   "dir": "r3a",
+   "run": "3",
+   "changes": [
+    {
+     "step": 11,
+     "label": "beneficial"
+    }
+   ],
+   "skip": {
+    "skip_step": 0,
+    "reason": "Final outcome is already n_fail=0; no step skip can improve it."
+   },
+   "exists": {
+    "exists": false,
+    "step": 0
+   },
+   "status_changes": [
+    {
+     "step": 11,
+     "dir": "beneficial"
+    }
+   ],
+   "ours": {
+    "harmful": [],
+    "beneficial": [
+     11
+    ],
+    "recovery": [],
+    "any": [
+     11
+    ]
+   },
+   "final": 0
+  },
+  {
+   "dir": "r3a",
+   "run": "4",
+   "changes": [
+    {
+     "step": 23,
+     "label": "beneficial"
+    }
+   ],
+   "skip": {
+    "skip_step": 0,
+    "reason": "Final outcome is already n_fail=0; skipping any step cannot improve it."
+   },
+   "exists": {
+    "exists": false,
+    "step": 0
+   },
+   "status_changes": [
+    {
+     "step": 23,
+     "dir": "beneficial"
+    }
+   ],
+   "ours": {
+    "harmful": [],
+    "beneficial": [
+     23
+    ],
+    "recovery": [],
+    "any": [
+     23
+    ]
+   },
+   "final": 0
+  },
+  {
+   "dir": "r3a",
+   "run": "5",
+   "changes": [
+    {
+     "step": 4,
+     "label": "beneficial"
+    }
+   ],
+   "skip": {
+    "skip_step": 0,
+    "reason": "All steps lead to n_fail=0; skipping any step would not improve the already-passing final outcome."
+   },
+   "exists": {
+    "exists": false,
+    "step": 0
+   },
+   "status_changes": [
+    {
+     "step": 4,
+     "dir": "beneficial"
+    }
+   ],
+   "ours": {
+    "harmful": [],
+    "beneficial": [
+     4
+    ],
+    "recovery": [],
+    "any": [
+     4
+    ]
+   },
+   "final": 0
+  }
+ ],
+ "metrics": {
+  "a_correct": 31,
+  "a_total": 31,
+  "b_exact": 1,
+  "b_near": 1,
+  "b_total": 19,
+  "c_agree_none": 1,
+  "c_none_total": 1,
+  "c_any_found": 0,
+  "c_any_total": 19
+ }
+}

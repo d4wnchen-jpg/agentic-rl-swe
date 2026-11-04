@@ -1,0 +1,33 @@
+{
+ "changes": [
+  {
+   "step": 15,
+   "label": "beneficial"
+  }
+ ],
+ "skip": {
+  "skip_step": 0,
+  "reason": "All steps are needed; skipping any would not improve the already-passing final outcome (n_fail=0)."
+ },
+ "exists": {
+  "exists": false,
+  "step": 0
+ },
+ "status_changes": [
+  {
+   "step": 15,
+   "dir": "beneficial"
+  }
+ ],
+ "ours": {
+  "harmful": [],
+  "beneficial": [
+   15
+  ],
+  "recovery": [],
+  "any": [
+   15
+  ]
+ },
+ "final": 0
+}

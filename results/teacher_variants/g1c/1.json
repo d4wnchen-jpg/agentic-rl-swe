@@ -1,0 +1,41 @@
+{
+ "changes": [
+  {
+   "step": 6,
+   "label": "harmful"
+  },
+  {
+   "step": 16,
+   "label": "beneficial"
+  }
+ ],
+ "skip": {
+  "skip_step": 0,
+  "reason": "Final outcome is already n_fail=0; skipping any step cannot improve it and could break the fix."
+ },
+ "exists": {
+  "exists": false,
+  "step": 0
+ },
+ "status_changes": [
+  {
+   "step": 6,
+   "dir": "harmful"
+  },
+  {
+   "step": 16,
+   "dir": "beneficial"
+  }
+ ],
+ "ours": {
+  "harmful": [],
+  "beneficial": [],
+  "recovery": [
+   6
+  ],
+  "any": [
+   6
+  ]
+ },
+ "final": 0
+}

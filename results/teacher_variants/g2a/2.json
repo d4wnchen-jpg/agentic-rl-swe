@@ -1,0 +1,33 @@
+{
+ "changes": [
+  {
+   "step": 9,
+   "label": "beneficial"
+  }
+ ],
+ "skip": {
+  "skip_step": 0,
+  "reason": "No single step removal improves the final outcome; the remaining failure is an unrelated Werkzeug DeprecationWarning, and the dot-name validation change is required by the task."
+ },
+ "exists": {
+  "exists": false,
+  "step": 0
+ },
+ "status_changes": [
+  {
+   "step": 9,
+   "dir": "beneficial"
+  }
+ ],
+ "ours": {
+  "harmful": [],
+  "beneficial": [
+   9
+  ],
+  "recovery": [],
+  "any": [
+   9
+  ]
+ },
+ "final": 1
+}

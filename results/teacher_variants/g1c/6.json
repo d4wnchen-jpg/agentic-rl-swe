@@ -1,0 +1,19 @@
+{
+ "changes": [],
+ "skip": {
+  "skip_step": 0,
+  "reason": "No single step removal improves the final outcome; the 2 failing tests are pre-existing and unrelated to the changes."
+ },
+ "exists": {
+  "exists": false,
+  "step": 0
+ },
+ "status_changes": [],
+ "ours": {
+  "harmful": [],
+  "beneficial": [],
+  "recovery": [],
+  "any": []
+ },
+ "final": 2
+}

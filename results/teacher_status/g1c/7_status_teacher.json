@@ -1,0 +1,9 @@
+{
+ "instance_id": "pallets__flask-5063",
+ "teacher": {
+  "pivot_step": 5,
+  "reason": "The first edit to routes_command added a Domain column unconditionally, breaking existing tests that expect the original output format (test_simple, test_sort).",
+  "correct_action": "Update the existing tests' expected output to include the new Domain column, or make the domain column conditional/backward-compatible."
+ },
+ "raw": "{\"pivot_step\": 5, \"reason\": \"The first edit to routes_command added a Domain column unconditionally, breaking existing tests that expect the original output format (test_simple, test_sort).\", \"correct_action\": \"Update the existing tests' expected output to include the new Domain column, or make the domain column conditional/backward-compatible.\"}"
+}

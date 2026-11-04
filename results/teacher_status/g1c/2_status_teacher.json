@@ -1,0 +1,9 @@
+{
+ "instance_id": "pallets__flask-5063",
+ "teacher": {
+  "pivot_step": 13,
+  "reason": "The final implementation in step 13 changed the routes output to always include a Host column, breaking the existing test_simple expectation (1 failing test remained). The agent should have preserved backward-compatible output when no subdomains/hosts are configured, or updated behavior to match expected test format.",
+  "correct_action": "Only add the Host/Domain column when rules have subdomains or hosts; otherwise keep the original Endpoint/Methods/Rule output so existing tests pass."
+ },
+ "raw": "{\"pivot_step\": 13, \"reason\": \"The final implementation in step 13 changed the routes output to always include a Host column, breaking the existing test_simple expectation (1 failing test remained). The agent should have preserved backward-compatible output when no subdomains/hosts are configured, or updated behavior to match expected test format.\", \"correct_action\": \"Only add the Host/Domain column when rules have subdomains or hosts; otherwise keep the original Endpoint/Methods/Rule output so existing tests pass.\"}"
+}

@@ -157,19 +157,26 @@ final n_fail={final}
 {question}
 Return ONLY JSON: {{"pivot_step": <int>, "reason": "<short>", "correct_action": "<short>"}}
 """
+            sub = os.path.basename(d.rstrip("/"))
+            os.makedirs(os.path.join(args.out, sub), exist_ok=True)
+            cache = os.path.join(args.out, sub, f"{b}_status_teacher.json")
+            parsed = None
             raw = ""
-            try:
-                raw = call_api(key, args.model, user)
-                m = re.search(r"\{.*\}", raw, re.S)
-                parsed = json.loads(m.group(0)) if m else {"pivot_step": None}
-            except Exception as e:
-                parsed = {"pivot_step": None, "error": str(e)[:200]}
+            if os.path.exists(cache):
+                try:
+                    parsed = json.load(open(cache)).get("teacher")
+                except Exception:
+                    parsed = None
+            if parsed is None:
+                try:
+                    raw = call_api(key, args.model, user)
+                    m = re.search(r"\{.*\}", raw, re.S)
+                    parsed = json.loads(m.group(0)) if m else {"pivot_step": None}
+                except Exception as e:
+                    parsed = {"pivot_step": None, "error": str(e)[:200]}
+                json.dump({"instance_id": r.get("instance_id"), "teacher": parsed, "raw": raw},
+                          open(cache, "w"), ensure_ascii=False, indent=1)
             step = parsed.get("pivot_step")
-            json.dump({"instance_id": r.get("instance_id"), "teacher": parsed, "raw": raw
-                       if 'raw' in dir() else ""},
-                      open(os.path.join(args.out, f"{b}_status_teacher.json"), "w"),
-                      ensure_ascii=False, indent=1)
-
             # 随机基线：从 1..n_steps 随机挑一轮的命中概率（期望）
             k = len(all_ours)
             chance = (k / n_steps) if n_steps else 0.0

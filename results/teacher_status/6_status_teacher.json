@@ -1,9 +1,0 @@
-{
- "instance_id": "pallets__flask-5063",
- "teacher": {
-  "pivot_step": 7,
-  "reason": "The implementation added a Domain column but used '<no domain>' for rules without subdomain and did not compute the full domain from SERVER_NAME + subdomain as the PR requests (e.g. admin.test.local).",
-  "correct_action": "Compute domain as subdomain + '.' + SERVER_NAME (or SERVER_NAME when no subdomain), matching the expected output format."
- },
- "raw": "{\"pivot_step\": 7, \"reason\": \"The implementation added a Domain column but used '<no domain>' for rules without subdomain and did not compute the full domain from SERVER_NAME + subdomain as the PR requests (e.g. admin.test.local).\", \"correct_action\": \"Compute domain as subdomain + '.' + SERVER_NAME (or SERVER_NAME when no subdomain), matching the expected output format.\"}"
-}

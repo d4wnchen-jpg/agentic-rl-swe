@@ -1,0 +1,9 @@
+{
+ "instance_id": "psf__requests-3362",
+ "teacher": {
+  "pivot_step": 15,
+  "reason": "Before step 15, stream_decode_response_unicode yielded raw bytes when r.encoding was None (e.g. application/json), so iter_content(decode_unicode=True) returned bytes instead of str. The fix at step 15 made it fall back to r.apparent_encoding and always decode.",
+  "correct_action": "Modify stream_decode_response_unicode in requests/utils.py to use r.apparent_encoding when r.encoding is None and always decode chunks to unicode."
+ },
+ "raw": "{\"pivot_step\": 15, \"reason\": \"Before step 15, stream_decode_response_unicode yielded raw bytes when r.encoding was None (e.g. application/json), so iter_content(decode_unicode=True) returned bytes instead of str. The fix at step 15 made it fall back to r.apparent_encoding and always decode.\", \"correct_action\": \"Modify stream_decode_response_unicode in requests/utils.py to use r.apparent_encoding when r.encoding is None and always decode chunks to unicode.\"}"
+}

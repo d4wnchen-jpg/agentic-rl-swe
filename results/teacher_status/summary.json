@@ -222,26 +222,106 @@
    "step": 5,
    "chance_exact": 0.05263157894736842,
    "base_step": 5
+  },
+  {
+   "dir": "results/r3a",
+   "run": "1",
+   "final": 0,
+   "n_steps": 17,
+   "ours": [
+    4
+   ],
+   "harmful": [],
+   "beneficial": [
+    4
+   ],
+   "step": 4,
+   "chance_exact": 0.058823529411764705,
+   "base_step": 4
+  },
+  {
+   "dir": "results/r3a",
+   "run": "2",
+   "final": 0,
+   "n_steps": 20,
+   "ours": [
+    15
+   ],
+   "harmful": [],
+   "beneficial": [
+    15
+   ],
+   "step": 15,
+   "chance_exact": 0.05,
+   "base_step": 0
+  },
+  {
+   "dir": "results/r3a",
+   "run": "3",
+   "final": 0,
+   "n_steps": 32,
+   "ours": [
+    11
+   ],
+   "harmful": [],
+   "beneficial": [
+    11
+   ],
+   "step": 11,
+   "chance_exact": 0.03125,
+   "base_step": 11
+  },
+  {
+   "dir": "results/r3a",
+   "run": "4",
+   "final": 0,
+   "n_steps": 36,
+   "ours": [
+    23
+   ],
+   "harmful": [],
+   "beneficial": [
+    23
+   ],
+   "step": 23,
+   "chance_exact": 0.027777777777777776,
+   "base_step": 23
+  },
+  {
+   "dir": "results/r3a",
+   "run": "5",
+   "final": 0,
+   "n_steps": 9,
+   "ours": [
+    4
+   ],
+   "harmful": [],
+   "beneficial": [
+    4
+   ],
+   "step": 4,
+   "chance_exact": 0.1111111111111111,
+   "base_step": 0
   }
  ],
  "base": {
-  "exact": 9,
-  "near": 11,
-  "total": 14,
-  "sign_bad": 5,
-  "sign_hit": 9,
+  "exact": 12,
+  "near": 14,
+  "total": 19,
+  "sign_bad": 8,
+  "sign_hit": 12,
   "noedit": 1,
   "noedit_over": 1,
-  "chance": 0.04925993244071811
+  "chance": 0.050893070245571256
  },
  "with_status": {
-  "exact": 10,
-  "near": 10,
-  "total": 14,
-  "sign_bad": 5,
-  "sign_hit": 10,
+  "exact": 15,
+  "near": 15,
+  "total": 19,
+  "sign_bad": 10,
+  "sign_hit": 15,
   "noedit": 1,
   "noedit_over": 1,
-  "chance": 0.04925993244071811
+  "chance": 0.050893070245571256
  }
 }

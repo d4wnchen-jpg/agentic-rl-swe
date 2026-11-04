@@ -1,0 +1,9 @@
+{
+ "instance_id": "psf__requests-3362",
+ "teacher": {
+  "pivot_step": 23,
+  "reason": "stream_decode_response_unicode returned raw bytes when r.encoding was None, so iter_content(decode_unicode=True) yielded bytes instead of str; the fix added chardet-based encoding detection in utils.py.",
+  "correct_action": "In stream_decode_response_unicode, when r.encoding is None, detect encoding from the gathered content via chardet (falling back to apparent_encoding) and decode, matching Response.text behavior."
+ },
+ "raw": "{\"pivot_step\": 23, \"reason\": \"stream_decode_response_unicode returned raw bytes when r.encoding was None, so iter_content(decode_unicode=True) yielded bytes instead of str; the fix added chardet-based encoding detection in utils.py.\", \"correct_action\": \"In stream_decode_response_unicode, when r.encoding is None, detect encoding from the gathered content via chardet (falling back to apparent_encoding) and decode, matching Response.text behavior.\"}"
+}

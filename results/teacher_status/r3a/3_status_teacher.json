@@ -1,0 +1,9 @@
+{
+ "instance_id": "psf__requests-3362",
+ "teacher": {
+  "pivot_step": 11,
+  "reason": "The first edit to stream_decode_response_unicode used r.encoding directly without falling back to apparent_encoding, so iter_content(decode_unicode=True) still returned bytes when encoding was None (as with application/json).",
+  "correct_action": "In stream_decode_response_unicode, fall back to r.apparent_encoding when r.encoding is None before creating the incremental decoder."
+ },
+ "raw": "{\"pivot_step\": 11, \"reason\": \"The first edit to stream_decode_response_unicode used r.encoding directly without falling back to apparent_encoding, so iter_content(decode_unicode=True) still returned bytes when encoding was None (as with application/json).\", \"correct_action\": \"In stream_decode_response_unicode, fall back to r.apparent_encoding when r.encoding is None before creating the incremental decoder.\"}"
+}

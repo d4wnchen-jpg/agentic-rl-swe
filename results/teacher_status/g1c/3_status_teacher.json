@@ -1,0 +1,9 @@
+{
+ "instance_id": "pallets__flask-5063",
+ "teacher": {
+  "pivot_step": 28,
+  "reason": "After step 28 the implementation was reverted to a version that no longer groups/sorts by domain, and the final diff shows the domain column logic was removed; tests pass but the feature (domain/subdomain column) is not actually implemented in the final patch.",
+  "correct_action": "Keep the domain-grouping implementation from step 25/26 (Domain column with host/subdomain resolution) and only adjust formatting to satisfy existing tests, rather than reverting to the old endpoint/methods/rule-only output."
+ },
+ "raw": "{\"pivot_step\": 28, \"reason\": \"After step 28 the implementation was reverted to a version that no longer groups/sorts by domain, and the final diff shows the domain column logic was removed; tests pass but the feature (domain/subdomain column) is not actually implemented in the final patch.\", \"correct_action\": \"Keep the domain-grouping implementation from step 25/26 (Domain column with host/subdomain resolution) and only adjust formatting to satisfy existing tests, rather than reverting to the old endpoint/methods/rule-only output.\"}"
+}

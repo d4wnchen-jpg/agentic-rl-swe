@@ -1,9 +1,0 @@
-{
- "instance_id": "pallets__flask-5063",
- "teacher": {
-  "pivot_step": 13,
-  "reason": "Steps 4-6 introduced a broken/incorrect routes_command implementation (4 failing tests), and the agent only recovered by replacing the whole command block with the correct upstream implementation at step 13.",
-  "correct_action": "Replace the routes_command implementation with the correct version that adds a Subdomain column and domain sort option, rather than patching incrementally."
- },
- "raw": "{\"pivot_step\": 13, \"reason\": \"Steps 4-6 introduced a broken/incorrect routes_command implementation (4 failing tests), and the agent only recovered by replacing the whole command block with the correct upstream implementation at step 13.\", \"correct_action\": \"Replace the routes_command implementation with the correct version that adds a Subdomain column and domain sort option, rather than patching incrementally.\"}"
-}

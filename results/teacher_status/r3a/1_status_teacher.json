@@ -1,0 +1,9 @@
+{
+ "instance_id": "psf__requests-3362",
+ "teacher": {
+  "pivot_step": 4,
+  "reason": "stream_decode_response_unicode yielded raw bytes when r.encoding was None (e.g. application/json without charset), so iter_content(decode_unicode=True) returned bytes instead of str.",
+  "correct_action": "Fall back to apparent_encoding (and ultimately utf-8) when r.encoding is None before creating the incremental decoder."
+ },
+ "raw": "{\"pivot_step\": 4, \"reason\": \"stream_decode_response_unicode yielded raw bytes when r.encoding was None (e.g. application/json without charset), so iter_content(decode_unicode=True) returned bytes instead of str.\", \"correct_action\": \"Fall back to apparent_encoding (and ultimately utf-8) when r.encoding is None before creating the incremental decoder.\"}"
+}

@@ -1,0 +1,9 @@
+{
+ "instance_id": "pallets__flask-5063",
+ "teacher": {
+  "pivot_step": 6,
+  "reason": "Step 6's scripted replacement of the routes_command body was malformed/incorrect, breaking the command and raising failing tests from 2 to 5; it was only properly rewritten in step 16.",
+  "correct_action": "Rewrite routes_command correctly in one pass: collect rules, detect host_matching vs subdomain, build Domain/Subdomain column, sort via itemgetter, and print aligned rows."
+ },
+ "raw": "{\"pivot_step\": 6, \"reason\": \"Step 6's scripted replacement of the routes_command body was malformed/incorrect, breaking the command and raising failing tests from 2 to 5; it was only properly rewritten in step 16.\", \"correct_action\": \"Rewrite routes_command correctly in one pass: collect rules, detect host_matching vs subdomain, build Domain/Subdomain column, sort via itemgetter, and print aligned rows.\"}"
+}

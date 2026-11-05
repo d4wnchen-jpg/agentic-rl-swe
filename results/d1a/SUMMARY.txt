@@ -1,5 +1,6 @@
 instance                 turns  fail  regs recov fatal pairs rcaus  harm  file benef  unver
 pallets__flask-5063         26     0     1     1     0     1     0     0     0     2      0
+pallets__flask-5063         36     2     2     2     0     2     0     0     0     2      2
 pallets__flask-5063         26     2     0     0     0     0     0     0     0     0      0
 pallets__flask-5063         18     2     0     0     0     0     0     0     0     0      0
 pallets__flask-5063         27     0     1     1     0     1     0     0     0     2      0
@@ -9,17 +10,18 @@ pallets__flask-5063         34     0     1     1     0     1     0     0     0  
 pallets__flask-5063         38     0     1     1     0     1     0     0     0     2      0
 pallets__flask-5063         18     2     1     1     0     1     0     0     0     1      1
 
-轨迹总数        : 9
-失败轨迹        : 4
-有 regression   : 2
-有反事实验证    : 2
-(错误步→恢复步) 配对数 : 5（因果验证 0）
-G1-any（有任一方向验证标签 / 全部轨迹） = 7/9 = 77.8%
-G1a（有 regression / 失败）   = 2/4 = 50.0%
-G1b（有因果验证 / 失败）      = 2/4 = 50.0%
+轨迹总数        : 10
+失败轨迹        : 5
+有 regression   : 3
+有反事实验证    : 3
+(错误步→恢复步) 配对数 : 7（因果验证 0）
+G1-any（有任一方向验证标签 / 全部轨迹） = 8/10 = 80.0%
+G1a（有 regression / 失败）   = 3/5 = 60.0%
+G1b（有因果验证 / 失败）      = 3/5 = 60.0%
 
 明细：
   out_d1a_1: final_fail=0 reg_turns=[7] verified_turns=[7, 17] labels=['beneficial_by_file', 'beneficial']
+  out_d1a_10: final_fail=2 reg_turns=[7, 18] verified_turns=[10, 22] labels=['transient_or_confounded', 'beneficial_by_file', 'transient_or_confounded', 'beneficial_by_file']
   out_d1a_2: final_fail=2 reg_turns=[] verified_turns=[] labels=[]
   out_d1a_3: final_fail=2 reg_turns=[] verified_turns=[] labels=[]
   out_d1a_4: final_fail=0 reg_turns=[10] verified_turns=[10, 18] labels=['beneficial_by_file', 'beneficial']

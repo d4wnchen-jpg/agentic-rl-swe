@@ -26,6 +26,7 @@ pallets__flask-5063         31     2     2     2     0     2     0     0     0  
 pallets__flask-5063         14     1     0     0     0     0     0     0     0     1      0
 pallets__flask-5063         14     4     1     0     1     0     0     1     0     0      0
 pallets__flask-5063         13     2     1     1     0     1     1     0     0     2      0
+pallets__flask-5063         31     0     1     1     0     1     0     0     0     2      0
 pallets__flask-5063         27     0     1     1     0     1     0     0     0     2      0
 pallets__flask-5063         24     0     0     0     0     0     0     0     0     1      0
 pallets__flask-5063         31     4     1     0     1     0     0     1     0     0      0
@@ -33,12 +34,12 @@ pallets__flask-5063         34     0     1     1     0     1     0     0     0  
 pallets__flask-5063         38     0     1     1     0     1     0     0     0     2      0
 pallets__flask-5063         18     2     1     1     0     1     0     0     0     1      1
 
-轨迹总数        : 33
+轨迹总数        : 34
 失败轨迹        : 25
 有 regression   : 16
 有反事实验证    : 19
-(错误步→恢复步) 配对数 : 20（因果验证 1）
-G1-any（有任一方向验证标签 / 全部轨迹） = 27/33 = 81.8%
+(错误步→恢复步) 配对数 : 21（因果验证 1）
+G1-any（有任一方向验证标签 / 全部轨迹） = 28/34 = 82.4%
 G1a（有 regression / 失败）   = 16/25 = 64.0%
 G1b（有因果验证 / 失败）      = 19/25 = 76.0%
 
@@ -70,6 +71,7 @@ G1b（有因果验证 / 失败）      = 19/25 = 76.0%
   out_d1a_31: final_fail=1 reg_turns=[] verified_turns=[6] labels=['beneficial']
   out_d1a_32: final_fail=4 reg_turns=[6] verified_turns=[6] labels=['causal']
   out_d1a_33: final_fail=2 reg_turns=[4] verified_turns=[4, 6] labels=['beneficial', 'beneficial']
+  out_d1a_34: final_fail=0 reg_turns=[7] verified_turns=[7, 18] labels=['beneficial_by_file', 'beneficial_by_file']
   out_d1a_4: final_fail=0 reg_turns=[10] verified_turns=[10, 18] labels=['beneficial_by_file', 'beneficial']
   out_d1a_5: final_fail=0 reg_turns=[] verified_turns=[17] labels=['beneficial_by_file']
   out_d1a_6: final_fail=4 reg_turns=[14] verified_turns=[14] labels=['causal']

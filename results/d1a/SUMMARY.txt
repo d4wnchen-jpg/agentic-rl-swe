@@ -9,6 +9,7 @@ pallets__flask-5063         32     1     0     0     0     0     0     1     0  
 pallets__flask-5063         21     0     0     0     0     0     0     0     0     1      0
 pallets__flask-5063         29     2     2     2     0     2     0     0     0     2      1
 pallets__flask-5063         28     2     1     1     0     1     0     0     0     1      1
+pallets__flask-5063         30     0     1     1     0     1     0     0     0     2      0
 pallets__flask-5063         26     2     0     0     0     0     0     0     0     0      0
 pallets__flask-5063         18     2     0     0     0     0     0     0     0     0      0
 pallets__flask-5063         27     0     1     1     0     1     0     0     0     2      0
@@ -18,12 +19,12 @@ pallets__flask-5063         34     0     1     1     0     1     0     0     0  
 pallets__flask-5063         38     0     1     1     0     1     0     0     0     2      0
 pallets__flask-5063         18     2     1     1     0     1     0     0     0     1      1
 
-轨迹总数        : 18
+轨迹总数        : 19
 失败轨迹        : 12
 有 regression   : 6
 有反事实验证    : 7
-(错误步→恢复步) 配对数 : 10（因果验证 0）
-G1-any（有任一方向验证标签 / 全部轨迹） = 13/18 = 72.2%
+(错误步→恢复步) 配对数 : 11（因果验证 0）
+G1-any（有任一方向验证标签 / 全部轨迹） = 14/19 = 73.7%
 G1a（有 regression / 失败）   = 6/12 = 50.0%
 G1b（有因果验证 / 失败）      = 7/12 = 58.3%
 
@@ -38,6 +39,7 @@ G1b（有因果验证 / 失败）      = 7/12 = 58.3%
   out_d1a_16: final_fail=0 reg_turns=[] verified_turns=[8] labels=['beneficial']
   out_d1a_17: final_fail=2 reg_turns=[9, 14] verified_turns=[14, 15] labels=['transient_or_confounded', 'beneficial', 'beneficial_by_file']
   out_d1a_18: final_fail=2 reg_turns=[8] verified_turns=[13] labels=['transient_or_confounded', 'beneficial']
+  out_d1a_19: final_fail=0 reg_turns=[6] verified_turns=[6, 17] labels=['beneficial_by_file', 'beneficial']
   out_d1a_2: final_fail=2 reg_turns=[] verified_turns=[] labels=[]
   out_d1a_3: final_fail=2 reg_turns=[] verified_turns=[] labels=[]
   out_d1a_4: final_fail=0 reg_turns=[10] verified_turns=[10, 18] labels=['beneficial_by_file', 'beneficial']

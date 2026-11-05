@@ -37,3 +37,7 @@ oracle/out_*/
 
 # 管线结果（小文件，入库）
 !results/
+
+# python cache
+__pycache__/
+*.pyc

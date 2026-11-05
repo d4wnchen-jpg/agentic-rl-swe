@@ -19,6 +19,7 @@ pallets__flask-5063         12     4     1     0     1     0     0     1     0  
 pallets__flask-5063         49    56     1     0     1     0     0     1     0     0      0
 pallets__flask-5063         36     0     0     0     0     0     0     0     0     1      0
 pallets__flask-5063         18     1     0     0     0     0     0     0     0     1      0
+pallets__flask-5063         38     3     1     0     1     0     0     1     0     0      0
 pallets__flask-5063         18     2     0     0     0     0     0     0     0     0      0
 pallets__flask-5063         27     0     1     1     0     1     0     0     0     2      0
 pallets__flask-5063         24     0     0     0     0     0     0     0     0     1      0
@@ -27,14 +28,14 @@ pallets__flask-5063         34     0     1     1     0     1     0     0     0  
 pallets__flask-5063         38     0     1     1     0     1     0     0     0     2      0
 pallets__flask-5063         18     2     1     1     0     1     0     0     0     1      1
 
-轨迹总数        : 27
-失败轨迹        : 19
-有 regression   : 11
-有反事实验证    : 13
+轨迹总数        : 28
+失败轨迹        : 20
+有 regression   : 12
+有反事实验证    : 14
 (错误步→恢复步) 配对数 : 15（因果验证 0）
-G1-any（有任一方向验证标签 / 全部轨迹） = 21/27 = 77.8%
-G1a（有 regression / 失败）   = 11/19 = 57.9%
-G1b（有因果验证 / 失败）      = 13/19 = 68.4%
+G1-any（有任一方向验证标签 / 全部轨迹） = 22/28 = 78.6%
+G1a（有 regression / 失败）   = 12/20 = 60.0%
+G1b（有因果验证 / 失败）      = 14/20 = 70.0%
 
 明细：
   out_d1a_1: final_fail=0 reg_turns=[7] verified_turns=[7, 17] labels=['beneficial_by_file', 'beneficial']
@@ -57,6 +58,7 @@ G1b（有因果验证 / 失败）      = 13/19 = 68.4%
   out_d1a_25: final_fail=56 reg_turns=[8] verified_turns=[8] labels=['causal']
   out_d1a_26: final_fail=0 reg_turns=[] verified_turns=[26] labels=['beneficial']
   out_d1a_27: final_fail=1 reg_turns=[] verified_turns=[7] labels=['beneficial_by_file']
+  out_d1a_28: final_fail=3 reg_turns=[13] verified_turns=[13] labels=['causal']
   out_d1a_3: final_fail=2 reg_turns=[] verified_turns=[] labels=[]
   out_d1a_4: final_fail=0 reg_turns=[10] verified_turns=[10, 18] labels=['beneficial_by_file', 'beneficial']
   out_d1a_5: final_fail=0 reg_turns=[] verified_turns=[17] labels=['beneficial_by_file']

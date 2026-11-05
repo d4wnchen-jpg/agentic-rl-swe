@@ -29,6 +29,9 @@ for i in $(seq 1 "$N"); do
   fi
   [ -f "$traj" ] || { echo "[$i] 没有轨迹，跳过"; continue; }
 
+  if [ -f "out_${PREFIX}_$i/traj_report.json" ]; then
+    echo "[$i/$N] 已有报告，跳过重放"
+  else
   echo "=== [$i/$N] 重放 + 归因 ==="
   python oracle/replay_traj.py --traj "$traj" --task SWE-bench_Lite.jsonl \
     --instance-id "$IID" --image "$IMAGE" \
@@ -36,6 +39,7 @@ for i in $(seq 1 "$N"); do
     --rerun "$RERUN" --counterfactual-pivots --counterfactual-recoveries \
     > "${PREFIX}_replay_$i.log" 2>&1 || echo "[$i] 重放失败"
   rm -rf "replay_${PREFIX}_$i"
+  fi
 
   cp "out_${PREFIX}_$i/TRAJ.md" "$RES/${i}.md" 2>/dev/null
   cp "out_${PREFIX}_$i/traj_report.json" "$RES/${i}.json" 2>/dev/null

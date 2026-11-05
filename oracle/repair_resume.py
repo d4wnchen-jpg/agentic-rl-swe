@@ -241,19 +241,29 @@ def main():
                 f"Steps: you have at most {args.steps} commands. "
                 f"Start by inspecting the relevant files, then make the fix."}]
         steps_used = 0
+        parse_fail = 0
+        conv = []
         for i in range(args.steps):
             text, tk = call_llm(messages, args.model)
             tokens += tk
+            conv.append({"role": "assistant", "content": text})
             cmd = parse_command(text)
             if not cmd:
+                parse_fail += 1
+                messages.append({"role": "assistant", "content": text})
+                messages.append({"role": "user", "content":
+                    "Your reply must contain EXACTLY ONE ```bash ...``` block with one "
+                    "command, and nothing else."})
+                continue
+            messages.append({"role": "assistant", "content": text})
+            if "echo DONE" in cmd:
                 break
             rc, out, err = dc(cname, cmd, timeout=600)
             steps_used += 1
             obs = (out + err)[:1500]
-            messages.append({"role": "assistant", "content": text})
-            messages.append({"role": "user", "content": f"exit={rc}\n{obs}\n\nNext command?"})
-            if "echo DONE" in cmd:
-                break
+            messages.append({"role": "user", "content":
+                f"exit={rc}\n{obs}\n\nStep {steps_used}/{args.steps}. Next command?"})
+            conv.append({"role": "observation", "content": f"exit={rc}\n{obs}"})
         dc(cname, f"chown -R {os.getuid()}:{os.getgid()} /testbed")
         ev = eval_in_container(cname, task, base_sha, task.get("test_patch", ""))
     finally:
@@ -264,7 +274,11 @@ def main():
               "start_turn": start, "n_turns_total": T,
               "harmful_turns": harmful, "teacher_step": teacher_step,
               "steps_budget": args.steps, "steps_used": steps_used,
-              "tokens": tokens, **ev}
+              "parse_failures": parse_fail, "tokens": tokens, **ev}
+    try:
+        json.dump(conv, open(args.out + ".conv.json", "w"), ensure_ascii=False, indent=1)
+    except Exception:
+        pass
     json.dump(result, open(args.out, "w"), ensure_ascii=False, indent=1)
     print(json.dumps(result, ensure_ascii=False))
 

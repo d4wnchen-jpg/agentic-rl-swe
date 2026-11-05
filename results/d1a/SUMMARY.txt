@@ -3,13 +3,14 @@ pallets__flask-5063         26     0     1     1     0     1     0     0     0  
 pallets__flask-5063         26     2     0     0     0     0     0     0     0     0      0
 pallets__flask-5063         18     2     0     0     0     0     0     0     0     0      0
 pallets__flask-5063         27     0     1     1     0     1     0     0     0     2      0
+pallets__flask-5063         24     0     0     0     0     0     0     0     0     1      0
 
-轨迹总数        : 4
+轨迹总数        : 5
 失败轨迹        : 2
 有 regression   : 0
 有反事实验证    : 0
 (错误步→恢复步) 配对数 : 2（因果验证 0）
-G1-any（有任一方向验证标签 / 全部轨迹） = 2/4 = 50.0%
+G1-any（有任一方向验证标签 / 全部轨迹） = 3/5 = 60.0%
 G1a（有 regression / 失败）   = 0/2 = 0.0%
 G1b（有因果验证 / 失败）      = 0/2 = 0.0%
 
@@ -18,3 +19,4 @@ G1b（有因果验证 / 失败）      = 0/2 = 0.0%
   out_d1a_2: final_fail=2 reg_turns=[] verified_turns=[] labels=[]
   out_d1a_3: final_fail=2 reg_turns=[] verified_turns=[] labels=[]
   out_d1a_4: final_fail=0 reg_turns=[10] verified_turns=[10, 18] labels=['beneficial_by_file', 'beneficial']
+  out_d1a_5: final_fail=0 reg_turns=[] verified_turns=[17] labels=['beneficial_by_file']

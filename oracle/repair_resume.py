@@ -221,7 +221,7 @@ def main():
 
     cname = f"repair_{uuid.uuid4().hex[:6]}"
     sh(["docker", "run", "-d", "--name", cname, "-v", f"{replay}:/testbed",
-        "-w", "/testbed", args.image, "sleep", "8h"], check=False)
+        "-w", "/testbed", args.image, "sleep", "8h"])
     tokens = 0
     try:
         dc(cname, "git config --global --add safe.directory /testbed")

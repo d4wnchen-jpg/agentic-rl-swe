@@ -147,3 +147,36 @@
 2. **扩样本**：同实例再加 10 条（prefix g1d），把 G1/G2 的 n 提到 20+；
 3. **修后重放**：用 v10 有效性判据重放 `results/g1c/*.traj.json`，更新恢复配对的因果数（原始 7/8 → 预期更高）；
 4. **11-06**：写半页 memo（G1-rec、fatal 归因、教师过度归因），交 11-10 go/no-go。
+
+## 十、11-06 demo 阶段状态（PivotInspector + 受控清理实验）
+
+**已完成**
+
+1. 诊断报告生成器：`demo/pivot_inspector/`（CLI + HTML 报告：verdict、n_fail 时间线、因果证据、恢复配对、教师对照），6 个示例报告在 `demo/examples/`；
+2. 受控清理实验（主批次）：flask-5063 50 条轨迹（失败 33 条）→ 选出 9 条含已验证有害步 → 4 条件（continue / revert_random / revert_teacher / revert_ours）× 8 步 continuation agent；
+3. 精确回退补充实验：只反转该轮 diff（3way），重跑 9 条 revert_ours。
+
+**结果**
+
+- 撤销我们标注的有害轮：**9/9** 恢复基线 n_fail=2；random 0/9、teacher 3/9；
+- 最终 n_fail 配对差：ours−random −13.3 CI[−30.6,−1.4]；ours−teacher −12.9 CI[−30.2,−0.8]；ours−continue −7.3 CI[−19.2,−0.8]；
+- **resolve 无提升**：所有条件 0/9；f2p_pass：continue/random/teacher 各 1，ours 0（case 15 因回滚非交换性从 1 退回 2）；
+- 精确回退与整文件回退结果完全一致（3/9 走精确路径）→ 粒度不是瓶颈，回滚非交换性才是。
+
+**可复现**
+
+- 协议/原始表/命令：`agentic-rl-swe/docs/DEMO_REPAIR.md`（repo 内）；
+- 结果目录：`results/repair_d1a/`、`results/repair_d1a_precise/`；
+- demo 说明与效果表：`agentic-rl-swe/demo/README.md`。
+
+**结论口径（写 demo/简历/论文用）**
+
+- 能 claim：执行验证的标签可因果定位自伤编辑，撤销后恢复基线（vs random/teacher 对照显著）；
+- 不能 claim：修复成功率/resolve 提升；
+- 已知失效模式：回滚非交换性（后续轮建立在有害轮之上）；8 步续跑 agent 无法解决原始 F2P。
+
+**下一步**
+
+1. 若继续 demo：做在线自愈实验（生成阶段逐轮评测，n_fail 变差即回滚），或换更易修复实例；
+2. 写 11-06 半页 memo / 准备 11-10 go/no-go；
+3. 论文训练阶段需 GPU（4×A100 80G，2–3 周，7B 学生 + 8B 教师）。

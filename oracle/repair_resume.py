@@ -244,7 +244,7 @@ def main():
             else:
                 prev_sha = shas[target - 1]
                 cur_sha = shas[target]
-                _, names, _, _ = git(["diff", "--name-only", prev_sha, cur_sha], replay)
+                _, names, _ = git(["diff", "--name-only", prev_sha, cur_sha], replay)
                 files = [x for x in names.splitlines() if x.strip()]
                 if files:
                     dc(cname, "cd /testbed && git checkout %s -- %s" %

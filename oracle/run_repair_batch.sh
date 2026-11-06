@@ -31,7 +31,7 @@ for run in $(cat /tmp/repair_cases.txt); do
     cp "out_teacher_${run}/teacher_label.json" "$RESDIR/${run}_teacher.json" 2>/dev/null
   fi
 
-  for cond in restart continue revert_random revert_teacher revert_ours; do
+  for cond in continue revert_random revert_teacher revert_ours; do
     out="$OUTDIR/${run}_${cond}.json"
     if [ -f "$out" ]; then echo "skip $run/$cond"; continue; fi
     echo "=== $run / $cond ==="

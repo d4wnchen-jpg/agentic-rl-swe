@@ -40,7 +40,7 @@ def main():
     ap.add_argument("--cases", default="")
     args = ap.parse_args()
     data = load(args.outdir)
-    conds = ["restart", "continue", "revert_random", "revert_teacher", "revert_ours"]
+    conds = ["continue", "revert_random", "revert_teacher", "revert_ours"]
     print(f"cases: {len(data)}")
     print(f"{'case':>12s} " + " ".join(f"{c:>14s}" for c in conds) + "   (final n_fail / f2p_pass)")
     for run in sorted(data, key=lambda x: int(x) if x.isdigit() else x):

@@ -276,7 +276,8 @@ def main():
                 sha = out.strip().splitlines()[-1] if out.strip() else shas[-1]
                 shas.append(sha)
         # 受控撤销：把目标轮改过的文件回滚到该轮之前的版本
-        if target is not None and args.condition.startswith("revert_"):
+        revert_mode = None
+    if target is not None and args.condition.startswith("revert_"):
             if target <= 0 or target > len(turns):
                 target = None
             else:
@@ -284,9 +285,18 @@ def main():
                 cur_sha = shas[target]
                 _, names, _ = dc(cname, f"cd /testbed && git diff --name-only {prev_sha} {cur_sha}")
                 files = [x for x in names.splitlines() if x.strip()]
+                revert_mode = "file_checkout"
                 if files:
-                    dc(cname, "cd /testbed && git checkout %s -- %s" %
-                       (prev_sha, " ".join(shlex.quote(f) for f in files)))
+                    quoted = " ".join(shlex.quote(f) for f in files)
+                    dc(cname, f"cd /testbed && git diff {prev_sha} {cur_sha} -- {quoted} > /tmp/turn.diff")
+                    rc_apply, out_apply, _ = dc(
+                        cname, "cd /testbed && git apply -R --3way /tmp/turn.diff 2>&1; echo RC=$?")
+                    if "RC=0" in out_apply:
+                        revert_mode = "reverse_patch"
+                    else:
+                        # 冲突时回退到整文件 checkout（会连带回滚同文件后续修改）
+                        dc(cname, "cd /testbed && git reset --hard -q HEAD")
+                        dc(cname, "cd /testbed && git checkout %s -- %s" % (prev_sha, quoted))
         dc(cname, f"chown -R {os.getuid()}:{os.getgid()} /testbed")
         ev_start = eval_dir(args.image, replay, task, base_sha,
                             task.get("test_patch", ""), work, tag="start")
@@ -338,7 +348,8 @@ def main():
               "parse_failures": parse_fail, "tokens": tokens, **ev,
               "start_n_fail": ev_start["n_fail"],
               "start_f2p_pass": ev_start["f2p_pass"],
-              "start_failing_nodes": ev_start["failing_nodes"]}
+              "start_failing_nodes": ev_start["failing_nodes"],
+              "revert_mode": revert_mode}
     try:
         json.dump(conv, open(args.out + ".conv.json", "w"), ensure_ascii=False, indent=1)
     except Exception:

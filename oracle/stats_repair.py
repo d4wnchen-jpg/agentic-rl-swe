@@ -40,7 +40,7 @@ def main():
     ap.add_argument("--cases", default="")
     args = ap.parse_args()
     data = load(args.outdir)
-    conds = ["restart", "random", "teacher", "ours"]
+    conds = ["restart", "continue", "revert_random", "revert_teacher", "revert_ours"]
     print(f"cases: {len(data)}")
     print(f"{'case':>12s} " + " ".join(f"{c:>14s}" for c in conds) + "   (final n_fail / f2p_pass)")
     for run in sorted(data, key=lambda x: int(x) if x.isdigit() else x):
@@ -52,13 +52,13 @@ def main():
               " ".join(f"{c:>14s}" for c in cells))
 
     # 配对：ours vs restart / teacher（f2p_pass 差值与 bootstrap CI）
-    diffs = {c: [] for c in conds if c != "ours"}
+    diffs = {c: [] for c in conds if c != "revert_ours"}
     for run, d in data.items():
-        if "ours" not in d:
+        if "revert_ours" not in d:
             continue
         for c in diffs:
             if c in d:
-                diffs[c].append(d["ours"]["f2p_pass"] - d[c]["f2p_pass"])
+                diffs[c].append(d["revert_ours"]["f2p_pass"] - d[c]["f2p_pass"])
     print()
     for c, vals in diffs.items():
         if not vals:

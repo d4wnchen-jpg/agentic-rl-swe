@@ -1,0 +1,102 @@
+[
+ {
+  "dir": "results/d1a",
+  "run": "14",
+  "instance_id": "pallets__flask-5063",
+  "final_n_fail": 56,
+  "harmful_turns": [
+   14
+  ],
+  "teacher_step": null,
+  "n_turns": 51
+ },
+ {
+  "dir": "results/d1a",
+  "run": "15",
+  "instance_id": "pallets__flask-5063",
+  "final_n_fail": 1,
+  "harmful_turns": [
+   8
+  ],
+  "teacher_step": null,
+  "n_turns": 31
+ },
+ {
+  "dir": "results/d1a",
+  "run": "23",
+  "instance_id": "pallets__flask-5063",
+  "final_n_fail": 6,
+  "harmful_turns": [
+   10,
+   15
+  ],
+  "teacher_step": null,
+  "n_turns": 35
+ },
+ {
+  "dir": "results/d1a",
+  "run": "24",
+  "instance_id": "pallets__flask-5063",
+  "final_n_fail": 4,
+  "harmful_turns": [
+   5
+  ],
+  "teacher_step": null,
+  "n_turns": 11
+ },
+ {
+  "dir": "results/d1a",
+  "run": "25",
+  "instance_id": "pallets__flask-5063",
+  "final_n_fail": 56,
+  "harmful_turns": [
+   8
+  ],
+  "teacher_step": null,
+  "n_turns": 48
+ },
+ {
+  "dir": "results/d1a",
+  "run": "28",
+  "instance_id": "pallets__flask-5063",
+  "final_n_fail": 3,
+  "harmful_turns": [
+   13
+  ],
+  "teacher_step": null,
+  "n_turns": 37
+ },
+ {
+  "dir": "results/d1a",
+  "run": "32",
+  "instance_id": "pallets__flask-5063",
+  "final_n_fail": 4,
+  "harmful_turns": [
+   6
+  ],
+  "teacher_step": null,
+  "n_turns": 13
+ },
+ {
+  "dir": "results/d1a",
+  "run": "40",
+  "instance_id": "pallets__flask-5063",
+  "final_n_fail": 4,
+  "harmful_turns": [
+   4
+  ],
+  "teacher_step": null,
+  "n_turns": 19
+ },
+ {
+  "dir": "results/d1a",
+  "run": "6",
+  "instance_id": "pallets__flask-5063",
+  "final_n_fail": 4,
+  "harmful_turns": [
+   14
+  ],
+  "teacher_step": null,
+  "n_turns": 30
+ }
+]

@@ -175,7 +175,8 @@ def main():
     ap.add_argument("--report", default="")
     ap.add_argument("--teacher", default="")
     ap.add_argument("--condition", required=True,
-                    choices=["restart", "random", "teacher", "ours"])
+                    choices=["restart", "continue", "revert_random",
+                             "revert_teacher", "revert_ours"])
     ap.add_argument("--turn", type=int, default=None, help="ours: 指定回退轮次（默认读 report）")
     ap.add_argument("--steps", type=int, default=8)
     ap.add_argument("--model", default="deepseek-chat")
@@ -197,17 +198,16 @@ def main():
         teacher_step = (json.load(open(args.teacher)).get("teacher") or {}).get("pivot_step")
 
     random.seed(args.seed)
-    if args.condition == "restart":
-        start = 0
-    elif args.condition == "random":
-        start = random.randint(1, max(1, T))
-    elif args.condition == "teacher":
-        start = int(teacher_step) if teacher_step not in (None, 0) else 0
-    else:
-        t = args.turn or (harmful[0] if harmful else None)
-        if t is None:
-            raise SystemExit("该轨迹没有验证过的有害步骤，不能做 ours 条件")
-        start = int(t)
+    target = None   # 要撤销的轮次（None 表示不撤销）
+    if args.condition == "revert_random":
+        target = random.randint(1, T)
+    elif args.condition == "revert_teacher":
+        target = int(teacher_step) if teacher_step not in (None, 0) else None
+    elif args.condition == "revert_ours":
+        target = args.turn or (harmful[0] if harmful else None)
+        if target is None:
+            raise SystemExit("该轨迹没有验证过的有害步骤，不能做 revert_ours 条件")
+        target = int(target)
 
     work = os.path.abspath(args.work or f"/tmp/repair_{uuid.uuid4().hex[:6]}")
     shutil.rmtree(work, ignore_errors=True)
@@ -225,10 +225,30 @@ def main():
     tokens = 0
     try:
         dc(cname, "git config --global --add safe.directory /testbed")
-        # 回放到 start 之前
-        for cmds in turns[:start]:
-            for c in cmds:
-                dc(cname, c, timeout=600)
+        # 重放到最终状态（restart 除外），并记录每轮结束时的 sha
+        shas = [base_sha]
+        if args.condition != "restart":
+            for i, cmds in enumerate(turns, 1):
+                for c in cmds:
+                    dc(cname, c, timeout=600)
+                dc(cname, "cd /testbed && git add -A")
+                dc(cname, "cd /testbed && git -c user.email=r@l -c user.name=r "
+                          f"commit --allow-empty -qm turn{i}")
+                _, out, _ = dc(cname, "cd /testbed && git rev-parse HEAD")
+                sha = out.strip().splitlines()[-1] if out.strip() else shas[-1]
+                shas.append(sha)
+        # 受控撤销：把目标轮改过的文件回滚到该轮之前的版本
+        if target is not None and args.condition.startswith("revert_"):
+            if target <= 0 or target > len(turns):
+                target = None
+            else:
+                prev_sha = shas[target - 1]
+                cur_sha = shas[target]
+                _, names, _, _ = git(["diff", "--name-only", prev_sha, cur_sha], replay)
+                files = [x for x in names.splitlines() if x.strip()]
+                if files:
+                    dc(cname, "cd /testbed && git checkout %s -- %s" %
+                       (prev_sha, " ".join(shlex.quote(f) for f in files)))
         dc(cname, f"chown -R {os.getuid()}:{os.getgid()} /testbed")
         _, diff_before, _ = git(["diff", base_sha], replay)
         problem = task.get("problem_statement", "")[:4000]
@@ -271,7 +291,7 @@ def main():
         shutil.rmtree(work, ignore_errors=True)
 
     result = {"instance_id": args.instance_id, "condition": args.condition,
-              "start_turn": start, "n_turns_total": T,
+              "target_turn": target, "n_turns_total": T,
               "harmful_turns": harmful, "teacher_step": teacher_step,
               "steps_budget": args.steps, "steps_used": steps_used,
               "parse_failures": parse_fail, "tokens": tokens, **ev}

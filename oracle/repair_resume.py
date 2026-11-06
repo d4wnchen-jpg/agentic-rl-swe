@@ -166,6 +166,44 @@ def eval_in_container(cname, task, base_sha, test_patch, rerun=0):
             "n_pass": sum(1 for n in nodes if statuses.get(n) == "PASSED")}
 
 
+
+def eval_dir(image, repo_dir, task, base_sha, test_patch, tmpdir, tag="x"):
+    """把 repo 复制一份，在独立容器里按官方口径评测，返回 n_fail/f2p_pass/failed_nodes。"""
+    import base64
+    ev_dir = os.path.join(tmpdir, f"evalcopy_{tag}")
+    shutil.rmtree(ev_dir, ignore_errors=True)
+    shutil.copytree(repo_dir, ev_dir, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+    f2p = task["FAIL_TO_PASS"]
+    p2p = task["PASS_TO_PASS"]
+    if isinstance(f2p, str):
+        f2p = json.loads(f2p)
+    if isinstance(p2p, str):
+        p2p = json.loads(p2p)
+    nodes = list(f2p) + list(p2p)
+    files = sorted({n.split("::", 1)[0] for n in nodes})
+    b64 = base64.b64encode((test_patch or "").encode()).decode()
+    inner = [
+        "cd /testbed",
+        "git config --global --add safe.directory /testbed",
+        "git checkout -q " + base_sha + " -- " + " ".join(shlex.quote(f) for f in files),
+        f"echo {b64} | base64 -d > /tmp/tp.diff",
+        "git apply --whitespace=nowarn /tmp/tp.diff || true",
+        "pytest --color=no -rA -p no:cacheprovider --no-header "
+        + " ".join(shlex.quote(f) for f in files),
+    ]
+    cmd = " && ".join(inner[:-1]) + " ; " + inner[-1]
+    rc, out, err = sh(["docker", "run", "--rm", "-v", f"{ev_dir}:/testbed",
+                       "-w", "/testbed", image, "bash", "-lc", cmd], timeout=1800)
+    statuses = {m.group(2): m.group(1)
+                for m in re.finditer(r"^(PASSED|FAILED|ERROR)\s+(\S+)", out + err, re.M)}
+    n_fail = sum(1 for n in nodes if statuses.get(n) not in ("PASSED", "XFAIL"))
+    f2p_pass = sum(1 for n in f2p if statuses.get(n) == "PASSED")
+    failing = [n for n in nodes if statuses.get(n) not in ("PASSED", "XFAIL")]
+    shutil.rmtree(ev_dir, ignore_errors=True)
+    return {"n_fail": n_fail, "f2p_pass": f2p_pass, "n_f2p": len(f2p),
+            "n_pass": sum(1 for n in nodes if statuses.get(n) == "PASSED"),
+            "failing_nodes": failing[:20]}
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--traj", required=True)
@@ -244,13 +282,15 @@ def main():
             else:
                 prev_sha = shas[target - 1]
                 cur_sha = shas[target]
-                _, names, _ = git(["diff", "--name-only", prev_sha, cur_sha], replay)
+                _, names, _ = dc(cname, f"cd /testbed && git diff --name-only {prev_sha} {cur_sha}")
                 files = [x for x in names.splitlines() if x.strip()]
                 if files:
                     dc(cname, "cd /testbed && git checkout %s -- %s" %
                        (prev_sha, " ".join(shlex.quote(f) for f in files)))
         dc(cname, f"chown -R {os.getuid()}:{os.getgid()} /testbed")
-        _, diff_before, _ = git(["diff", base_sha], replay)
+        ev_start = eval_dir(args.image, replay, task, base_sha,
+                            task.get("test_patch", ""), work, tag="start")
+        _, diff_before, _ = dc(cname, f"cd /testbed && git diff {base_sha}")
         problem = task.get("problem_statement", "")[:4000]
         messages = [
             {"role": "system", "content": SYSTEM},
@@ -285,7 +325,8 @@ def main():
                 f"exit={rc}\n{obs}\n\nStep {steps_used}/{args.steps}. Next command?"})
             conv.append({"role": "observation", "content": f"exit={rc}\n{obs}"})
         dc(cname, f"chown -R {os.getuid()}:{os.getgid()} /testbed")
-        ev = eval_in_container(cname, task, base_sha, task.get("test_patch", ""))
+        ev = eval_dir(args.image, replay, task, base_sha,
+                      task.get("test_patch", ""), work, tag="final")
     finally:
         sh(["docker", "rm", "-f", cname])
         shutil.rmtree(work, ignore_errors=True)
@@ -294,7 +335,10 @@ def main():
               "target_turn": target, "n_turns_total": T,
               "harmful_turns": harmful, "teacher_step": teacher_step,
               "steps_budget": args.steps, "steps_used": steps_used,
-              "parse_failures": parse_fail, "tokens": tokens, **ev}
+              "parse_failures": parse_fail, "tokens": tokens, **ev,
+              "start_n_fail": ev_start["n_fail"],
+              "start_f2p_pass": ev_start["f2p_pass"],
+              "start_failing_nodes": ev_start["failing_nodes"]}
     try:
         json.dump(conv, open(args.out + ".conv.json", "w"), ensure_ascii=False, indent=1)
     except Exception:

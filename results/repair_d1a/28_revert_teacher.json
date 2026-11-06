@@ -1,0 +1,18 @@
+{
+ "instance_id": "pallets__flask-5063",
+ "condition": "revert_teacher",
+ "target_turn": 28,
+ "n_turns_total": 37,
+ "harmful_turns": [
+  13
+ ],
+ "teacher_step": 28,
+ "steps_budget": 8,
+ "steps_used": 6,
+ "parse_failures": 2,
+ "tokens": 14288,
+ "n_fail": 3,
+ "f2p_pass": 0,
+ "n_f2p": 2,
+ "n_pass": 53
+}

@@ -277,7 +277,7 @@ def main():
                 shas.append(sha)
         # 受控撤销：把目标轮改过的文件回滚到该轮之前的版本
         revert_mode = None
-    if target is not None and args.condition.startswith("revert_"):
+        if target is not None and args.condition.startswith("revert_"):
             if target <= 0 or target > len(turns):
                 target = None
             else:

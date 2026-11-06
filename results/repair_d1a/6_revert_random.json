@@ -8,11 +8,25 @@
  ],
  "teacher_step": 18,
  "steps_budget": 8,
- "steps_used": 6,
- "parse_failures": 2,
- "tokens": 19770,
+ "steps_used": 5,
+ "parse_failures": 3,
+ "tokens": 20601,
  "n_fail": 4,
  "f2p_pass": 0,
  "n_f2p": 2,
- "n_pass": 52
+ "n_pass": 52,
+ "failing_nodes": [
+  "tests/test_cli.py::TestRoutes::test_subdomain",
+  "tests/test_cli.py::TestRoutes::test_host",
+  "tests/test_cli.py::TestRoutes::test_simple",
+  "tests/test_cli.py::TestRoutes::test_sort"
+ ],
+ "start_n_fail": 4,
+ "start_f2p_pass": 0,
+ "start_failing_nodes": [
+  "tests/test_cli.py::TestRoutes::test_subdomain",
+  "tests/test_cli.py::TestRoutes::test_host",
+  "tests/test_cli.py::TestRoutes::test_simple",
+  "tests/test_cli.py::TestRoutes::test_sort"
+ ]
 }

@@ -1,0 +1,18 @@
+{
+ "instance_id": "pallets__flask-5063",
+ "condition": "revert_random",
+ "target_turn": 31,
+ "n_turns_total": 31,
+ "harmful_turns": [
+  8
+ ],
+ "teacher_step": 22,
+ "steps_budget": 8,
+ "steps_used": 6,
+ "parse_failures": 2,
+ "tokens": 20008,
+ "n_fail": 1,
+ "f2p_pass": 1,
+ "n_f2p": 2,
+ "n_pass": 55
+}

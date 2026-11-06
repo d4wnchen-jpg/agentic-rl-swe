@@ -43,7 +43,10 @@ def main():
     conds = ["continue", "revert_random", "revert_teacher", "revert_ours"]
     print(f"cases: {len(data)}")
     print(f"{'case':>12s} " + " ".join(f"{c:>14s}" for c in conds) + "   (final n_fail / f2p_pass)")
-    for run in sorted(data, key=lambda x: int(x) if x.isdigit() else x):
+    def _key(x):
+        return (0, int(x)) if x.isdigit() else (1, x)
+
+    for run in sorted(data, key=_key):
         cells = []
         for c in conds:
             d = data[run].get(c)

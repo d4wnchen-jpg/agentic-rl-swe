@@ -9,6 +9,7 @@ STEPS=${3:-8}
 OUTDIR=${4:-results/repair_d1a}
 RESDIR=${5:-results/d1a}
 IID=${6:-pallets__flask-5063}
+CONDS=${CONDS:-"continue revert_random revert_teacher revert_ours"}
 mkdir -p "$OUTDIR"
 
 python3 - "$CASES" > /tmp/repair_cases.txt <<'PY'
@@ -31,7 +32,7 @@ for run in $(cat /tmp/repair_cases.txt); do
     cp "out_teacher_${run}/teacher_label.json" "$RESDIR/${run}_teacher.json" 2>/dev/null
   fi
 
-  for cond in continue revert_random revert_teacher revert_ours; do
+  for cond in $CONDS; do
     out="$OUTDIR/${run}_${cond}.json"
     if [ -f "$out" ]; then echo "skip $run/$cond"; continue; fi
     echo "=== $run / $cond ==="

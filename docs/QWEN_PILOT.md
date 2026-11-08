@@ -24,6 +24,17 @@ export MODEL=openrouter/qwen/qwen3.5-9b       # 换成你选的
 bash oracle/check_model.sh                    # 应输出 OK + usage
 ```
 
+## 0.1 采样参数（Qwen 专用）
+
+Qwen3.5-9B 是 thinking 模型，默认每步会输出推理 token（实测简单问题就 195 reasoning tokens，单步延迟 5–10s）。对 28 步的轨迹来说，thinking 会显著拖慢（单条可能 30 分钟+），pilot 建议先关掉：
+
+```bash
+export THINK=false     # 通过 extra_body 传 enable_thinking=false（已用 curl 验证硅基流动支持）
+export TEMP=0.6        # Qwen 官方推荐温度；默认脚本里是 1.2
+```
+
+如果关掉 thinking 后命令格式错误率高，再开 thinking 跑 2 条对比。
+
 ## 1. 生成 5 条轨迹
 
 ```bash

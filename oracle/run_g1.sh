@@ -7,6 +7,10 @@ ROOT=${ROOT:-/workspaces/agentic-rl-swe}
 cd "$ROOT"
 TASK=${TASK:-SWE-bench_Lite.jsonl}
 MODEL=${MODEL:-deepseek/deepseek-chat}
+THINK_ARGS=()
+if [ "${THINK:-true}" = "false" ]; then
+  THINK_ARGS=(-c model.model_kwargs.extra_body.enable_thinking=false)
+fi
 echo "model=$MODEL root=$ROOT"
 IID=${1:-pallets__flask-5063}
 IMAGE=${2:-swebench/sweb.eval.x86_64.pallets_1776_flask-5063:latest}
@@ -18,7 +22,7 @@ for i in $(seq 1 "$N"); do
   echo "=== [$i/$N] 生成轨迹 → $outdir ==="
   mini-extra swebench --subset lite --split test --filter "$IID" --workers 1 \
     -m "$MODEL" -c swebench.yaml -c environment.pull_timeout=300 \
-    -c model.model_kwargs.temperature="${TEMP:-1.2}" -o "$outdir" > "${PREFIX}_gen_$i.log" 2>&1 \
+    -c model.model_kwargs.temperature="${TEMP:-1.2}" "${THINK_ARGS[@]}" -o "$outdir" > "${PREFIX}_gen_$i.log" 2>&1 \
     || { echo "生成失败，见 ${PREFIX}_gen_$i.log"; continue; }
 
   traj="$outdir/$IID/$IID.traj.json"

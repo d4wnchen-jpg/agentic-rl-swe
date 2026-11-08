@@ -8,6 +8,10 @@ set -u
 ROOT=${ROOT:-/workspaces/agentic-rl-swe}
 cd "$ROOT"
 MODEL=${MODEL:-deepseek/deepseek-chat}
+THINK_ARGS=()
+if [ "${THINK:-true}" = "false" ]; then
+  THINK_ARGS=(-c model.model_kwargs.extra_body.enable_thinking=false)
+fi
 echo "model=$MODEL root=$ROOT"
 PREFIX=${1:?prefix}
 IID=${2:?instance}
@@ -24,7 +28,7 @@ gen_one() {
   mini-extra swebench --subset lite --split test --filter "$IID" --workers 1 \
     -m "$MODEL" -c swebench.yaml \
     -c environment.pull_timeout=300 \
-    -c model.model_kwargs.temperature="${TEMP:-1.2}" \
+    -c model.model_kwargs.temperature="${TEMP:-1.2}" "${THINK_ARGS[@]}" \
     -o "$d" > "${PREFIX}_gen_$i.log" 2>&1
   if [ -f "$traj" ]; then echo "[$i] 生成完成"; else echo "[$i] 生成失败"; fi
 }

@@ -7,6 +7,10 @@ ROOT=${ROOT:-/workspaces/agentic-rl-swe}
 cd "$ROOT"
 TASK=${TASK:-SWE-bench_Lite.jsonl}
 MODEL=${MODEL:-deepseek/deepseek-chat}
+THINK_ARGS=()
+if [ "${THINK:-true}" = "false" ]; then
+  THINK_ARGS=(-c model.model_kwargs.extra_body.enable_thinking=false)
+fi
 echo "model=$MODEL root=$ROOT"
 
 IID=${1:-pallets__flask-5063}
@@ -31,7 +35,7 @@ for i in $(seq 1 "$N"); do
     echo "=== [$i/$N] 生成 ==="
     mini-extra swebench --subset lite --split test --filter "$IID" --workers 1 \
       -m "$MODEL" -c swebench.yaml -c environment.pull_timeout=300 \
-      -c model.model_kwargs.temperature="${TEMP:-1.2}" -o "$outdir" > "${PREFIX}_gen_$i.log" 2>&1
+      -c model.model_kwargs.temperature="${TEMP:-1.2}" "${THINK_ARGS[@]}" -o "$outdir" > "${PREFIX}_gen_$i.log" 2>&1
   fi
   [ -f "$traj" ] || { echo "[$i] 没有轨迹，跳过"; continue; }
 

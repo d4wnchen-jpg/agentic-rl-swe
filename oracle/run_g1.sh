@@ -21,7 +21,7 @@ for i in $(seq 1 "$N"); do
   outdir="mswa_${PREFIX}_$i"
   echo "=== [$i/$N] 生成轨迹 → $outdir ==="
   mini-extra swebench --subset lite --split test --filter "$IID" --workers 1 \
-    -m "$MODEL" -c swebench.yaml -c environment.pull_timeout=300 \
+    -m "$MODEL" -c swebench.yaml -c model.cost_tracking=ignore_errors -c environment.pull_timeout=300 \
     -c model.model_kwargs.temperature="${TEMP:-1.2}" "${THINK_ARGS[@]}" -o "$outdir" > "${PREFIX}_gen_$i.log" 2>&1 \
     || { echo "生成失败，见 ${PREFIX}_gen_$i.log"; continue; }
 

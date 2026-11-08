@@ -26,7 +26,7 @@ gen_one() {
   if [ -f "$traj" ]; then echo "[$i] 已存在"; return 0; fi
   mkdir -p "$d"
   mini-extra swebench --subset lite --split test --filter "$IID" --workers 1 \
-    -m "$MODEL" -c swebench.yaml \
+    -m "$MODEL" -c swebench.yaml -c model.cost_tracking=ignore_errors \
     -c environment.pull_timeout=300 \
     -c model.model_kwargs.temperature="${TEMP:-1.2}" "${THINK_ARGS[@]}" \
     -o "$d" > "${PREFIX}_gen_$i.log" 2>&1

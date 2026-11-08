@@ -2,17 +2,19 @@ instance                 turns  fail  regs recov fatal pairs rcaus  harm  file b
 pallets__flask-5063         64     4     1     0     1     0     0     0     1     0      0
 pallets__flask-5063         25     0     0     0     0     0     0     0     0     1      0
 pallets__flask-5063         27     2     1     1     0     1     0     0     0     1      1
+pallets__flask-5063         11     2     0     0     0     0     0     0     0     0      0
 
-轨迹总数        : 3
-失败轨迹        : 2
+轨迹总数        : 4
+失败轨迹        : 3
 有 regression   : 2
 有反事实验证    : 2
 (错误步→恢复步) 配对数 : 1（因果验证 0）
-G1-any（有任一方向验证标签 / 全部轨迹） = 3/3 = 100.0%
-G1a（有 regression / 失败）   = 2/2 = 100.0%
-G1b（有因果验证 / 失败）      = 2/2 = 100.0%
+G1-any（有任一方向验证标签 / 全部轨迹） = 3/4 = 75.0%
+G1a（有 regression / 失败）   = 2/3 = 66.7%
+G1b（有因果验证 / 失败）      = 2/3 = 66.7%
 
 明细：
   out_pilot_1: final_fail=4 reg_turns=[22] verified_turns=[22] labels=['causal_by_file']
   out_pilot_2: final_fail=0 reg_turns=[] verified_turns=[15] labels=['beneficial_by_file']
   out_pilot_4: final_fail=2 reg_turns=[8] verified_turns=[11] labels=['transient_or_confounded', 'beneficial']
+  out_pilot_5: final_fail=2 reg_turns=[] verified_turns=[] labels=[]

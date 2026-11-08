@@ -8,10 +8,11 @@
 
 | provider | export | MODEL | 备注 |
 |---|---|---|---|
-| OpenRouter | `OPENROUTER_API_KEY=...` | `openrouter/qwen/qwen3.5-9b` | $0.17/M 输入、$0.25/M 输出，262K ctx |
-| SiliconFlow | `SILICONFLOW_API_KEY=...` | `siliconflow/Qwen/Qwen3.5-9B` | 国内付款；若 litellm 不认这个前缀，用下面的 openai 兼容写法 |
-| SiliconFlow（兼容写法） | `OPENAI_API_KEY=...`、`OPENAI_API_BASE=https://api.siliconflow.cn/v1` | `openai/Qwen/Qwen3.5-9B` | 通用兜底 |
-| DashScope | `DASHSCOPE_API_KEY=...` | `dashscope/qwen3.5-9b-instruct` | 官方；模型 id 以控制台为准 |
+| 硅基流动 SiliconFlow | `OPENAI_API_KEY=...`、`OPENAI_API_BASE=https://api.siliconflow.cn/v1` | `openai/Qwen/Qwen3.5-9B` | 支付宝/微信付款；litellm 用 openai 兼容前缀，不需要 `siliconflow/` |
+| 阿里云百炼 DashScope | `DASHSCOPE_API_KEY=...` | `dashscope/qwen3.5-9b` | 官方 Qwen；支付宝付款 + 实名认证；模型 id 以百炼控制台为准 |
+| OpenRouter（海外卡） | `OPENROUTER_API_KEY=...` | `openrouter/qwen/qwen3.5-9b` | $0.17/M 输入、$0.25/M 输出；只收 visa/mastercard/crypto |
+
+> 国内付款优先：先查百炼模型列表有没有 Qwen3.5-9B（官方、版本稳定）；没有再用硅基流动。硅基流动的 Qwen 模型名多是 `Qwen/Qwen3.5-9B-Instruct` 这种带 Instruct 后缀，以模型中心为准，`check_model.sh` 通了再往下跑。
 
 先验证 endpoint：
 

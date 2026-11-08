@@ -172,7 +172,9 @@ def eval_dir(image, repo_dir, task, base_sha, test_patch, tmpdir, tag="x"):
     import base64
     ev_dir = os.path.join(tmpdir, f"evalcopy_{tag}")
     shutil.rmtree(ev_dir, ignore_errors=True)
-    shutil.copytree(repo_dir, ev_dir, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+    shutil.copytree(repo_dir, ev_dir, symlinks=True,
+                    ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".tox",
+                                                ".nox", ".venv", "node_modules"))
     f2p = task["FAIL_TO_PASS"]
     p2p = task["PASS_TO_PASS"]
     if isinstance(f2p, str):
@@ -255,7 +257,9 @@ def main():
     base = os.path.join(work, "base")
     base_sha = get_base_repo(args.image, base)
     replay = os.path.join(work, "replay")
-    shutil.copytree(base, replay, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+    shutil.copytree(base, replay, symlinks=True,
+                    ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".tox",
+                                                ".nox", ".venv", "node_modules"))
 
     cname = f"repair_{uuid.uuid4().hex[:6]}"
     sh(["docker", "run", "-d", "--name", cname, "-v", f"{replay}:/testbed",

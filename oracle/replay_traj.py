@@ -126,7 +126,9 @@ def run_tests(image, workdir, targets, timeout=600):
 def eval_state(image, base, ev, sha, base_sha, test_patch, nodes, f2p, files,
                out, rerun=0):
     shutil.rmtree(ev, ignore_errors=True)
-    shutil.copytree(base, ev, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+    shutil.copytree(base, ev, symlinks=True,
+                    ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".tox",
+                                                ".nox", ".venv", "node_modules"))
     rc, o, e, _ = git(["checkout", "-q", sha], ev)
     if rc != 0:
         return {"sha": sha, "checkout_ok": False, "err": e[:200],
@@ -268,7 +270,9 @@ def file_revert_eval(base, base_sha, final_sha, prev_sha, files, args,
     """从最终状态回滚某轮触碰的文件到该轮之前，再评测（备用干预）。"""
     ev_dir = os.path.join(args.work, f"fr_{tag}")
     shutil.rmtree(ev_dir, ignore_errors=True)
-    shutil.copytree(base, ev_dir, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+    shutil.copytree(base, ev_dir, symlinks=True,
+                    ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".tox",
+                                                ".nox", ".venv", "node_modules"))
     git(["checkout", "-q", final_sha], ev_dir)
     rc, o, e, _ = git(["checkout", prev_sha, "--"] + files, ev_dir)
     if rc != 0:
@@ -426,7 +430,9 @@ def main():
             open(pp, "w").write(patch)
             ev = os.path.join(args.work, "attr")
             shutil.rmtree(ev, ignore_errors=True)
-            shutil.copytree(base, ev, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+            shutil.copytree(base, ev, symlinks=True,
+                    ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".tox",
+                                                ".nox", ".venv", "node_modules"))
             git(["checkout", "-q", final["sha"]], ev)
             rc, o, e, _ = git(["apply", "-R", "--3way", pp], ev)
             if rc != 0:

@@ -169,7 +169,9 @@ def main():
 
     # 1) 重放命令
     replay = os.path.join(work, "replay")
-    shutil.copytree(base, replay, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+    shutil.copytree(base, replay, symlinks=True,
+                    ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".tox",
+                                                ".nox", ".venv", "node_modules"))
     cname = f"fid_{uuid.uuid4().hex[:6]}"
     sh(["docker", "run", "-d", "--name", cname, "-v", f"{replay}:/testbed",
         "-w", "/testbed", args.image, "sleep", "2h"])
@@ -187,7 +189,9 @@ def main():
 
     # 2) 干净 base + 应用提交的 patch
     patched = os.path.join(work, "patched")
-    shutil.copytree(base, patched, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+    shutil.copytree(base, patched, symlinks=True,
+                    ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".tox",
+                                                ".nox", ".venv", "node_modules"))
     preds = json.load(open(args.preds))
     patch = (preds.get(args.instance_id) or {}).get("model_patch", "")
     apply_ok, apply_err = False, ""

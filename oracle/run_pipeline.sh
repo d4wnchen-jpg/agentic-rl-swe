@@ -1,8 +1,14 @@
 #!/bin/bash
 # 全自动管线：生成 → 重放+归因 → 教师标注 → 汇总 → git 入库
 # 用法: bash oracle/run_pipeline.sh [iid] [image] [N] [prefix] [teacher 1/0]
+# 模型：MODEL 环境变量（默认 deepseek/deepseek-chat）；数据集：TASK
 set -u
-cd /workspaces/agentic-rl-swe
+ROOT=${ROOT:-/workspaces/agentic-rl-swe}
+cd "$ROOT"
+TASK=${TASK:-SWE-bench_Lite.jsonl}
+MODEL=${MODEL:-deepseek/deepseek-chat}
+echo "model=$MODEL root=$ROOT"
+
 IID=${1:-pallets__flask-5063}
 IMAGE=${2:-swebench/sweb.eval.x86_64.pallets_1776_flask-5063:latest}
 N=${3:-10}
@@ -24,7 +30,7 @@ for i in $(seq 1 "$N"); do
   if [ ! -f "$traj" ]; then
     echo "=== [$i/$N] 生成 ==="
     mini-extra swebench --subset lite --split test --filter "$IID" --workers 1 \
-      -m deepseek/deepseek-chat -c swebench.yaml -c environment.pull_timeout=300 \
+      -m "$MODEL" -c swebench.yaml -c environment.pull_timeout=300 \
       -c model.model_kwargs.temperature=1.2 -o "$outdir" > "${PREFIX}_gen_$i.log" 2>&1
   fi
   [ -f "$traj" ] || { echo "[$i] 没有轨迹，跳过"; continue; }
@@ -33,7 +39,7 @@ for i in $(seq 1 "$N"); do
     echo "[$i/$N] 已有报告，跳过重放"
   else
   echo "=== [$i/$N] 重放 + 归因 ==="
-  python oracle/replay_traj.py --traj "$traj" --task SWE-bench_Lite.jsonl \
+  python oracle/replay_traj.py --traj "$traj" --task "$TASK" \
     --instance-id "$IID" --image "$IMAGE" \
     --work "replay_${PREFIX}_$i" --out "out_${PREFIX}_$i" \
     --rerun "$RERUN" --counterfactual-pivots --counterfactual-recoveries \
@@ -57,7 +63,7 @@ if [ "$TEACHER" = "1" ]; then
     r="out_${PREFIX}_$i/traj_report.json"
     t="mswa_${PREFIX}_$i/$IID/$IID.traj.json"
     [ -f "$r" ] && [ -f "$t" ] || continue
-    python oracle/teacher_label.py --traj "$t" --task SWE-bench_Lite.jsonl \
+    python oracle/teacher_label.py --traj "$t" --task "$TASK" \
       --instance-id "$IID" --report "$r" --out "out_teacher_${PREFIX}_$i" \
       >> "$RES/TEACHER.txt" 2>&1
     cp "out_teacher_${PREFIX}_$i/teacher_label.json" "$RES/${i}_teacher.json" 2>/dev/null

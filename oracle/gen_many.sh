@@ -1,7 +1,14 @@
 #!/bin/bash
 # 并行生成轨迹：bash oracle/gen_many.sh <prefix> <instance> <start> <end> [workers]
+# 模型：MODEL 环境变量（默认 deepseek/deepseek-chat）；
+#   OpenRouter: MODEL=openrouter/qwen/qwen3.5-9b + OPENROUTER_API_KEY
+#   SiliconFlow: MODEL=siliconflow/Qwen/Qwen3.5-9B + SILICONFLOW_API_KEY
+#   DashScope:  MODEL=dashscope/qwen3.5-9b-instruct + DASHSCOPE_API_KEY
 set -u
-cd /workspaces/agentic-rl-swe
+ROOT=${ROOT:-/workspaces/agentic-rl-swe}
+cd "$ROOT"
+MODEL=${MODEL:-deepseek/deepseek-chat}
+echo "model=$MODEL root=$ROOT"
 PREFIX=${1:?prefix}
 IID=${2:?instance}
 START=${3:?start}
@@ -15,7 +22,7 @@ gen_one() {
   if [ -f "$traj" ]; then echo "[$i] 已存在"; return 0; fi
   mkdir -p "$d"
   mini-extra swebench --subset lite --split test --filter "$IID" --workers 1 \
-    -m deepseek/deepseek-chat -c swebench.yaml \
+    -m "$MODEL" -c swebench.yaml \
     -c environment.pull_timeout=300 \
     -c model.model_kwargs.temperature=1.2 \
     -o "$d" > "${PREFIX}_gen_$i.log" 2>&1

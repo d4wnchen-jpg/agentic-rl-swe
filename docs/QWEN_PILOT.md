@@ -12,6 +12,8 @@
 | 阿里云百炼 DashScope | `DASHSCOPE_API_KEY=...` | `dashscope/qwen3.5-9b` | 官方 Qwen；支付宝付款 + 实名认证；模型 id 以百炼控制台为准 |
 | OpenRouter（海外卡） | `OPENROUTER_API_KEY=...` | `openrouter/qwen/qwen3.5-9b` | $0.17/M 输入、$0.25/M 输出；只收 visa/mastercard/crypto |
 
+> 硅基流动已确认有 `Qwen/Qwen3.5-9B`（模型页标签：推理模型、Tools、256K）。它是 thinking 模型，默认会输出推理 token；价格：单次请求上下文 <128K 时输入 ¥0.5/M、输出 ¥4/M，≥128K 时输入 ¥1.5/M、输出 ¥12/M。thinking token 按输出计费，按现有轨迹估算单条约 ¥0.1–0.3。
+
 > 国内付款优先：先查百炼模型列表有没有 Qwen3.5-9B（官方、版本稳定）；没有再用硅基流动。硅基流动的 Qwen 模型名多是 `Qwen/Qwen3.5-9B-Instruct` 这种带 Instruct 后缀，以模型中心为准，`check_model.sh` 通了再往下跑。
 
 先验证 endpoint：

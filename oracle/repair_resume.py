@@ -107,9 +107,13 @@ def get_base_repo(image, dest):
 
 
 def call_llm(messages, model):
+    """OpenAI 兼容接口调用；REPAIR_API_BASE/REPAIR_API_KEY 可指向硅基流动等。"""
     model = model.split("/")[-1]
     from openai import OpenAI
-    key = os.environ.get("DEEPSEEK_API_KEY")
+    base = (os.environ.get("REPAIR_API_BASE") or os.environ.get("OPENAI_API_BASE")
+            or "https://api.deepseek.com/v1")
+    key = (os.environ.get("REPAIR_API_KEY") or os.environ.get("OPENAI_API_KEY")
+           or os.environ.get("DEEPSEEK_API_KEY"))
     if not key:
         envp = os.path.expanduser("~/.config/mini-swe-agent/.env")
         if os.path.exists(envp):
@@ -118,10 +122,16 @@ def call_llm(messages, model):
                     key = line.split("=", 1)[1].strip().strip('"').strip("'")
                     break
     if not key:
-        raise SystemExit("DEEPSEEK_API_KEY 未设置")
-    client = OpenAI(api_key=key, base_url="https://api.deepseek.com/v1")
-    resp = client.chat.completions.create(model=model, messages=messages,
-                                          temperature=0.7, max_tokens=600)
+        raise SystemExit("API key 未设置（REPAIR_API_KEY / OPENAI_API_KEY / DEEPSEEK_API_KEY）")
+    client = OpenAI(api_key=key, base_url=base)
+    kwargs = {}
+    if "qwen" in model.lower() or os.environ.get("THINK", "").lower() == "false":
+        kwargs["extra_body"] = {"enable_thinking": False}
+    resp = client.chat.completions.create(
+        model=model, messages=messages,
+        temperature=float(os.environ.get("REPAIR_TEMP", "0.7")),
+        max_tokens=int(os.environ.get("REPAIR_MAX_TOKENS", "1200")),
+        **kwargs)
     return resp.choices[0].message.content, resp.usage.total_tokens if resp.usage else 0
 
 
@@ -206,6 +216,39 @@ def eval_dir(image, repo_dir, task, base_sha, test_patch, tmpdir, tag="x"):
             "n_pass": sum(1 for n in nodes if statuses.get(n) == "PASSED"),
             "failing_nodes": failing[:20]}
 
+def repo_test_files(test_patch):
+    """test_patch 里涉及的测试文件（b/ 路径）。"""
+    return sorted({b for _, b in re.findall(r"^diff --git a/(\S+) b/(\S+)", test_patch or "", re.M)})
+
+
+def build_legal_hint(cname, test_patch):
+    """合法提示：仓库自带的测试（agent 自己也能跑），展示当前失败输出。"""
+    cands = repo_test_files(test_patch)
+    existing = [f for f in cands
+                if "YES" in dc(cname, f"cd /testbed && test -f {shlex.quote(f)} && echo YES")[1]]
+    if not existing:
+        return ""
+    cmd = ("cd /testbed && python -m pytest -q --no-header -p no:cacheprovider "
+           + " ".join(shlex.quote(f) for f in existing) + " 2>&1 | tail -40")
+    _, out, err = dc(cname, cmd, timeout=1800)
+    body = (out + err)[-1500:]
+    return ("The repository's own test suite (which you can run yourself) currently reports:\n"
+            + body + "\n\n")
+
+
+def build_oracle_hint(ev_start, test_patch):
+    """特权提示：隐藏评测的失败用例与测试 patch（agent 原本看不到）。"""
+    parts = []
+    failing = ev_start.get("failing_nodes") or []
+    if failing:
+        parts.append("Hidden evaluation tests currently failing:\n- "
+                     + "\n- ".join(failing[:20]))
+    if test_patch:
+        parts.append("Hidden evaluation test patch (not visible in the repo; the grader "
+                     "will apply it):\n" + test_patch[:4000])
+    return ("\n\n".join(parts) + "\n\n") if parts else ""
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--traj", required=True)
@@ -219,8 +262,10 @@ def main():
                              "revert_teacher", "revert_ours"])
     ap.add_argument("--turn", type=int, default=None, help="ours: 指定回退轮次（默认读 report）")
     ap.add_argument("--steps", type=int, default=8)
-    ap.add_argument("--model", default="deepseek-chat")
+    ap.add_argument("--model", default=os.environ.get("REPAIR_MODEL", "deepseek-chat"))
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--hint", default="none", choices=["none", "legal", "oracle"],
+                    help="续跑时给 agent 的信息：none/legal(仓库自带测试)/oracle(隐藏测试)")
     ap.add_argument("--work", default="")
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
@@ -306,6 +351,11 @@ def main():
                             task.get("test_patch", ""), work, tag="start")
         _, diff_before, _ = dc(cname, f"cd /testbed && git diff {base_sha}")
         problem = task.get("problem_statement", "")[:4000]
+        hint_block = ""
+        if args.hint == "legal":
+            hint_block = build_legal_hint(cname, task.get("test_patch", ""))
+        elif args.hint == "oracle":
+            hint_block = build_oracle_hint(ev_start, task.get("test_patch", ""))
         messages = [
             {"role": "system", "content": SYSTEM},
             {"role": "user", "content":
@@ -313,7 +363,8 @@ def main():
                 f"You are continuing from a partially completed attempt. "
                 f"Current uncommitted diff (truncated):\n{diff_before[:3000] or '(empty)'}\n\n"
                 f"Steps: you have at most {args.steps} commands. "
-                f"Start by inspecting the relevant files, then make the fix."}]
+                f"Start by inspecting the relevant files, then make the fix."
+                + (f"\n\nAdditional information:\n{hint_block}" if hint_block else "")}]
         steps_used = 0
         parse_fail = 0
         conv = []
@@ -353,7 +404,7 @@ def main():
               "start_n_fail": ev_start["n_fail"],
               "start_f2p_pass": ev_start["f2p_pass"],
               "start_failing_nodes": ev_start["failing_nodes"],
-              "revert_mode": revert_mode}
+              "revert_mode": revert_mode, "hint": args.hint}
     try:
         json.dump(conv, open(args.out + ".conv.json", "w"), ensure_ascii=False, indent=1)
     except Exception:

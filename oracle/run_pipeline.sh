@@ -35,7 +35,7 @@ for i in $(seq 1 "$N"); do
     echo "=== [$i/$N] 生成 ==="
     mini-extra swebench --subset lite --split test --filter "$IID" --workers 1 \
       -m "$MODEL" -c swebench.yaml -c model.cost_tracking=ignore_errors -c environment.pull_timeout=300 \
-      -c model.model_kwargs.temperature="${TEMP:-1.2}" "${THINK_ARGS[@]}" -o "$outdir" > "${PREFIX}_gen_$i.log" 2>&1
+      -c model.model_kwargs.temperature="${TEMP:-0.6}" -c agent.step_limit="${MAXTURNS:-100}" "${THINK_ARGS[@]}" -o "$outdir" > "${PREFIX}_gen_$i.log" 2>&1
   fi
   [ -f "$traj" ] || { echo "[$i] 没有轨迹，跳过"; continue; }
 

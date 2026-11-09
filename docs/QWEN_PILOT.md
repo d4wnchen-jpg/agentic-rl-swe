@@ -82,3 +82,17 @@ cat results/pilot/SUMMARY.txt
 ## 5. provenance（写进 demo/论文）
 
 `model=Qwen3.5-9B`、provider、模型 id、采样日期、temperature=1.2、scaffold=mini-swe-agent 2.4.6 + `swebench.yaml`、dataset=SWE-bench_Lite。demo 定稿时若换 vLLM 重采，把 provider 改为本地 vLLM 并记录 checkpoint。
+
+## 2026-11-09 与 PivotOPD 的设置对齐
+
+生成侧（gen_many.sh / run_g1.sh / run_pipeline.sh）默认值已改为：
+
+- `TEMP=0.6`：PivotOPD SWE 训练 rollout 温度（其评测档为 temp 1.0 / top-p 0.95 / 3 seeds，等跑最终数字时再切）
+- `MAXTURNS=100`：PivotOPD SWE 的 100-turn episode 预算（mini-swe 原本是 250）
+- `THINK=false`：PivotOPD vLLM rollout 关闭原生 thinking，推理放在 content
+- `-c model.cost_tracking=ignore_errors`：Qwen 不在 litellm 价格表里
+
+保持不同的地方（论文里要写明）：
+
+- scaffold：PivotOPD SWE 用 OpenHands 风格 function-calling；我们用 mini-swe-agent 的 bash tool call（同为工具调用接口，但 prompt/上下文管理不同）。D.4 的 `<think>/<action>` 文本模板只用于 ALFWorld/WebShop/Search QA，不适用于 SWE。
+- 方法差异正是我们的 gap：PivotOPD 在 SWE 只审计最终提交动作（m=1）、K=0；我们做逐轮 edit 级验证 + recovery 数据。

@@ -28,7 +28,7 @@ gen_one() {
   mini-extra swebench --subset lite --split test --filter "$IID" --workers 1 \
     -m "$MODEL" -c swebench.yaml -c model.cost_tracking=ignore_errors \
     -c environment.pull_timeout=300 \
-    -c model.model_kwargs.temperature="${TEMP:-1.2}" "${THINK_ARGS[@]}" \
+    -c model.model_kwargs.temperature="${TEMP:-0.6}" -c agent.step_limit="${MAXTURNS:-100}" "${THINK_ARGS[@]}" \
     -o "$d" > "${PREFIX}_gen_$i.log" 2>&1
   if [ -f "$traj" ]; then echo "[$i] 生成完成"; else echo "[$i] 生成失败"; fi
 }

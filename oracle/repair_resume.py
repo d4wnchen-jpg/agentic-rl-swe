@@ -230,7 +230,8 @@ def eval_in_container(cname, task, base_sha, test_patch, rerun=0):
 
 
 
-def eval_dir(image, repo_dir, task, base_sha, test_patch, tmpdir, tag="x"):
+def eval_dir(image, repo_dir, task, base_sha, test_patch, tmpdir, tag="x",
+             detail=False):
     """把 repo 复制一份，在独立容器里按官方口径评测，返回 n_fail/f2p_pass/failed_nodes。"""
     import base64
     ev_dir = os.path.join(tmpdir, f"evalcopy_{tag}")
@@ -265,9 +266,12 @@ def eval_dir(image, repo_dir, task, base_sha, test_patch, tmpdir, tag="x"):
     f2p_pass = sum(1 for n in f2p if statuses.get(n) == "PASSED")
     failing = [n for n in nodes if statuses.get(n) not in ("PASSED", "XFAIL")]
     shutil.rmtree(ev_dir, ignore_errors=True)
-    return {"n_fail": n_fail, "f2p_pass": f2p_pass, "n_f2p": len(f2p),
-            "n_pass": sum(1 for n in nodes if statuses.get(n) == "PASSED"),
-            "failing_nodes": failing[:20]}
+    res = {"n_fail": n_fail, "f2p_pass": f2p_pass, "n_f2p": len(f2p),
+           "n_pass": sum(1 for n in nodes if statuses.get(n) == "PASSED"),
+           "failing_nodes": failing[:20]}
+    if detail:
+        res["output_tail"] = (out + err)[-2500:]
+    return res
 
 def repo_test_files(test_patch):
     """test_patch 里涉及的测试文件（b/ 路径）。"""
@@ -319,6 +323,8 @@ def main():
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--hint", default="none", choices=["none", "legal", "oracle"],
                     help="续跑时给 agent 的信息：none/legal(仓库自带测试)/oracle(隐藏测试)")
+    ap.add_argument("--feedback", default="none", choices=["none", "eval"],
+                    help="eval: 每轮把隐藏测试的真实结果反馈给 agent（oracle 上界诊断）")
     ap.add_argument("--work", default="")
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
@@ -500,6 +506,20 @@ def main():
                 conv.append({"role": "observation", "content": f"exit={rc}\n{obs}"})
             if done:
                 break
+            if args.feedback == "eval":
+                try:
+                    ev_fb = eval_dir(args.image, replay, task, base_sha,
+                                     task.get("test_patch", ""), work,
+                                     tag=f"fb{steps_used}", detail=True)
+                    obs_parts.append(
+                        "--- Hidden test results (privileged feedback, not normally "
+                        "visible to you) ---\n"
+                        f"n_fail={ev_fb['n_fail']}, "
+                        f"f2p_pass={ev_fb['f2p_pass']}/{ev_fb['n_f2p']}, "
+                        f"failing={ev_fb['failing_nodes']}\n"
+                        + (ev_fb.get("output_tail", "")[-1500:]))
+                except Exception as e:  # noqa: BLE001
+                    obs_parts.append(f"(hidden test feedback failed: {e})")
             messages.append({"role": "user", "content":
                 "\n\n".join(obs_parts)
                 + f"\n\nStep {steps_used}/{args.steps}. Next command(s)?"})
@@ -526,6 +546,7 @@ def main():
               "start_f2p_pass": ev_start["f2p_pass"],
               "start_failing_nodes": ev_start["failing_nodes"],
               "revert_mode": revert_mode, "hint": args.hint, "prompt_mode": "miniswe",
+              "feedback": args.feedback,
               "edited_files": edited_files[:30], "did_edit": bool(edited_files)}
     try:
         json.dump(conv, open(args.out + ".conv.json", "w"), ensure_ascii=False, indent=1)

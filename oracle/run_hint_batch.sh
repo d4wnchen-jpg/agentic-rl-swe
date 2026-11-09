@@ -26,10 +26,12 @@ for run in $(cat /tmp/hint_cases.txt); do
   [ -f "$report" ] || { echo "skip $run (no report)"; continue; }
   for cond in $CONDS; do
     condition=continue
+    feedback=none
     case "$cond" in
       none)        hint=none;   steps=$STEPS ;;
       legal)       hint=legal;  steps=$STEPS ;;
       oracle)      hint=oracle; steps=$STEPS ;;
+      oracle_fb)   hint=oracle; steps=$STEPS; feedback=eval ;;
       legal_long)  hint=legal;  steps=$STEPS_LONG ;;
       oracle_long) hint=oracle; steps=$STEPS_LONG ;;
       revert_none)   hint=none;   steps=$STEPS; condition=revert_ours ;;
@@ -43,7 +45,8 @@ for run in $(cat /tmp/hint_cases.txt); do
     python oracle/repair_resume.py \
       --traj "$traj" --task SWE-bench_Lite.jsonl --instance-id "$IID" \
       --image "$IMAGE" --report "$report" \
-      --condition "$condition" --hint "$hint" --steps "$steps" --seed "$run" \
+      --condition "$condition" --hint "$hint" --feedback "$feedback" \
+      --steps "$steps" --seed "$run" \
       --out "$out" || echo "FAIL $run/$cond"
     git add -f "$out" >/dev/null 2>&1
     git commit -qm "hint: $run $cond" >/dev/null 2>&1

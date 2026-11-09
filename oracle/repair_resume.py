@@ -108,7 +108,12 @@ def get_base_repo(image, dest):
 
 def call_llm(messages, model):
     """OpenAI 兼容接口调用；REPAIR_API_BASE/REPAIR_API_KEY 可指向硅基流动等。"""
-    model = model.split("/")[-1]
+    # 只去掉 provider 前缀，保留 org/model（如 openai/Qwen/Qwen3.5-9B -> Qwen/Qwen3.5-9B）
+    for _prefix in ("openai/", "deepseek/", "dashscope/", "openrouter/",
+                    "litellm/", "siliconflow/"):
+        if model.startswith(_prefix):
+            model = model[len(_prefix):]
+            break
     from openai import OpenAI
     base = (os.environ.get("REPAIR_API_BASE") or os.environ.get("OPENAI_API_BASE")
             or "https://api.deepseek.com/v1")

@@ -138,12 +138,66 @@ def call_llm(messages, model):
     return resp.choices[0].message.content, resp.usage.total_tokens if resp.usage else 0
 
 
+def _clean_cmd(s):
+    s = (s or "").strip()
+    s = s.strip('"').strip("'").strip()
+    s = s.strip("`").strip()
+    s = s.rstrip('"').rstrip("'").rstrip("`").strip()
+    return s
+
+
+def _extract_tool_call(tc):
+    """从 Qwen 常见的 <tool_call> 变体里抽命令。"""
+    tc = (tc or "").strip()
+    m = re.match(r"^(?:bash|shell|sh)\b[\s:]*", tc, re.I)
+    if m:
+        tc = tc[m.end():]
+    try:
+        obj = json.loads(tc)
+        if isinstance(obj, dict):
+            args = obj.get("arguments") or obj.get("args") or {}
+            if isinstance(args, dict) and args.get("command"):
+                return [_clean_cmd(str(args["command"]))]
+            if isinstance(obj.get("command"), str):
+                return [_clean_cmd(obj["command"])]
+    except Exception:
+        pass
+    m = re.search(r"command(?:_args)?\s*=\s*(\"(?:[^\"\\]|\\.)*\"|'(?:[^'\\]|\\.)*')", tc, re.S)
+    if m:
+        val = m.group(1)[1:-1]
+        if val.strip():
+            return [_clean_cmd(val)]
+    m = re.match(r"^command(?:_args)?\s*:?\s*\n?(.*)$", tc, re.S)
+    if m:
+        val = m.group(1)
+        if val.strip():
+            return [_clean_cmd(val)]
+    return [_clean_cmd(tc)] if tc.strip() else []
+
+
 def parse_commands(text):
-    # mini-swe style: one response may contain multiple bash tool calls
-    blocks = re.findall(r"```bash\s*\n(.*?)```", text, re.S)
-    if not blocks:
-        blocks = re.findall(r"```\s*\n(.*?)```", text, re.S)
-    return [b.strip() for b in blocks if b.strip()]
+    """支持 mini-swe 的 ```bash 块，以及 Qwen 常见的 <bash>/<bash_command>/<tool_call> 变体。"""
+    text = text or ""
+    blocks = []
+    blocks += re.findall(r"```[a-zA-Z0-9_-]*\s*\n(.*?)```", text, re.S)
+    for tag in ("bash", "bash_command"):
+        blocks += re.findall(rf"<{tag}>\s*(.*?)\s*</{tag}>", text, re.S)
+    closed = re.findall(r"<tool_call>\s*(.*?)\s*</tool_call>", text, re.S)
+    for tc in closed:
+        blocks += _extract_tool_call(tc)
+    if "<tool_call>" in text and "</tool_call>" not in text:
+        for tc in re.split(r"<tool_call>", text)[1:]:
+            blocks += _extract_tool_call(tc)
+    out, seen = [], set()
+    for b in blocks:
+        cmd = _clean_cmd(b)
+        if not cmd or cmd in seen:
+            continue
+        if cmd.startswith("#") and "\n" not in cmd:
+            continue
+        seen.add(cmd)
+        out.append(cmd)
+    return out
 
 
 def eval_in_container(cname, task, base_sha, test_patch, rerun=0):
@@ -422,7 +476,8 @@ def main():
                 messages.append({"role": "assistant", "content": text})
                 messages.append({"role": "user", "content":
                     "Your reply must contain at least one ```bash ...``` block with your "
-                    "command(s), and nothing else outside the reasoning text."})
+                    "command(s), and nothing else outside the reasoning text. Example:\n"
+                    "```bash\nls -la /testbed\n```"})
                 continue
             messages.append({"role": "assistant", "content": text})
             steps_used += 1

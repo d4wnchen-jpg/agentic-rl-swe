@@ -140,7 +140,7 @@ def call_llm(messages, model):
     resp = client.chat.completions.create(
         model=model, messages=messages,
         temperature=float(os.environ.get("REPAIR_TEMP", "0.7")),
-        max_tokens=int(os.environ.get("REPAIR_MAX_TOKENS", "3000")),
+        max_tokens=int(os.environ.get("REPAIR_MAX_TOKENS", "4096")),
         **kwargs)
     return resp.choices[0].message.content, resp.usage.total_tokens if resp.usage else 0
 
@@ -393,7 +393,12 @@ def main():
                 break
             rc, out, err = dc(cname, cmd, timeout=600)
             steps_used += 1
-            obs = (out + err)[:6000]
+            raw = out + err
+            if len(raw) <= 10000:
+                obs = raw
+            else:
+                obs = (raw[:5000] + f"\n... [{len(raw) - 10000} chars elided] ...\n"
+                       + raw[-5000:])
             messages.append({"role": "user", "content":
                 f"exit={rc}\n{obs}\n\nStep {steps_used}/{args.steps}. Next command?"})
             conv.append({"role": "observation", "content": f"exit={rc}\n{obs}"})

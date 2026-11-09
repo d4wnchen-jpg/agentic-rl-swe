@@ -32,22 +32,8 @@ import time
 import uuid
 
 GIT = ["git", "-c", "user.email=r@local", "-c", "user.name=repair"]
-SYSTEM = ("You are an autonomous software engineer fixing a bug in a repository at /testbed. "
-          "A previous attempt left the repository partially modified; your job is to make it "
-          "pass the hidden acceptance tests. You can run bash commands, and edits to files "
-          "under /testbed persist. Reply with EXACTLY ONE ```bash code block (multi-line "
-          "scripts and heredocs are allowed), then wait for its output. "
-          "When you believe the fix is complete, run `git -C /testbed diff` and then "
-          "```bash\necho DONE\n``` and stop.")
-SYSTEM_FORCED = ("You are an autonomous software engineer fixing a bug in a repository at /testbed. "
-          "A previous attempt left the repository partially modified; your job is to make it "
-          "pass the hidden acceptance tests. You can run bash commands, and edits to files "
-          "under /testbed persist. Reply with EXACTLY ONE ```bash code block (multi-line "
-          "scripts and heredocs are allowed), then wait for its output. "
-          "You MUST modify a source file under /testbed within your first TWO commands; "
-          "files written under /tmp are scratch and do NOT count as a fix. "
-          "When you believe the fix is complete, run `git -C /testbed diff` and then "
-          "```bash\necho DONE\n``` and stop.")
+SYSTEM = ("You are a helpful assistant that can interact with a computer shell to solve "
+          "programming tasks.")
 
 
 def sh(args, cwd=None, timeout=600, input_text=None):
@@ -152,12 +138,12 @@ def call_llm(messages, model):
     return resp.choices[0].message.content, resp.usage.total_tokens if resp.usage else 0
 
 
-def parse_command(text):
-    # 保留完整多行脚本（heredoc 会被截断，是旧版最大瓶颈）
-    m = re.search(r"```bash\s*\n(.*?)```", text, re.S)
-    if not m:
-        m = re.search(r"```\s*\n(.*?)```", text, re.S)
-    return m.group(1).strip() if m else ""
+def parse_commands(text):
+    # mini-swe style: one response may contain multiple bash tool calls
+    blocks = re.findall(r"```bash\s*\n(.*?)```", text, re.S)
+    if not blocks:
+        blocks = re.findall(r"```\s*\n(.*?)```", text, re.S)
+    return [b.strip() for b in blocks if b.strip()]
 
 
 def eval_in_container(cname, task, base_sha, test_patch, rerun=0):
@@ -369,49 +355,99 @@ def main():
             hint_block = build_legal_hint(cname, task.get("test_patch", ""))
         elif args.hint == "oracle":
             hint_block = build_oracle_hint(ev_start, task.get("test_patch", ""))
-        prompt_mode = os.environ.get("REPAIR_PROMPT", "natural").lower()
-        sys_text = SYSTEM_FORCED if prompt_mode == "forced" else SYSTEM
         messages = [
-            {"role": "system", "content": sys_text},
+            {"role": "system", "content": SYSTEM},
             {"role": "user", "content":
-                f"Issue:\n{problem}\n\n"
-                f"You are continuing from a partially completed attempt. "
-                f"Current uncommitted diff (truncated):\n{diff_before[:6000] or '(empty)'}\n\n"
-                f"Steps: you have at most {args.steps} commands. "
-                f"Workflow: (1) inspect the relevant file(s); (2) edit the source under "
-                f"/testbed; (3) verify with `git -C /testbed diff` and any tests you can run."
-                + (" You must have modified the repository within your first two commands."
-                   if prompt_mode == "forced" else "")
-                + (f"\n\nAdditional information:\n{hint_block}" if hint_block else "")}]
+                "<pr_description>\n"
+                f"Consider the following PR description:\n{problem}\n"
+                "</pr_description>\n\n"
+                "<instructions>\n"
+                "# Task Instructions\n\n"
+                "## Overview\n"
+                "You're a software engineer interacting continuously with a computer by "
+                "submitting commands. You are continuing a previous attempt that left the "
+                "repository at /testbed partially modified; your task is to make the "
+                "changes needed to satisfy the PR description, in a way that is general "
+                "and consistent with the codebase. Treat the current working tree as "
+                "your starting point.\n\n"
+                "<IMPORTANT>This is an interactive process where you will think and issue "
+                "AT LEAST ONE command, see the result, then think and issue your next "
+                "command(s).</IMPORTANT>\n\n"
+                "For each response:\n\n"
+                "1. Include a THOUGHT section explaining your reasoning and what you're "
+                "trying to accomplish\n"
+                "2. Provide one or more bash tool calls to execute\n\n"
+                "## Important Boundaries\n\n"
+                "- MODIFY: Regular source code files in /testbed (this is the working "
+                "directory for all your subsequent commands)\n"
+                "- DO NOT MODIFY: Tests, configuration files (pyproject.toml, setup.cfg, "
+                "etc.)\n\n"
+                "## Recommended Workflow\n\n"
+                "1. Analyze the codebase, including the uncommitted diff left by the "
+                "previous attempt\n"
+                "2. Create a script to reproduce the issue\n"
+                "3. Edit the source code to resolve the issue\n"
+                "4. Verify your fix works by running your script again\n"
+                "5. Test edge cases to ensure your fix is robust\n\n"
+                "## Command Execution Rules\n\n"
+                "1. You issue at least one command\n"
+                "2. The system executes the command(s) in a subshell\n"
+                "3. You see the result(s)\n"
+                "4. You write your next command(s)\n\n"
+                "Your response MUST include AT LEAST ONE bash tool call. You can make "
+                "MULTIPLE tool calls in a single response when the commands are "
+                "independent. Directory or environment variable changes are not "
+                "persistent: every action is executed in a new subshell.\n\n"
+                "## Current State\n\n"
+                "Uncommitted diff left by the previous attempt (truncated):\n"
+                f"{diff_before[:6000] or '(empty)'}\n\n"
+                "## Step Budget\n\n"
+                f"You have at most {args.steps} responses (each may contain multiple "
+                "commands). When you believe the fix is complete, run "
+                "`git -C /testbed diff` and then submit by replying with exactly:\n"
+                "```bash\necho DONE\n```\n"
+                + (f"\n## Additional information\n\n{hint_block}\n" if hint_block else "")
+                + "</instructions>"}]
         steps_used = 0
+        commands_executed = 0
         parse_fail = 0
         conv = []
         for i in range(args.steps):
             text, tk = call_llm(messages, args.model)
             tokens += tk
             conv.append({"role": "assistant", "content": text})
-            cmd = parse_command(text)
-            if not cmd:
+            cmds = parse_commands(text)
+            if not cmds:
                 parse_fail += 1
                 messages.append({"role": "assistant", "content": text})
                 messages.append({"role": "user", "content":
-                    "Your reply must contain EXACTLY ONE ```bash ...``` block with one "
-                    "command, and nothing else."})
+                    "Your reply must contain at least one ```bash ...``` block with your "
+                    "command(s), and nothing else outside the reasoning text."})
                 continue
             messages.append({"role": "assistant", "content": text})
-            if "echo DONE" in cmd:
-                break
-            rc, out, err = dc(cname, cmd, timeout=600)
             steps_used += 1
-            raw = out + err
-            if len(raw) <= 10000:
-                obs = raw
-            else:
-                obs = (raw[:5000] + f"\n... [{len(raw) - 10000} chars elided] ...\n"
-                       + raw[-5000:])
+            obs_parts = []
+            done = False
+            for cmd in cmds:
+                if "echo DONE" in cmd:
+                    done = True
+                    obs_parts.append("(submitted)")
+                    break
+                rc, out, err = dc(cname, cmd, timeout=600)
+                commands_executed += 1
+                raw = out + err
+                if len(raw) <= 10000:
+                    obs = raw
+                else:
+                    obs = (raw[:5000] + f"\n... [{len(raw) - 10000} chars elided] ...\n"
+                           + raw[-5000:])
+                obs_parts.append(f"exit={rc}\n{obs}")
+                conv.append({"role": "observation", "content": f"exit={rc}\n{obs}"})
+            if done:
+                break
             messages.append({"role": "user", "content":
-                f"exit={rc}\n{obs}\n\nStep {steps_used}/{args.steps}. Next command?"})
-            conv.append({"role": "observation", "content": f"exit={rc}\n{obs}"})
+                "\n\n".join(obs_parts)
+                + f"\n\nStep {steps_used}/{args.steps}. Next command(s)?"})
         dc(cname, f"chown -R {os.getuid()}:{os.getgid()} /testbed")
         _, st, _ = dc(cname, "cd /testbed && git status --short | head -30")
         edited_files = []
@@ -429,11 +465,12 @@ def main():
               "target_turn": target, "n_turns_total": T,
               "harmful_turns": harmful, "teacher_step": teacher_step,
               "steps_budget": args.steps, "steps_used": steps_used,
+              "commands_executed": commands_executed,
               "parse_failures": parse_fail, "tokens": tokens, **ev,
               "start_n_fail": ev_start["n_fail"],
               "start_f2p_pass": ev_start["f2p_pass"],
               "start_failing_nodes": ev_start["failing_nodes"],
-              "revert_mode": revert_mode, "hint": args.hint, "prompt_mode": prompt_mode,
+              "revert_mode": revert_mode, "hint": args.hint, "prompt_mode": "miniswe",
               "edited_files": edited_files[:30], "did_edit": bool(edited_files)}
     try:
         json.dump(conv, open(args.out + ".conv.json", "w"), ensure_ascii=False, indent=1)

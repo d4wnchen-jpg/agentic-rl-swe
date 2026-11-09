@@ -1,0 +1,66 @@
+[
+ {
+  "role": "assistant",
+  "content": "```bash\ncat /testbed/src/flask/cli.py | head -100\n```"
+ },
+ {
+  "role": "observation",
+  "content": "exit=0\nfrom __future__ import annotations\n\nimport ast\nimport inspect\nimport os\nimport platform\nimport re\nimport sys\nimport traceback\nimport typing as t\nfrom functools import update_wrapper\nfrom operator import attrgetter\n\nimport click\nfrom click.core import ParameterSource\nfrom werkzeug import run_simple\nfrom werkzeug.serving import is_running_from_reloader\nfrom werkzeug.utils import import_string\n\nfrom .globals import current_app\nfrom .helpers import get_debug_flag\nfrom .helpers import get_load_dotenv\n\nif t.TYPE_CHECKING:\n    from .app import Flask\n\n\nclass NoAppException(click.UsageError):\n    \"\"\"Raised if an application cannot be found or loaded.\"\"\"\n\n\ndef find_best_app(module):\n    \"\"\"Given a module instance this tries to find the best possible\n    application in the module or raises an exception.\n    \"\"\"\n    from . import Flask\n\n    # Search for the most common names first.\n    for attr_name in (\"app\", \"application\"):\n        app = getattr(module, attr_name, None)\n\n        if isinstance(app, Flask):\n            return app\n\n    # Otherwise find the only object that is a Flask instance.\n    matches = [v for v in module.__dict__.values() if isinstance(v, Flask)]\n\n    if len(matches) == 1:\n        return matches[0]\n    elif len(matches) > 1:\n        raise NoAppException(\n            \"Detected multiple Flask applications in module\"\n            f\" '{module.__name__}'. Use '{module.__name__}:name'\"\n            \" to specify the correct one.\"\n        )\n\n    # Search for app factory functi"
+ },
+ {
+  "role": "assistant",
+  "content": "```bash\ncat /testbed/src/flask/cli.py | sed -n '980,1070p'\n```"
+ },
+ {
+  "role": "observation",
+  "content": "exit=0\n            # flask.__main__. Use the shell context instead.\n            readline.set_completer(Completer(ctx).complete)\n\n        interactive_hook()\n\n    code.interact(banner=banner, local=ctx)\n\n\n@click.command(\"routes\", short_help=\"Show the routes for the app.\")\n@click.option(\n    \"--sort\",\n    \"-s\",\n    type=click.Choice((\"endpoint\", \"methods\", \"rule\", \"match\", \"domain\")),\n    default=\"endpoint\",\n    help=(\n        'Method to sort routes by. \"match\" is the order that Flask will match '\n        \"routes when dispatching a request.\"\n    ),\n)\n@click.option(\"--all-methods\", is_flag=True, help=\"Show HEAD and OPTIONS methods.\")\n@with_appcontext\ndef routes_command(sort: str, all_methods: bool) -> None:\n    \"\"\"Show all registered routes with endpoints and methods.\"\"\"\n\n    rules = list(current_app.url_map.iter_rules())\n    if not rules:\n        click.echo(\"No routes were registered.\")\n        return\n\n    ignored_methods = set(() if all_methods else (\"HEAD\", \"OPTIONS\"))\n\n    if sort in (\"endpoint\", \"rule\"):\n        rules = sorted(rules, key=attrgetter(sort))\n    elif sort == \"methods\":\n        rules = sorted(rules, key=lambda rule: sorted(rule.methods))  # type: ignore\n    elif sort == \"domain\":\n        # Group by subdomain first, then by endpoint\n        from collections import defaultdict\n        subdomain_groups = defaultdict(list)\n        for rule in rules:\n            subdomain = rule.subdomain or \"\"\n            subdomain_groups[subdomain].append(rule)\n        # Sort subdomains a"
+ },
+ {
+  "role": "assistant",
+  "content": "```bash\ncat /testbed/src/flask/cli.py | sed -n '1070,1130p'\n```"
+ },
+ {
+  "role": "observation",
+  "content": "exit=0\n)\n\n\ndef main() -> None:\n    cli.main()\n\n\nif __name__ == \"__main__\":\n    main()\n"
+ },
+ {
+  "role": "assistant",
+  "content": "```bash\ncat /testbed/src/flask/cli.py | sed -n '1010,1070p'\n```"
+ },
+ {
+  "role": "observation",
+  "content": "exit=0\n\n    if sort in (\"endpoint\", \"rule\"):\n        rules = sorted(rules, key=attrgetter(sort))\n    elif sort == \"methods\":\n        rules = sorted(rules, key=lambda rule: sorted(rule.methods))  # type: ignore\n    elif sort == \"domain\":\n        # Group by subdomain first, then by endpoint\n        from collections import defaultdict\n        subdomain_groups = defaultdict(list)\n        for rule in rules:\n            subdomain = rule.subdomain or \"\"\n            subdomain_groups[subdomain].append(rule)\n        # Sort subdomains and then endpoints within each subdomain\n        sorted_subdomains = sorted(subdomain_groups.keys())\n        sorted_rules = []\n        for subdomain in sorted_subdomains:\n            sorted_rules.extend(sorted(subdomain_groups[subdomain], key=attrgetter(\"endpoint\")))\n        rules = sorted_rules\n\n    rule_methods = [\n        \", \".join(sorted(rule.methods - ignored_methods))  # type: ignore\n        for rule in rules\n    ]\n\n    # Determine domain for each rule\n    server_name = current_app.config.get(\"SERVER_NAME\", \"\") or \"\"\n    domains = []\n    for rule in rules:\n        subdomain = rule.subdomain\n        if subdomain:\n            domains.append(f\"{subdomain}.{server_name}\")\n        else:\n            domains.append(server_name)\n\n    headers = (\"Domain\", \"Endpoint\", \"Methods\", \"Rule\")\n    widths = (\n        max(len(domain) for domain in domains),\n        max(len(rule.endpoint) for rule in rules),\n        max(len(methods) for methods in rule_methods),\n        max(le"
+ },
+ {
+  "role": "assistant",
+  "content": "```bash\ncat /testbed/src/flask/cli.py | sed -n '1070,1130p'\n```"
+ },
+ {
+  "role": "observation",
+  "content": "exit=0\n)\n\n\ndef main() -> None:\n    cli.main()\n\n\nif __name__ == \"__main__\":\n    main()\n"
+ },
+ {
+  "role": "assistant",
+  "content": "```bash\ncat /testbed/src/flask/cli.py | sed -n '1030,1070p'\n```"
+ },
+ {
+  "role": "observation",
+  "content": "exit=0\n        \", \".join(sorted(rule.methods - ignored_methods))  # type: ignore\n        for rule in rules\n    ]\n\n    # Determine domain for each rule\n    server_name = current_app.config.get(\"SERVER_NAME\", \"\") or \"\"\n    domains = []\n    for rule in rules:\n        subdomain = rule.subdomain\n        if subdomain:\n            domains.append(f\"{subdomain}.{server_name}\")\n        else:\n            domains.append(server_name)\n\n    headers = (\"Domain\", \"Endpoint\", \"Methods\", \"Rule\")\n    widths = (\n        max(len(domain) for domain in domains),\n        max(len(rule.endpoint) for rule in rules),\n        max(len(methods) for methods in rule_methods),\n        max(len(rule.rule) for rule in rules),\n    )\n    widths = [max(len(h), w) for h, w in zip(headers, widths)]\n    row = \"{{0:<{0}}}  {{1:<{1}}}  {{2:<{2}}}  {{3:<{3}}}\".format(*widths)\n\n    click.echo(row.format(*headers).strip())\n    click.echo(row.format(*(\"-\" * width for width in widths)))\n\n    for rule, methods, domain in zip(rules, rule_methods, domains):\n        click.echo(row.format(domain, rule.endpoint, methods, rule.rule).rstrip())\n\n\ncli = FlaskGroup(\n    name=\"flask\",\n    help=\"\"\"\\\nA general utility script for Flask applications.\n\nAn application to load must be given with the '--app' option,\n'FLASK_APP' environment variable, or with a 'wsgi.py' or 'app.py' file\nin the current directory.\n\"\"\",\n)\n"
+ },
+ {
+  "role": "assistant",
+  "content": "```bash\ncat /testbed/tests/test_cli.py | sed -n '430,510p'\n```"
+ },
+ {
+  "role": "observation",
+  "content": "exit=0\n\n\nclass TestRoutes:\n    @pytest.fixture\n    def app(self):\n        app = Flask(__name__)\n        app.testing = True\n\n        @app.route(\"/get_post/<int:x>/<int:y>\", methods=[\"GET\", \"POST\"])\n        def yyy_get_post(x, y):\n            pass\n\n        @app.route(\"/zzz_post\", methods=[\"POST\"])\n        def aaa_post():\n            pass\n\n        return app\n\n    @pytest.fixture\n    def invoke(self, app, runner):\n        cli = FlaskGroup(create_app=lambda: app)\n        return partial(runner.invoke, cli)\n\n    @pytest.fixture\n    def invoke_no_routes(self, runner):\n        def create_app():\n            app = Flask(__name__, static_folder=None)\n            app.testing = True\n\n            return app\n\n        cli = FlaskGroup(create_app=create_app)\n        return partial(runner.invoke, cli)\n\n    def expect_order(self, order, output):\n        # skip the header and match the start of each row\n        for expect, line in zip(order, output.splitlines()[2:]):\n            # do this instead of startswith for nicer pytest output\n            assert line[: len(expect)] == expect\n\n    def test_simple(self, invoke):\n        result = invoke([\"routes\"])\n        assert result.exit_code == 0\n        self.expect_order([\"aaa_post\", \"static\", \"yyy_get_post\"], result.output)\n\n    def test_sort(self, app, invoke):\n        default_output = invoke([\"routes\"]).output\n        endpoint_output = invoke([\"routes\", \"-s\", \"endpoint\"]).output\n        assert default_output == endpoint_output\n        self.expect_order(\n   "
+ },
+ {
+  "role": "assistant",
+  "content": "```bash\ncat /testbed/tests/test_cli.py | sed -n '500,550p'\n```"
+ },
+ {
+  "role": "observation",
+  "content": "exit=0\n\n\ndef dotenv_not_available():\n    try:\n        import dotenv  # noqa: F401\n    except ImportError:\n        return True\n\n    return False\n\n\nneed_dotenv = pytest.mark.skipif(\n    dotenv_not_available(), reason=\"dotenv is not installed\"\n)\n\n\n@need_dotenv\ndef test_load_dotenv(monkeypatch):\n    # can't use monkeypatch.delitem since the keys don't exist yet\n    for item in (\"FOO\", \"BAR\", \"SPAM\", \"HAM\"):\n        monkeypatch._setitem.append((os.environ, item, notset))\n\n    monkeypatch.setenv(\"EGGS\", \"3\")\n    monkeypatch.chdir(test_path)\n    assert load_dotenv()\n    assert Path.cwd() == test_path\n    # .flaskenv doesn't overwrite .env\n    assert os.environ[\"FOO\"] == \"env\"\n    # set only in .flaskenv\n    assert os.environ[\"BAR\"] == \"bar\"\n    # set only in .env\n    assert os.environ[\"SPAM\"] == \"1\"\n    # set manually, files don't overwrite\n    assert os.environ[\"EGGS\"] == \"3\"\n    # test env file encoding\n    assert os.environ[\"HAM\"] == \"火腿\"\n    # Non existent file should not load\n    assert not load_dotenv(\"non-existent-file\")\n\n\n@need_dotenv\ndef test_dotenv_path(monkeypatch):\n    for item in (\"FOO\", \"BAR\", \"EGGS\"):\n        monkeypatch._setitem.append((os.environ, item, notset))\n\n    load_dotenv(test_path / \".flaskenv\")\n    assert Path.cwd() == cwd\n    assert \"FOO\" in os.environ\n\n\ndef test_dotenv_optional(monkeypatch):\n"
+ }
+]

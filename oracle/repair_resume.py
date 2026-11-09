@@ -37,6 +37,13 @@ SYSTEM = ("You are an autonomous software engineer fixing a bug in a repository 
           "pass the hidden acceptance tests. You can run bash commands, and edits to files "
           "under /testbed persist. Reply with EXACTLY ONE ```bash code block (multi-line "
           "scripts and heredocs are allowed), then wait for its output. "
+          "When you believe the fix is complete, run `git -C /testbed diff` and then "
+          "```bash\necho DONE\n``` and stop.")
+SYSTEM_FORCED = ("You are an autonomous software engineer fixing a bug in a repository at /testbed. "
+          "A previous attempt left the repository partially modified; your job is to make it "
+          "pass the hidden acceptance tests. You can run bash commands, and edits to files "
+          "under /testbed persist. Reply with EXACTLY ONE ```bash code block (multi-line "
+          "scripts and heredocs are allowed), then wait for its output. "
           "You MUST modify a source file under /testbed within your first TWO commands; "
           "files written under /tmp are scratch and do NOT count as a fix. "
           "When you believe the fix is complete, run `git -C /testbed diff` and then "
@@ -362,16 +369,19 @@ def main():
             hint_block = build_legal_hint(cname, task.get("test_patch", ""))
         elif args.hint == "oracle":
             hint_block = build_oracle_hint(ev_start, task.get("test_patch", ""))
+        prompt_mode = os.environ.get("REPAIR_PROMPT", "natural").lower()
+        sys_text = SYSTEM_FORCED if prompt_mode == "forced" else SYSTEM
         messages = [
-            {"role": "system", "content": SYSTEM},
+            {"role": "system", "content": sys_text},
             {"role": "user", "content":
                 f"Issue:\n{problem}\n\n"
                 f"You are continuing from a partially completed attempt. "
                 f"Current uncommitted diff (truncated):\n{diff_before[:6000] or '(empty)'}\n\n"
                 f"Steps: you have at most {args.steps} commands. "
-                f"Workflow: (1) inspect the relevant file(s); (2) immediately edit the source "
-                f"under /testbed; (3) verify with `git -C /testbed diff` and any tests you can "
-                f"run. You must have modified the repository within your first two commands."
+                f"Workflow: (1) inspect the relevant file(s); (2) edit the source under "
+                f"/testbed; (3) verify with `git -C /testbed diff` and any tests you can run."
+                + (" You must have modified the repository within your first two commands."
+                   if prompt_mode == "forced" else "")
                 + (f"\n\nAdditional information:\n{hint_block}" if hint_block else "")}]
         steps_used = 0
         parse_fail = 0
@@ -423,7 +433,7 @@ def main():
               "start_n_fail": ev_start["n_fail"],
               "start_f2p_pass": ev_start["f2p_pass"],
               "start_failing_nodes": ev_start["failing_nodes"],
-              "revert_mode": revert_mode, "hint": args.hint,
+              "revert_mode": revert_mode, "hint": args.hint, "prompt_mode": prompt_mode,
               "edited_files": edited_files[:30], "did_edit": bool(edited_files)}
     try:
         json.dump(conv, open(args.out + ".conv.json", "w"), ensure_ascii=False, indent=1)
